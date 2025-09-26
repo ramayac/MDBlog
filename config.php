@@ -9,16 +9,15 @@
 
 return [
     // Basic blog settings
-    'blog_name' => 'MDBlog',
-    'blog_description' => 'A simple markdown-based blog system',
+    'blog_name' => 'Rodrigo A.',
     
     // Header and footer content
-    'header_content' => '*A simple static blog powered by Markdown and PHP*',
-    'footer_content' => '*Built using PHP and Markdown 💻*',
+    'header_content' => 'Code forward ⏩!!!',
+    'footer_content' => '*Built with [MDBlog](https://github.com/ramayac/MDBlog). 💻*',
     
     // Content settings
     'posts_per_page' => 25,
-    'excerpt_length' => 150,
+    'excerpt_length' => 200,
     
     // Performance and debugging
     'show_render_time' => true, // Set to false to hide render time comments
