@@ -10,7 +10,6 @@
 return [
     // Basic blog settings
     'blog_name' => 'MDBlog',
-    'blog_description' => 'A simple markdown-based blog system',
     
     // Header and footer content
     'header_content' => '*A simple static blog powered by Markdown and PHP*',
