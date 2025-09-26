@@ -87,6 +87,11 @@ class Blog {
         return '';
     }
     
+    public function parseMarkdown($content) {
+        $parsed = $this->parser->parse($content);
+        return $parsed['html'];
+    }
+    
     /**
      * Create a post array from a markdown file
      */

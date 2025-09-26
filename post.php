@@ -39,9 +39,8 @@ if (!$post) {
     exit;
 }
 
-// Get Menu and footer
+// Get Menu
 $menu = $blog->getInclude('menu.md');
-$footer = $blog->getInclude('footer.md');
 
 // Check for custom JavaScript files
 $jsFiles = [];
@@ -98,9 +97,9 @@ include 'includes/head.php';
             </nav>
         </main>
         
-        <?php if ($footer): ?>
+        <?php if (!empty($config['footer_content'])): ?>
         <footer class="site-footer">
-            <?php echo $footer; ?>
+            <?php echo $blog->parseMarkdown($config['footer_content']); ?>
         </footer>
         <?php endif; ?>
     </div>

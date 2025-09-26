@@ -12,6 +12,10 @@ return [
     'blog_name' => 'MDBlog',
     'blog_description' => 'A simple markdown-based blog system',
     
+    // Header and footer content
+    'header_content' => '*A simple static blog powered by Markdown and PHP*',
+    'footer_content' => '*Built using PHP and Markdown 💻*',
+    
     // Content settings
     'posts_per_page' => 25,
     'excerpt_length' => 150,

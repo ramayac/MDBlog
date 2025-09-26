@@ -9,15 +9,16 @@ Made by @ramayac
 ## Features
 
 - Write posts in Markdown
-- YAML front matter support
 - Built-in pagination
 - Code syntax highlighting
 - Custom JavaScript support
 - Responsive design
+- Support for Dark/Light OS selection
 
 ## Quick Start
 
 1. Upload files to a PHP-enabled web server
+2. Update config.php for blog name, etc
 2. Create `.md` files in the `posts` directory
 3. That's it!
 

@@ -19,10 +19,8 @@ $data = $blog->getPosts($page);
 $posts = $data['posts'];
 $pagination = $data['pagination'];
 
-// Get header and footer
-$header = $blog->getInclude('header.md');
+// Get menu
 $menu = $blog->getInclude('menu.md');
-$footer = $blog->getInclude('footer.md');
 
 ?>
 <?php
@@ -36,9 +34,14 @@ include 'includes/head.php';
             <?php echo $menu; ?>
         </nav>
         <?php endif; ?>
-        <?php if ($header): ?>
+        
+        <div class="blog-title">
+            <h1><?php echo htmlspecialchars($config['blog_name']); ?></h1>
+        </div>
+        
+        <?php if (!empty($config['header_content'])): ?>
         <header class="site-header">
-            <?php echo $header; ?>
+            <?php echo $blog->parseMarkdown($config['header_content']); ?>
         </header>
         <?php endif; ?>
         
@@ -94,9 +97,9 @@ include 'includes/head.php';
             <?php endif; ?>
         </main>
         
-        <?php if ($footer): ?>
+        <?php if (!empty($config['footer_content'])): ?>
         <footer class="site-footer">
-            <?php echo $footer; ?>
+            <?php echo $blog->parseMarkdown($config['footer_content']); ?>
             <?php include 'includes/debug.php'; ?>
         </footer>
         <?php endif; ?>
