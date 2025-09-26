@@ -57,10 +57,12 @@ include 'includes/head.php';
             <?php endif; ?>
         </div>
         
-        <?php if (!empty($config['header_content'])): ?>
-        <header class="site-header">
-            <?php echo $blog->parseMarkdown($config['header_content']); ?>
-        </header>
+        <?php if ($currentCategory): ?>
+            <!-- Category header content is already displayed in the category title above -->
+        <?php elseif (!empty($config['header_content'])): ?>
+            <header class="site-header">
+                <?php echo $blog->parseMarkdown($config['header_content']); ?>
+            </header>
         <?php endif; ?>
         
         <main class="main-content">
