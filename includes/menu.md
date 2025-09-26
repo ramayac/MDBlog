@@ -1,1 +1,1 @@
-[Home](index.php) | [About](post.php?slug=about)
+[Home](index.php) | [Sr. Byte](index.php?category=srbyte) | [About](post.php?slug=about)

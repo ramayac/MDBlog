@@ -19,11 +19,25 @@ return [
     'posts_per_page' => 25,
     'excerpt_length' => 200,
     
+    // Category configuration
+    'categories' => [
+        'srbyte' => [
+            'blog_name' => 'Sr. Byte',
+            'header_content' => '(2007-2010) Tecnologia para todos.',
+            'folder' => 'srbyte',
+            'index' => false, //shows it in the main index
+        ],
+    ],
+    
+    // Enable/disable uncategorized posts (posts in root posts directory)
+    'show_uncategorized' => true,
+    'uncategorized_label' => 'General',
+    
     // Performance and debugging
     'show_render_time' => true, // Set to false to hide render time comments
     
     // Directory settings
-    'posts_dir' => 'posts',
+    'posts_dir' => 'posts', // Base directory for all posts and category folders
     'includes_dir' => 'includes',
     
     // Date format (used for file modification dates)

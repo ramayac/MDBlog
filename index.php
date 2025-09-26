@@ -10,12 +10,22 @@ require_once 'includes/Blog.php';
 
 $blog = new Blog();
 
-// Get current page from URL parameter
+// Get category and page from URL parameters
+$categorySlug = isset($_GET['category']) ? $_GET['category'] : null;
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $page = max(1, $page); // Ensure page is at least 1
 
-// Get posts for current page
-$data = $blog->getPosts($page);
+// Validate category exists
+$currentCategory = null;
+if ($categorySlug) {
+    $currentCategory = $blog->getCategoryBySlug($categorySlug);
+    if (!$currentCategory) {
+        $categorySlug = null;
+    }
+}
+
+// Get posts for current page and category
+$data = $blog->getPosts($page, $categorySlug);
 $posts = $data['posts'];
 $pagination = $data['pagination'];
 
@@ -24,7 +34,7 @@ $menu = $blog->getInclude('menu.md');
 
 ?>
 <?php
-$pageTitle = $config['blog_name'];
+$pageTitle = $currentCategory ? $config['blog_name'] . ' - ' . $currentCategory['blog_name'] : $config['blog_name'];
 include 'includes/head.php';
 ?>
 <body>
@@ -37,6 +47,14 @@ include 'includes/head.php';
         
         <div class="blog-title">
             <h1><?php echo htmlspecialchars($config['blog_name']); ?></h1>
+            <?php if ($currentCategory): ?>
+                <h2 class="category-title">
+                    <?php echo htmlspecialchars($currentCategory['blog_name']); ?>
+                    <?php if (!empty($currentCategory['header_content'])): ?>
+                        <small><?php echo htmlspecialchars($currentCategory['header_content']); ?></small>
+                    <?php endif; ?>
+                </h2>
+            <?php endif; ?>
         </div>
         
         <?php if (!empty($config['header_content'])): ?>
@@ -56,7 +74,7 @@ include 'includes/head.php';
                     <?php foreach ($posts as $post): ?>
                         <article class="post-preview">
                             <h2 class="post-title">
-                                <a href="post.php?slug=<?php echo urlencode($post['slug']); ?>">
+                                <a href="post.php?slug=<?php echo urlencode($post['slug']); ?><?php echo $categorySlug ? '&category=' . urlencode($categorySlug) : ''; ?>">
                                     <?php echo htmlspecialchars($post['title']); ?>
                                 </a>
                             </h2>
@@ -64,11 +82,16 @@ include 'includes/head.php';
                                 <time datetime="<?php echo $post['date']; ?>">
                                     <?php echo date('F j, Y', strtotime($post['date'])); ?>
                                 </time>
+                                <?php if ($post['category']): ?>
+                                    <span class="post-category">
+                                        in <a href="?category=<?php echo urlencode($post['category_slug']); ?>"><?php echo htmlspecialchars($post['category']['blog_name']); ?></a>
+                                    </span>
+                                <?php endif; ?>
                             </div>
                             <div class="post-excerpt">
                                 <?php echo $post['excerpt']; ?>
                             </div>
-                            <a href="post.php?slug=<?php echo urlencode($post['slug']); ?>" class="read-more">
+                            <a href="post.php?slug=<?php echo urlencode($post['slug']); ?><?php echo $categorySlug ? '&category=' . urlencode($categorySlug) : ''; ?>" class="read-more">
                                 Read more →
                             </a>
                         </article>
@@ -78,7 +101,7 @@ include 'includes/head.php';
                 <?php if ($pagination['total'] > 1): ?>
                     <nav class="pagination">
                         <?php if ($pagination['hasPrev']): ?>
-                            <a href="?page=<?php echo $pagination['prev']; ?>" class="pagination-link prev">
+                            <a href="?<?php echo $categorySlug ? 'category=' . urlencode($categorySlug) . '&' : ''; ?>page=<?php echo $pagination['prev']; ?>" class="pagination-link prev">
                                 ← Previous
                             </a>
                         <?php endif; ?>
@@ -88,7 +111,7 @@ include 'includes/head.php';
                         </span>
                         
                         <?php if ($pagination['hasNext']): ?>
-                            <a href="?page=<?php echo $pagination['next']; ?>" class="pagination-link next">
+                            <a href="?<?php echo $categorySlug ? 'category=' . urlencode($categorySlug) . '&' : ''; ?>page=<?php echo $pagination['next']; ?>" class="pagination-link next">
                                 Next →
                             </a>
                         <?php endif; ?>
