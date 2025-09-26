@@ -3,6 +3,9 @@
 // Start timing
 $start_time = microtime(true);
 
+// Load configuration
+$config = require 'config.php';
+
 require_once 'includes/Blog.php';
 
 $blog = new Blog();
@@ -22,14 +25,10 @@ $menu = $blog->getInclude('menu.md');
 $footer = $blog->getInclude('footer.md');
 
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MDBlog</title>
-    <link rel="stylesheet" href="assets/css/style.css">
-</head>
+<?php
+$pageTitle = $config['blog_name'];
+include 'includes/head.php';
+?>
 <body>
     <div class="container">
         <?php if ($menu): ?>
@@ -42,7 +41,6 @@ $footer = $blog->getInclude('footer.md');
             <?php echo $header; ?>
         </header>
         <?php endif; ?>
-        
         
         <main class="main-content">
             <?php if (empty($posts)): ?>
@@ -99,15 +97,9 @@ $footer = $blog->getInclude('footer.md');
         <?php if ($footer): ?>
         <footer class="site-footer">
             <?php echo $footer; ?>
+            <?php include 'includes/debug.php'; ?>
         </footer>
         <?php endif; ?>
     </div>
-    
-    <?php
-    // Calculate render time
-    $end_time = microtime(true);
-    $render_time = round(($end_time - $start_time) * 1000, 2);
-    ?>
-    <!-- Page rendered in <?php echo $render_time; ?>ms -->
 </body>
 </html>

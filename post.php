@@ -3,6 +3,9 @@
 // Start timing
 $start_time = microtime(true);
 
+// Load configuration
+$config = require 'config.php';
+
 require_once 'includes/Blog.php';
 
 $blog = new Blog();
@@ -24,8 +27,7 @@ if (!$post) {
     exit;
 }
 
-// Get header and footer
-$header = $blog->getInclude('header.md');
+// Get Menu and footer
 $menu = $blog->getInclude('menu.md');
 $footer = $blog->getInclude('footer.md');
 
@@ -36,18 +38,11 @@ if (isset($post['frontMatter']['js'])) {
 }
 
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo htmlspecialchars($post['title']); ?> - MDBlog</title>
-    <link rel="stylesheet" href="assets/css/style.css">
-    
-    <?php if (isset($post['frontMatter']['description'])): ?>
-    <meta name="description" content="<?php echo htmlspecialchars($post['frontMatter']['description']); ?>">
-    <?php endif; ?>
-</head>
+<?php
+$pageTitle = htmlspecialchars($post['title']) . ' - ' . $config['blog_name'];
+$pageDescription = isset($post['frontMatter']['description']) ? $post['frontMatter']['description'] : '';
+include 'includes/head.php';
+?>
 <body>
     <div class="container">
         <?php if ($menu): ?>
@@ -55,13 +50,7 @@ if (isset($post['frontMatter']['js'])) {
             <?php echo $menu; ?>
         </nav>
         <?php endif; ?>
-        <?php if ($header): ?>
-        <header class="site-header">
-            <?php echo $header; ?>
-        </header>
-        <?php endif; ?>
-        
-        
+       
         <main class="main-content">
             <article class="post">
                 <header class="post-header">
@@ -108,13 +97,8 @@ if (isset($post['frontMatter']['js'])) {
         <?php if (file_exists('assets/js/' . $jsFile)): ?>
             <script src="assets/js/<?php echo htmlspecialchars($jsFile); ?>"></script>
         <?php endif; ?>
+        <?php include 'includes/debug.php'; ?>
     <?php endforeach; ?>
     
-    <?php
-    // Calculate render time
-    $end_time = microtime(true);
-    $render_time = round(($end_time - $start_time) * 1000, 2);
-    ?>
-    <!-- Page rendered in <?php echo $render_time; ?>ms -->
 </body>
 </html>

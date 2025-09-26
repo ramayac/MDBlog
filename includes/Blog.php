@@ -3,26 +3,35 @@
 require_once 'includes/MarkdownParser.php';
 
 class Blog {
-    // Configuration constants
-    private const DEFAULT_POSTS_PER_PAGE = 25;
-    private const DEFAULT_EXCERPT_LENGTH = 150;
-    private const DEFAULT_DATE_FORMAT = 'Y-m-d';
-    
     // Regex patterns
     private const DATE_PREFIX_REGEX = '/^\d{4}-\d{2}-\d{2}-/';
     private const SLUG_CLEANUP_REGEX = '/[^a-z0-9]+/';
     private const WHITESPACE_CLEANUP_REGEX = '/\s+/';
     
+    private $config;
     private $postsDir;
     private $parser;
     private $postsPerPage;
     private $excerptLength;
+    private $dateFormat;
     
-    public function __construct($postsDir = 'posts', $postsPerPage = self::DEFAULT_POSTS_PER_PAGE, $excerptLength = self::DEFAULT_EXCERPT_LENGTH) {
-        $this->postsDir = $postsDir;
+    public function __construct($configFile = 'config.php') {
+        // Load configuration
+        $this->config = require $configFile;
+        
+        // Set properties from config
+        $this->postsDir = $this->config['posts_dir'];
         $this->parser = new MarkdownParser();
-        $this->postsPerPage = $postsPerPage;
-        $this->excerptLength = $excerptLength;
+        $this->postsPerPage = $this->config['posts_per_page'];
+        $this->excerptLength = $this->config['excerpt_length'];
+        $this->dateFormat = $this->config['date_format'];
+    }
+    
+    public function getConfig($key = null) {
+        if ($key === null) {
+            return $this->config;
+        }
+        return isset($this->config[$key]) ? $this->config[$key] : null;
     }
     
     public function getPosts($page = 1) {
@@ -129,15 +138,15 @@ class Blog {
      * Get file modification date formatted
      */
     private function getFileModificationDate($filename) {
-        return date(self::DEFAULT_DATE_FORMAT, filemtime($this->postsDir . '/' . $filename));
+        return date($this->dateFormat, filemtime($this->postsDir . '/' . $filename));
     }
     
     /**
      * Sort posts by date comparison function
      */
     private function sortPostsByDate($a, $b) {
-        $dateA = is_array($a['date']) ? (isset($a['date'][0]) ? $a['date'][0] : date(self::DEFAULT_DATE_FORMAT)) : $a['date'];
-        $dateB = is_array($b['date']) ? (isset($b['date'][0]) ? $b['date'][0] : date(self::DEFAULT_DATE_FORMAT)) : $b['date'];
+        $dateA = is_array($a['date']) ? (isset($a['date'][0]) ? $a['date'][0] : date($this->dateFormat)) : $a['date'];
+        $dateB = is_array($b['date']) ? (isset($b['date'][0]) ? $b['date'][0] : date($this->dateFormat)) : $b['date'];
         return strtotime($dateB) - strtotime($dateA);
     }
     

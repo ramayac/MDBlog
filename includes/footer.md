@@ -1,2 +1,2 @@
 
-*Built with ❤️ using PHP and Markdown*
+*Built using PHP and Markdown 💻*
