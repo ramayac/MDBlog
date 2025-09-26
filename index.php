@@ -18,6 +18,7 @@ $pagination = $data['pagination'];
 
 // Get header and footer
 $header = $blog->getInclude('header.md');
+$menu = $blog->getInclude('menu.md');
 $footer = $blog->getInclude('footer.md');
 
 ?>
@@ -31,11 +32,17 @@ $footer = $blog->getInclude('footer.md');
 </head>
 <body>
     <div class="container">
+        <?php if ($menu): ?>
+        <nav class="site-menu">
+            <?php echo $menu; ?>
+        </nav>
+        <?php endif; ?>
         <?php if ($header): ?>
         <header class="site-header">
             <?php echo $header; ?>
         </header>
         <?php endif; ?>
+        
         
         <main class="main-content">
             <?php if (empty($posts)): ?>

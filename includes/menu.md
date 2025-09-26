@@ -1,0 +1,1 @@
+[Home](index.php) | [About](post.php?slug=about)

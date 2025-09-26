@@ -94,6 +94,42 @@ body {
     font-style: italic;
 }
 
+/* Menu */
+.site-menu {
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--color-border);
+    margin-bottom: 2rem;
+}
+
+.site-menu p {
+    margin: 0;
+    text-align: center;
+}
+
+.site-menu a {
+    color: var(--color-text);
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    margin: 0 0.25rem;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    display: inline-block;
+}
+
+.site-menu a:hover {
+    background-color: var(--color-primary);
+    color: white;
+    text-decoration: none;
+}
+
+.site-menu a:visited {
+    color: var(--color-text);
+}
+
+.site-menu a:visited:hover {
+    color: white;
+}
+
 /* Footer */
 .site-footer {
     padding: 2rem 0;
