@@ -18,6 +18,18 @@ if (empty($slug)) {
     exit;
 }
 
+// Validate slug format - only allow alphanumeric, hyphens, underscores
+if (!preg_match('/^[a-zA-Z0-9_-]+$/', $slug)) {
+    header('Location: index.php');
+    exit;
+}
+
+// Additional length check
+if (strlen($slug) > 200) {
+    header('Location: index.php');
+    exit;
+}
+
 // Get post data
 $post = $blog->getPost($slug);
 

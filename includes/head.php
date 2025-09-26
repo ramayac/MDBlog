@@ -4,6 +4,11 @@ if (!isset($config)) {
     $config = require __DIR__ . '/../config.php';
 }
 
+// Content Security Policy
+if ($config['csp_enabled'] ?? true) {
+    header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;");
+}
+
 // Default values
 $pageTitle = $pageTitle ?? $config['blog_name'];
 $pageDescription = $pageDescription ?? $config['default_meta_description'];

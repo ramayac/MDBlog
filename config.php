@@ -28,6 +28,9 @@ return [
     
     // SEO and meta settings
     'default_meta_description' => '',
+    
+    // Content Security Policy
+    'csp_enabled' => true,
 
     // CSS theme
     'css_theme' => 'assets/css/default.style.css',

@@ -61,6 +61,11 @@ class Blog {
     }
     
     public function getPost($slug) {
+        // Validate slug to prevent path traversal
+        if (strpos($slug, '..') !== false || strpos($slug, '/') !== false || strpos($slug, '\\') !== false) {
+            return null;
+        }
+        
         $files = $this->getMarkdownFiles();
         
         foreach ($files as $file) {

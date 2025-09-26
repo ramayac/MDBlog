@@ -1,0 +1,14 @@
+# Protect markdown files from direct access
+<Files "*.md">
+    Order Allow,Deny
+    Deny from all
+</Files>
+
+# Prevent directory browsing
+Options -Indexes
+
+# Block access to any PHP files that might end up here
+<Files "*.php">
+    Order Allow,Deny
+    Deny from all
+</Files>

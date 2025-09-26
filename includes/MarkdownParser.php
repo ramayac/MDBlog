@@ -10,7 +10,8 @@ class MarkdownParser {
     public function __construct() {
         $this->parsedown = new Parsedown();
         $this->parsedown->setBreaksEnabled(true); // Enable line breaks
-        $this->parsedown->setMarkupEscaped(false); // Allow HTML in markdown
+        $this->parsedown->setSafeMode(true); // Enable safe mode
+        $this->parsedown->setMarkupEscaped(true); // Escape HTML for security
     }
     
     public function parse($text) {
