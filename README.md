@@ -3,7 +3,7 @@
 A simple Markdown-based blog system powered by PHP. 
 No database required, Javascript or any BS.
 
-Made by @ramayac
+Made by [@ramayac](https://x.com/ramayac).
 
 
 ## Features
