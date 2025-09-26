@@ -3,14 +3,26 @@
 require_once 'includes/MarkdownParser.php';
 
 class Blog {
+    // Configuration constants
+    private const DEFAULT_POSTS_PER_PAGE = 25;
+    private const DEFAULT_EXCERPT_LENGTH = 150;
+    private const DEFAULT_DATE_FORMAT = 'Y-m-d';
+    
+    // Regex patterns
+    private const DATE_PREFIX_REGEX = '/^\d{4}-\d{2}-\d{2}-/';
+    private const SLUG_CLEANUP_REGEX = '/[^a-z0-9]+/';
+    private const WHITESPACE_CLEANUP_REGEX = '/\s+/';
+    
     private $postsDir;
     private $parser;
     private $postsPerPage;
+    private $excerptLength;
     
-    public function __construct($postsDir = 'posts', $postsPerPage = 25) {
+    public function __construct($postsDir = 'posts', $postsPerPage = self::DEFAULT_POSTS_PER_PAGE, $excerptLength = self::DEFAULT_EXCERPT_LENGTH) {
         $this->postsDir = $postsDir;
         $this->parser = new MarkdownParser();
         $this->postsPerPage = $postsPerPage;
+        $this->excerptLength = $excerptLength;
     }
     
     public function getPosts($page = 1) {
@@ -18,38 +30,14 @@ class Blog {
         $posts = [];
         
         foreach ($files as $file) {
-            $content = file_get_contents($this->postsDir . '/' . $file);
-            $parsed = $this->parser->parse($content);
-            
-            $frontMatterDate = isset($parsed['frontMatter']['date']) ? $parsed['frontMatter']['date'] : null;
-            $date = $frontMatterDate;
-            
-            // Handle case where date might be parsed as array
-            if (is_array($frontMatterDate)) {
-                $date = isset($frontMatterDate[0]) ? $frontMatterDate[0] : date('Y-m-d', filemtime($this->postsDir . '/' . $file));
-            } elseif (empty($frontMatterDate)) {
-                $date = date('Y-m-d', filemtime($this->postsDir . '/' . $file));
+            $post = $this->createPostFromFile($file, true);
+            if ($post) {
+                $posts[] = $post;
             }
-            
-            $post = [
-                'filename' => $file,
-                'slug' => $this->generateSlug($file),
-                'title' => isset($parsed['frontMatter']['title']) ? $parsed['frontMatter']['title'] : $this->getTitleFromFilename($file),
-                'date' => $date,
-                'excerpt' => $this->generateExcerpt($parsed['html']),
-                'content' => $parsed['html'],
-                'frontMatter' => $parsed['frontMatter']
-            ];
-            
-            $posts[] = $post;
         }
         
         // Sort posts by date (newest first)
-        usort($posts, function($a, $b) {
-            $dateA = is_array($a['date']) ? (isset($a['date'][0]) ? $a['date'][0] : date('Y-m-d')) : $a['date'];
-            $dateB = is_array($b['date']) ? (isset($b['date'][0]) ? $b['date'][0] : date('Y-m-d')) : $b['date'];
-            return strtotime($dateB) - strtotime($dateA);
-        });
+        usort($posts, [$this, 'sortPostsByDate']);
         
         // Calculate pagination
         $totalPosts = count($posts);
@@ -59,14 +47,7 @@ class Blog {
         
         return [
             'posts' => $posts,
-            'pagination' => [
-                'current' => $page,
-                'total' => $totalPages,
-                'hasNext' => $page < $totalPages,
-                'hasPrev' => $page > 1,
-                'next' => $page + 1,
-                'prev' => $page - 1
-            ]
+            'pagination' => $this->buildPaginationData($page, $totalPages)
         ];
     }
     
@@ -75,27 +56,7 @@ class Blog {
         
         foreach ($files as $file) {
             if ($this->generateSlug($file) === $slug) {
-                $content = file_get_contents($this->postsDir . '/' . $file);
-                $parsed = $this->parser->parse($content);
-                
-                $frontMatterDate = isset($parsed['frontMatter']['date']) ? $parsed['frontMatter']['date'] : null;
-                $date = $frontMatterDate;
-                
-                // Handle case where date might be parsed as array
-                if (is_array($frontMatterDate)) {
-                    $date = isset($frontMatterDate[0]) ? $frontMatterDate[0] : date('Y-m-d', filemtime($this->postsDir . '/' . $file));
-                } elseif (empty($frontMatterDate)) {
-                    $date = date('Y-m-d', filemtime($this->postsDir . '/' . $file));
-                }
-                
-                return [
-                    'filename' => $file,
-                    'slug' => $slug,
-                    'title' => isset($parsed['frontMatter']['title']) ? $parsed['frontMatter']['title'] : $this->getTitleFromFilename($file),
-                    'date' => $date,
-                    'content' => $parsed['html'],
-                    'frontMatter' => $parsed['frontMatter']
-                ];
+                return $this->createPostFromFile($file, false);
             }
         }
         
@@ -110,6 +71,88 @@ class Blog {
             return $parsed['html'];
         }
         return '';
+    }
+    
+    /**
+     * Create a post array from a markdown file
+     */
+    private function createPostFromFile($file, $includeExcerpt = false) {
+        $content = file_get_contents($this->postsDir . '/' . $file);
+        $parsed = $this->parser->parse($content);
+        
+        $date = $this->extractPostDate($parsed['frontMatter'], $file);
+        $slug = $this->generateSlug($file);
+        $title = $this->extractPostTitle($parsed['frontMatter'], $file);
+        
+        $post = [
+            'filename' => $file,
+            'slug' => $slug,
+            'title' => $title,
+            'date' => $date,
+            'content' => $parsed['html'],
+            'frontMatter' => $parsed['frontMatter']
+        ];
+        
+        if ($includeExcerpt) {
+            $post['excerpt'] = $this->generateExcerpt($parsed['html']);
+        }
+        
+        return $post;
+    }
+    
+    /**
+     * Extract and normalize date from front matter or file modification time
+     */
+    private function extractPostDate($frontMatter, $filename) {
+        $frontMatterDate = isset($frontMatter['date']) ? $frontMatter['date'] : null;
+        
+        // Handle case where date might be parsed as array
+        if (is_array($frontMatterDate)) {
+            return isset($frontMatterDate[0]) ? $frontMatterDate[0] : $this->getFileModificationDate($filename);
+        }
+        
+        if (empty($frontMatterDate)) {
+            return $this->getFileModificationDate($filename);
+        }
+        
+        return $frontMatterDate;
+    }
+    
+    /**
+     * Extract title from front matter or generate from filename
+     */
+    private function extractPostTitle($frontMatter, $filename) {
+        return isset($frontMatter['title']) ? $frontMatter['title'] : $this->getTitleFromFilename($filename);
+    }
+    
+    /**
+     * Get file modification date formatted
+     */
+    private function getFileModificationDate($filename) {
+        return date(self::DEFAULT_DATE_FORMAT, filemtime($this->postsDir . '/' . $filename));
+    }
+    
+    /**
+     * Sort posts by date comparison function
+     */
+    private function sortPostsByDate($a, $b) {
+        $dateA = is_array($a['date']) ? (isset($a['date'][0]) ? $a['date'][0] : date(self::DEFAULT_DATE_FORMAT)) : $a['date'];
+        $dateB = is_array($b['date']) ? (isset($b['date'][0]) ? $b['date'][0] : date(self::DEFAULT_DATE_FORMAT)) : $b['date'];
+        return strtotime($dateB) - strtotime($dateA);
+    }
+    
+    /**
+     * Build pagination data structure
+     */
+    private function buildPaginationData($currentPage, $totalPages) {
+        return [
+            'current' => $currentPage,
+            'total' => $totalPages,
+            'hasNext' => $currentPage < $totalPages,
+            'hasPrev' => $currentPage > 1,
+            'next' => $currentPage + 1,
+            'prev' => $currentPage - 1
+        ];
     }
     
     private function getMarkdownFiles() {
@@ -128,7 +171,7 @@ class Blog {
     private function generateSlug($filename) {
         $name = pathinfo($filename, PATHINFO_FILENAME);
         $slug = strtolower($name);
-        $slug = preg_replace('/[^a-z0-9]+/', '-', $slug);
+        $slug = preg_replace(self::SLUG_CLEANUP_REGEX, '-', $slug);
         $slug = trim($slug, '-');
         return $slug;
     }
@@ -136,15 +179,16 @@ class Blog {
     private function getTitleFromFilename($filename) {
         $name = pathinfo($filename, PATHINFO_FILENAME);
         // Remove date prefix if present (YYYY-MM-DD-)
-        $name = preg_replace('/^\d{4}-\d{2}-\d{2}-/', '', $name);
+        $name = preg_replace(self::DATE_PREFIX_REGEX, '', $name);
         // Replace dashes and underscores with spaces and capitalize
         $title = str_replace(['-', '_'], ' ', $name);
         return ucwords($title);
     }
     
-    private function generateExcerpt($html, $length = 150) {
+    private function generateExcerpt($html, $length = null) {
+        $length = $length ?? $this->excerptLength;
         $text = strip_tags($html);
-        $text = preg_replace('/\s+/', ' ', $text);
+        $text = preg_replace(self::WHITESPACE_CLEANUP_REGEX, ' ', $text);
         $text = trim($text);
         
         if (strlen($text) > $length) {

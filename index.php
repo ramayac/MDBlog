@@ -1,5 +1,8 @@
 <?php
 
+// Start timing
+$start_time = microtime(true);
+
 require_once 'includes/Blog.php';
 
 $blog = new Blog();
@@ -92,5 +95,12 @@ $footer = $blog->getInclude('footer.md');
         </footer>
         <?php endif; ?>
     </div>
+    
+    <?php
+    // Calculate render time
+    $end_time = microtime(true);
+    $render_time = round(($end_time - $start_time) * 1000, 2);
+    ?>
+    <!-- Page rendered in <?php echo $render_time; ?>ms -->
 </body>
 </html>
