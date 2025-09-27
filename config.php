@@ -9,7 +9,8 @@
 
 // Basic blog settings
 return [
-    'blog_name' => 'MD Blog ',
+    // Basic blog settings
+    'blog_name' => 'MDBlog',
     // Header and footer content
     'header_content' => 'A simple PHP + Markdown blog.',
     // Category configuration
