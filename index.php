@@ -44,24 +44,21 @@ include 'includes/head.php';
             <?php echo $menu; ?>
         </nav>
         <?php endif; ?>
-        
-        <div class="blog-title">
-            <?php if ($currentCategory): ?>
-                <h2 class="category-title">
-                    <?php echo htmlspecialchars($currentCategory['blog_name']); ?>
-                    <?php if (!empty($currentCategory['header_content'])): ?>
-                        <br><small><?php echo htmlspecialchars($currentCategory['header_content']); ?></small>
-                    <?php endif; ?>
-                </h2>
-            <?php endif; ?>
-        </div>
-        
+                   
         <?php if ($currentCategory): ?>
-            <!-- Category header content is already displayed in the category title above -->
+            <h2 class="category-title">
+                <?php echo htmlspecialchars($currentCategory['blog_name']); ?>
+                <?php if (!empty($currentCategory['header_content'])): ?>
+                    <br><small><?php echo htmlspecialchars($currentCategory['header_content']); ?></small>
+                <?php endif; ?>
+            </h2>
         <?php elseif (!empty($config['header_content'])): ?>
-            <header class="site-header">
-                <?php echo $blog->parseMarkdown($config['header_content']); ?>
-            </header>
+            <h2 class="blog-title">
+                <?php echo htmlspecialchars($config['blog_name']); ?>
+                <?php if (!empty($config['header_content'])): ?>
+                    <br><small><?php echo htmlspecialchars($config['header_content']); ?></small>
+                <?php endif; ?>
+            </h2>
         <?php endif; ?>
         
         <main class="main-content">
