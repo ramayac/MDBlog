@@ -68,12 +68,9 @@ include 'includes/head.php';
                 <header class="post-header">
                     <h1 class="post-title"><?php echo htmlspecialchars($post['title']); ?></h1>
                     <div class="post-meta">
-                        <time datetime="<?php echo $post['date']; ?>">
-                            <?php echo date('F j, Y', strtotime($post['date'])); ?>
-                        </time>
                         <?php if ($post['category']): ?>
                             <span class="post-category">
-                                in <a href="index.php?category=<?php echo urlencode($post['category_slug']); ?>"><?php echo htmlspecialchars($post['category']['blog_name']); ?></a>
+                                <?php echo date('F j, Y', strtotime($post['date'])); ?> in <a href="index.php?category=<?php echo urlencode($post['category_slug']); ?>"><?php echo htmlspecialchars($post['category']['blog_name']); ?></a>
                             </span>
                         <?php endif; ?>
                         <?php if (isset($post['frontMatter']['author'])): ?>

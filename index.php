@@ -46,12 +46,11 @@ include 'includes/head.php';
         <?php endif; ?>
         
         <div class="blog-title">
-            <h1><?php echo htmlspecialchars($config['blog_name']); ?></h1>
             <?php if ($currentCategory): ?>
                 <h2 class="category-title">
                     <?php echo htmlspecialchars($currentCategory['blog_name']); ?>
                     <?php if (!empty($currentCategory['header_content'])): ?>
-                        <small><?php echo htmlspecialchars($currentCategory['header_content']); ?></small>
+                        <br><small><?php echo htmlspecialchars($currentCategory['header_content']); ?></small>
                     <?php endif; ?>
                 </h2>
             <?php endif; ?>
@@ -81,12 +80,9 @@ include 'includes/head.php';
                                 </a>
                             </h2>
                             <div class="post-meta">
-                                <time datetime="<?php echo $post['date']; ?>">
-                                    <?php echo date('F j, Y', strtotime($post['date'])); ?>
-                                </time>
                                 <?php if ($post['category']): ?>
                                     <span class="post-category">
-                                        in <a href="?category=<?php echo urlencode($post['category_slug']); ?>"><?php echo htmlspecialchars($post['category']['blog_name']); ?></a>
+                                      <?php echo date('F j, Y', strtotime($post['date'])); ?>  in <a href="?category=<?php echo urlencode($post['category_slug']); ?>"><?php echo htmlspecialchars($post['category']['blog_name']); ?></a>
                                     </span>
                                 <?php endif; ?>
                             </div>
