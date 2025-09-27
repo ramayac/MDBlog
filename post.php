@@ -10,8 +10,9 @@ require_once 'includes/Blog.php';
 
 $blog = new Blog();
 
-// Get post slug from URL parameter
+// Get post slug and category from URL parameters
 $slug = isset($_GET['slug']) ? $_GET['slug'] : '';
+$categorySlug = isset($_GET['category']) ? $_GET['category'] : null;
 
 if (empty($slug)) {
     header('Location: index.php');
@@ -31,7 +32,7 @@ if (strlen($slug) > 200) {
 }
 
 // Get post data
-$post = $blog->getPost($slug);
+$post = $blog->getPostBySlug($slug, $categorySlug);
 
 if (!$post) {
     http_response_code(404);
@@ -67,9 +68,11 @@ include 'includes/head.php';
                 <header class="post-header">
                     <h1 class="post-title"><?php echo htmlspecialchars($post['title']); ?></h1>
                     <div class="post-meta">
-                        <time datetime="<?php echo $post['date']; ?>">
-                            <?php echo date('F j, Y', strtotime($post['date'])); ?>
-                        </time>
+                        <?php if ($post['category']): ?>
+                            <span class="post-category">
+                                <?php echo date('F j, Y', strtotime($post['date'])); ?> in <a href="index.php?category=<?php echo urlencode($post['category_slug']); ?>"><?php echo htmlspecialchars($post['category']['blog_name']); ?></a>
+                            </span>
+                        <?php endif; ?>
                         <?php if (isset($post['frontMatter']['author'])): ?>
                             <span class="post-author">by <?php echo htmlspecialchars($post['frontMatter']['author']); ?></span>
                         <?php endif; ?>
@@ -93,7 +96,11 @@ include 'includes/head.php';
             </article>
             
             <nav class="post-navigation">
-                <a href="index.php" class="back-to-home">← Back to all posts</a>
+                <?php if ($categorySlug): ?>
+                    <a href="index.php?category=<?php echo urlencode($categorySlug); ?>" class="back-to-home">← Back to <?php echo htmlspecialchars($post['category']['blog_name']); ?></a>
+                <?php else: ?>
+                    <a href="index.php" class="back-to-home">← Back to all posts</a>
+                <?php endif; ?>
             </nav>
         </main>
         

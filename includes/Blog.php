@@ -34,15 +34,15 @@ class Blog {
         return isset($this->config[$key]) ? $this->config[$key] : null;
     }
     
-    public function getPosts($page = 1) {
-        $files = $this->getMarkdownFiles();
-        $posts = [];
-        
-        foreach ($files as $file) {
-            $post = $this->createPostFromFile($file, true);
-            if ($post) {
-                $posts[] = $post;
+    public function getPosts($page = 1, $categorySlug = null) {
+        if ($categorySlug) {
+            $category = $this->getCategoryBySlug($categorySlug);
+            if (!$category) {
+                return ['posts' => [], 'pagination' => ['current' => 1, 'total' => 1, 'hasPrev' => false, 'hasNext' => false]];
             }
+            $posts = $this->scanPostsInFolder($this->postsDir . '/' . $category['folder'], $categorySlug);
+        } else {
+            $posts = $this->scanAllPosts($this->postsDir);
         }
         
         // Sort posts by date (newest first)
@@ -61,16 +61,37 @@ class Blog {
     }
     
     public function getPost($slug) {
+        return $this->getPostBySlug($slug);
+    }
+    
+    public function getPostBySlug($slug, $categorySlug = null) {
         // Validate slug to prevent path traversal
         if (strpos($slug, '..') !== false || strpos($slug, '/') !== false || strpos($slug, '\\') !== false) {
             return null;
         }
         
-        $files = $this->getMarkdownFiles();
+        if ($categorySlug) {
+            $category = $this->getCategoryBySlug($categorySlug);
+            if (!$category) {
+                return null;
+            }
+            $posts_dir = $this->postsDir . '/' . $category['folder'];
+        } else {
+            $posts_dir = $this->postsDir;
+        }
         
-        foreach ($files as $file) {
-            if ($this->generateSlug($file) === $slug) {
-                return $this->createPostFromFile($file, false);
+        if (!is_dir($posts_dir)) {
+            return null;
+        }
+        
+        $filepath = $posts_dir . '/' . $slug . '.md';
+        
+        if (file_exists($filepath)) {
+            $post = $this->parsePost($filepath);
+            if ($post) {
+                $post['category_slug'] = $categorySlug;
+                $post['category'] = $categorySlug ? $this->getCategoryBySlug($categorySlug) : null;
+                return $post;
             }
         }
         
@@ -90,6 +111,39 @@ class Blog {
     public function parseMarkdown($content) {
         $parsed = $this->parser->parse($content);
         return $parsed['html'];
+    }
+    
+    public function getCategories() {
+        $categories = [];
+        
+        if (!isset($this->config['categories']) || !is_array($this->config['categories'])) {
+            return $categories;
+        }
+        
+        foreach ($this->config['categories'] as $key => $category) {
+            $folder = $category['folder'] ?? $key;
+            $path = $this->postsDir . '/' . $folder;
+            
+            if (is_dir($path)) {
+                $post_count = count(glob($path . '/*.md'));
+                if ($post_count > 0) {
+                    $categories[$key] = [
+                        'blog_name' => $category['blog_name'] ?? ucfirst($key),
+                        'header_content' => $category['header_content'] ?? '',
+                        'folder' => $folder,
+                        'slug' => $key,
+                        'count' => $post_count
+                    ];
+                }
+            }
+        }
+        
+        return $categories;
+    }
+    
+    public function getCategoryBySlug($slug) {
+        $categories = $this->getCategories();
+        return $categories[$slug] ?? null;
     }
     
     /**
@@ -172,6 +226,79 @@ class Blog {
             'next' => $currentPage + 1,
             'prev' => $currentPage - 1
         ];
+    }
+    
+    private function scanAllPosts($posts_dir) {
+        $posts = [];
+        
+        // Get uncategorized posts (files directly in posts_dir)
+        if ($this->config['show_uncategorized'] ?? true) {
+            $posts = array_merge($posts, $this->scanPostsInFolder($posts_dir, null));
+        }
+        
+        // Get categorized posts that should show in index
+        $categories = $this->getCategories();
+        foreach ($categories as $slug => $category) {
+            // Check if category should be shown in main index
+            $categoryConfig = $this->config['categories'][$slug] ?? [];
+            $showInIndex = $categoryConfig['index'] ?? true;
+            
+            if ($showInIndex) {
+                $category_dir = $posts_dir . '/' . $category['folder'];
+                if (is_dir($category_dir)) {
+                    $posts = array_merge($posts, $this->scanPostsInFolder($category_dir, $slug));
+                }
+            }
+        }
+        
+        return $posts;
+    }
+    
+    private function scanPostsInFolder($dir, $categorySlug = null) {
+        $posts = [];
+        
+        if (!is_dir($dir)) {
+            return $posts;
+        }
+        
+        $files = scandir($dir);
+        
+        foreach ($files as $file) {
+            if ($file === '.' || $file === '..' || is_dir($dir . '/' . $file)) continue;
+            
+            if (pathinfo($file, PATHINFO_EXTENSION) === 'md') {
+                $post = $this->parsePost($dir . '/' . $file);
+                if ($post) {
+                    $post['category_slug'] = $categorySlug;
+                    $post['category'] = $categorySlug ? $this->getCategoryBySlug($categorySlug) : null;
+                    $posts[] = $post;
+                }
+            }
+        }
+        
+        return $posts;
+    }
+    
+    private function parsePost($filepath) {
+        $content = file_get_contents($filepath);
+        $parsed = $this->parser->parse($content);
+        
+        $filename = basename($filepath);
+        $date = $this->extractPostDate($parsed['frontMatter'], $filename);
+        $slug = $this->generateSlug($filename);
+        $title = $this->extractPostTitle($parsed['frontMatter'], $filename);
+        
+        $post = [
+            'filename' => $filename,
+            'slug' => $slug,
+            'title' => $title,
+            'date' => $date,
+            'content' => $parsed['html'],
+            'frontMatter' => $parsed['frontMatter'],
+            'excerpt' => $this->generateExcerpt($parsed['html'])
+        ];
+        
+        return $post;
     }
     
     private function getMarkdownFiles() {
