@@ -1,1 +1,1 @@
-[Home](index.php) | [Substack](index.php?category=substack) | [Sr. Byte](index.php?category=srbyte) | [About](post.php?slug=about)
+[Home](index.php) | [Old Musings](index.php?category=old) | [About](post.php?slug=about)
