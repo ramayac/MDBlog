@@ -40,6 +40,11 @@ return [
     // Directory settings
     'posts_dir' => 'posts', // Base directory for all posts and category folders
     'includes_dir' => 'includes',
+    'cache_dir' => 'cache',
+
+    // Cache settings
+    'cache_enabled' => true,
+    'cache_ttl' => 604800, // 1 week in seconds (60 * 60 * 24 * 7)
     
     // Date format (used for file modification dates)
     'date_format' => 'Y-m-d',
