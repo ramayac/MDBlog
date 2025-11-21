@@ -14,6 +14,9 @@ class Blog {
     private $postsPerPage;
     private $excerptLength;
     private $dateFormat;
+    private $cacheEnabled;
+    private $cacheTtl;
+    private $cacheDir;
     
     public function __construct($configFile = 'config.php') {
         // Load configuration
@@ -25,6 +28,11 @@ class Blog {
         $this->postsPerPage = $this->config['posts_per_page'];
         $this->excerptLength = $this->config['excerpt_length'];
         $this->dateFormat = $this->config['date_format'];
+        
+        // Cache settings
+        $this->cacheEnabled = $this->config['cache_enabled'] ?? false;
+        $this->cacheTtl = $this->config['cache_ttl'] ?? 604800;
+        $this->cacheDir = $this->config['cache_dir'] ?? 'cache';
     }
     
     public function getConfig($key = null) {
@@ -280,6 +288,14 @@ class Blog {
     }
     
     private function parsePost($filepath) {
+        // Try to get from cache first
+        $cacheKey = $this->getCacheKey($filepath);
+        $cachedPost = $this->getFromCache($cacheKey, $filepath);
+        
+        if ($cachedPost) {
+            return $cachedPost;
+        }
+
         $content = file_get_contents($filepath);
         $parsed = $this->parser->parse($content);
         
@@ -298,7 +314,50 @@ class Blog {
             'excerpt' => $this->generateExcerpt($parsed['html'])
         ];
         
+        // Save to cache
+        $this->saveToCache($cacheKey, $post);
+        
         return $post;
+    }
+
+    private function getCacheKey($filepath) {
+        return md5($filepath) . '.json';
+    }
+
+    private function getFromCache($key, $originalFilepath) {
+        if (!$this->cacheEnabled) {
+            return null;
+        }
+
+        $cacheFile = $this->cacheDir . '/' . $key;
+        if (!file_exists($cacheFile)) {
+            return null;
+        }
+
+        // Check TTL
+        if (time() - filemtime($cacheFile) > $this->cacheTtl) {
+            return null;
+        }
+
+        // Check if original file is newer than cache
+        if (file_exists($originalFilepath) && filemtime($originalFilepath) > filemtime($cacheFile)) {
+            return null;
+        }
+
+        $data = json_decode(file_get_contents($cacheFile), true);
+        return $data;
+    }
+
+    private function saveToCache($key, $data) {
+        if (!$this->cacheEnabled) {
+            return;
+        }
+
+        if (!is_dir($this->cacheDir)) {
+            mkdir($this->cacheDir, 0777, true);
+        }
+
+        file_put_contents($this->cacheDir . '/' . $key, json_encode($data));
     }
     
     private function getMarkdownFiles() {
