@@ -9,16 +9,22 @@
 
 // Basic blog settings
 return [
-    // Basic blog settings
-    'blog_name' => 'MDBlog',
+    'blog_name' => 'Rodrigo A. ',
+    'author_name' => 'Rodrigo Amaya',
     // Header and footer content
-    'header_content' => 'A simple PHP + Markdown blog.',
+    'header_content' => 'Wholesome Software Development.',
     // Category configuration
     'categories' => [
-        'old' => [
-            'blog_name' => 'Old musings 🎵',
-            'header_content' => 'Old thoughts before 2020.',
-            'folder' => 'old',
+        'srbyte' => [
+            'blog_name' => 'Sr. Byte 👨‍💻',
+            'header_content' => '(2007-2010) Tecnologia para todos.',
+            'folder' => 'srbyte',
+            'index' => false, //shows it in the main index
+        ],
+        'substack' => [
+            'blog_name' => 'Code Forward ⏩',
+            'header_content' => '(2023) Substack failed newsletter.',
+            'folder' => 'substack',
             'index' => false, //shows it in the main index
         ],
     ],

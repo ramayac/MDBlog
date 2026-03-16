@@ -14,6 +14,7 @@ Made by [@ramayac](https://x.com/ramayac).
 - Custom JavaScript support
 - Responsive design
 - Support for Dark/Light OS selection
+- Gzip compression (when supported by the client)
 
 ## Quick Start
 
@@ -21,6 +22,26 @@ Made by [@ramayac](https://x.com/ramayac).
 2. Update config.php for blog name, etc
 2. Create `.md` files in the `posts` directory
 3. That's it!
+
+## Running Locally
+
+A `Makefile` is included for local development. Requires PHP and `make`.
+
+```bash
+# Start the built-in PHP dev server (default: http://localhost:8080)
+make serve
+
+# Use a custom host/port
+make serve HOST=0.0.0.0 PORT=9000
+```
+
+## Creating a New Post
+
+```bash
+make new-post TITLE="My Post Title" TAGS="tag1, tag2"
+```
+
+This creates a pre-filled `.md` file in `posts/` named `YYYY-MM-DD-my-post-title.md` with front matter populated from `config.php`.
 
 ## Writing Posts
 
@@ -47,6 +68,7 @@ Edit `config.php` to customize blog settings like posts per page and theme.
 - PHP 7.0+
 - Web server with PHP support
 - No database required
+- `zlib` PHP extension (enabled by default) for gzip compression
 
 ## License
 

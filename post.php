@@ -1,5 +1,10 @@
 <?php
 
+// Enable gzip compression if supported by the client
+if (substr_count($_SERVER['HTTP_ACCEPT_ENCODING'] ?? '', 'gzip')) {
+    ob_start('ob_gzhandler');
+}
+
 // Start timing
 $start_time = microtime(true);
 
