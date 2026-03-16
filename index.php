@@ -151,9 +151,21 @@ include 'includes/head.php';
             </main>
         <?php endif; ?>
 
-        <?php if (!empty($config['footer_content'])): ?>
+        <?php
+            $footerVersionInfo = $blog->getVersionInfo();
+        ?>
+        <?php if (!empty($config['footer_content']) || !empty($footerVersionInfo['commit'])): ?>
         <footer class="site-footer">
-            <?php echo $blog->parseMarkdown($config['footer_content']); ?>
+            <?php if (!empty($config['footer_content'])): ?>
+                <?php echo $blog->parseMarkdown($config['footer_content']); ?>
+            <?php endif; ?>
+            <?php if (!empty($footerVersionInfo['commit'])): ?>
+            <small class="site-version">
+                <?php if (!empty($footerVersionInfo['version'])): ?><?php echo htmlspecialchars($footerVersionInfo['version']); ?> &middot; <?php endif; ?>
+                <?php echo htmlspecialchars($footerVersionInfo['commit']); ?>
+                <?php if (!empty($footerVersionInfo['date'])): ?>&middot; <?php echo htmlspecialchars($footerVersionInfo['date']); ?><?php endif; ?>
+            </small>
+            <?php endif; ?>
             <?php include 'includes/debug.php'; ?>
         </footer>
         <?php endif; ?>

@@ -4,7 +4,7 @@ PHP      := php
 
 .DEFAULT_GOAL := help
 
-.PHONY: help serve new-post
+.PHONY: help serve new-post version clear-cache
 
 help: ## Show available targets
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
@@ -13,6 +13,18 @@ help: ## Show available targets
 serve: ## Start PHP built-in dev server (HOST=localhost PORT=8080)
 	@echo "Starting dev server at http://$(HOST):$(PORT)"
 	$(PHP) -S $(HOST):$(PORT)
+
+clear-cache: ## Delete all cached .json files from the cache/ folder
+	@find cache/ -name '*.json' -type f -delete
+	@echo "Cache cleared."
+
+version: ## Bake current git commit+tag into version.php (run before FTP upload or Docker build)
+	$(eval _COMMIT  := $(shell git log -1 --format="%h" 2>/dev/null))
+	$(eval _DATE    := $(shell git log -1 --format="%ad" --date=short 2>/dev/null))
+	$(eval _TAG     := $(shell git describe --tags --abbrev=0 2>/dev/null || true))
+	$(eval _VERSION := $(if $(_TAG),$(_TAG),$(_COMMIT)))
+	@$(PHP) -r 'file_put_contents("version.php", "<?php return [\"commit\"=>\"$(_COMMIT)\",\"date\"=>\"$(_DATE)\",\"version\"=>\"$(_VERSION)\"];\n");'
+	@echo "Written: version.php  (commit=$(_COMMIT), version=$(_VERSION), date=$(_DATE))"
 
 new-post: ## Create a new post template: make new-post TITLE="my post title" [CATEGORY=slug] [TAGS="tag1, tag2"]
 	$(eval DATE    := $(shell date +%Y-%m-%d))
