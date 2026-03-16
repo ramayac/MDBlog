@@ -35,6 +35,9 @@ make serve
 
 # Use a custom host/port
 make serve HOST=0.0.0.0 PORT=9000
+
+# Check all PHP files for syntax errors
+make lint
 ```
 
 ## Docker

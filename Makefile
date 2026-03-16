@@ -4,7 +4,7 @@ PHP      := php
 
 .DEFAULT_GOAL := help
 
-.PHONY: help serve new-post version clear-cache docker-build docker-run docker-stop docker-push
+.PHONY: help serve lint new-post version clear-cache docker-build docker-run docker-stop docker-push
 
 help: ## Show available targets
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
@@ -13,6 +13,13 @@ help: ## Show available targets
 serve: ## Start PHP built-in dev server (HOST=localhost PORT=8080)
 	@echo "Starting dev server at http://$(HOST):$(PORT)"
 	$(PHP) -S $(HOST):$(PORT)
+
+lint: ## Check all PHP files for syntax errors
+	@errors=0; \
+	for f in $$(find . -name '*.php' | sort); do \
+		$(PHP) -l "$$f" || errors=$$((errors+1)); \
+	done; \
+	[ $$errors -eq 0 ] && echo "All PHP files OK." || { echo "$$errors file(s) failed."; exit 1; }
 
 clear-cache: ## Delete all cached .json files from the cache/ folder
 	@find cache/ -name '*.json' -type f -delete
