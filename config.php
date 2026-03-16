@@ -9,14 +9,8 @@
 
 // Basic blog settings
 return [
-<<<<<<< HEAD
-    // Basic blog settings
-    'blog_name' => 'MDBlog',
-    
-=======
     'blog_name' => 'Rodrigo A. ',
     'author_name' => 'Rodrigo Amaya',
->>>>>>> 16bf35f (feat: add new post creation feature and update author name in config)
     // Header and footer content
     'header_content' => 'A simple PHP + Markdown blog.',
     // Category configuration
