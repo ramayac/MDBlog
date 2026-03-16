@@ -18,7 +18,7 @@ $blog = new Blog();
 // Get category and page from URL parameters
 $categorySlug = isset($_GET['category']) ? $_GET['category'] : null;
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-$page = max(1, $page); // Ensure page is at least 1
+$page = max(1, $page);
 
 // Validate category exists
 $currentCategory = null;
@@ -29,17 +29,14 @@ if ($categorySlug) {
     }
 }
 
-// Get posts for current page and category
-$data = $blog->getPosts($page, $categorySlug);
-$posts = $data['posts'];
-$pagination = $data['pagination'];
-
 // Get menu
 $menu = $blog->getMenu();
 
 ?>
 <?php
-$pageTitle = $currentCategory ? $config['blog_name'] . ' - ' . $currentCategory['blog_name'] : $config['blog_name'];
+$pageTitle = $currentCategory
+    ? $config['blog_name'] . ' - ' . $currentCategory['blog_name']
+    : $config['blog_name'];
 include 'includes/head.php';
 ?>
 <body>
@@ -49,77 +46,111 @@ include 'includes/head.php';
             <?php echo $menu; ?>
         </nav>
         <?php endif; ?>
-                   
+
         <?php if ($currentCategory): ?>
+            <?php
+                // ── CATEGORY PAGE: post listing + pagination ──────────────────
+                $data       = $blog->getPosts($page, $categorySlug);
+                $posts      = $data['posts'];
+                $pagination = $data['pagination'];
+            ?>
             <h2 class="category-title">
                 <?php echo htmlspecialchars($currentCategory['blog_name']); ?>
                 <?php if (!empty($currentCategory['header_content'])): ?>
                     <br><small><?php echo htmlspecialchars($currentCategory['header_content']); ?></small>
                 <?php endif; ?>
             </h2>
-        <?php elseif (!empty($config['header_content'])): ?>
-            <h2 class="blog-title">
-                <?php echo htmlspecialchars($config['blog_name']); ?>
-                <?php if (!empty($config['header_content'])): ?>
-                    <br><small><?php echo htmlspecialchars($config['header_content']); ?></small>
-                <?php endif; ?>
-            </h2>
-        <?php endif; ?>
-        
-        <main class="main-content">
-            <?php if (empty($posts)): ?>
-                <div class="no-posts">
-                    <h2>No posts found</h2>
-                    <p>Add some markdown files to the <code>posts</code> directory to get started.</p>
-                </div>
-            <?php else: ?>
-                <div class="posts-grid">
-                    <?php foreach ($posts as $post): ?>
-                        <article class="post-preview">
-                            <h2 class="post-title">
-                                <a href="post.php?slug=<?php echo urlencode($post['slug']); ?><?php echo $categorySlug ? '&category=' . urlencode($categorySlug) : ''; ?>">
-                                    <?php echo htmlspecialchars($post['title']); ?>
+
+            <main class="main-content">
+                <?php if (empty($posts)): ?>
+                    <div class="no-posts">
+                        <p>No posts found in this category yet.</p>
+                    </div>
+                <?php else: ?>
+                    <div class="posts-grid">
+                        <?php foreach ($posts as $post): ?>
+                            <article class="post-preview">
+                                <h2 class="post-title">
+                                    <a href="post.php?slug=<?php echo urlencode($post['slug']); ?>&category=<?php echo urlencode($categorySlug); ?>">
+                                        <?php echo htmlspecialchars($post['title']); ?>
+                                    </a>
+                                </h2>
+                                <div class="post-meta">
+                                    <span class="post-date"><?php echo date('F j, Y', strtotime($post['date'])); ?></span>
+                                </div>
+                                <div class="post-excerpt">
+                                    <?php echo $post['excerpt']; ?>
+                                </div>
+                                <a href="post.php?slug=<?php echo urlencode($post['slug']); ?>&category=<?php echo urlencode($categorySlug); ?>" class="read-more">
+                                    Read more &rarr;
                                 </a>
-                            </h2>
-                            <div class="post-meta">
-                                <?php if ($post['category']): ?>
-                                    <span class="post-category">
-                                      <?php echo date('F j, Y', strtotime($post['date'])); ?>  in <a href="?category=<?php echo urlencode($post['category_slug']); ?>"><?php echo htmlspecialchars($post['category']['blog_name']); ?></a>
-                                    </span>
-                                <?php endif; ?>
-                            </div>
-                            <div class="post-excerpt">
-                                <?php echo $post['excerpt']; ?>
-                            </div>
-                            <a href="post.php?slug=<?php echo urlencode($post['slug']); ?><?php echo $categorySlug ? '&category=' . urlencode($categorySlug) : ''; ?>" class="read-more">
-                                Read more →
-                            </a>
-                        </article>
+                            </article>
+                        <?php endforeach; ?>
+                    </div>
+
+                    <?php if ($pagination['total'] > 1): ?>
+                        <nav class="pagination">
+                            <?php if ($pagination['hasPrev']): ?>
+                                <a href="?category=<?php echo urlencode($categorySlug); ?>&page=<?php echo $pagination['prev']; ?>" class="pagination-link prev">
+                                    &larr; Previous
+                                </a>
+                            <?php endif; ?>
+                            <span class="pagination-info">
+                                Page <?php echo $pagination['current']; ?> of <?php echo $pagination['total']; ?>
+                            </span>
+                            <?php if ($pagination['hasNext']): ?>
+                                <a href="?category=<?php echo urlencode($categorySlug); ?>&page=<?php echo $pagination['next']; ?>" class="pagination-link next">
+                                    Next &rarr;
+                                </a>
+                            <?php endif; ?>
+                        </nav>
+                    <?php endif; ?>
+                <?php endif; ?>
+            </main>
+
+        <?php else: ?>
+            <?php // ── LANDING PAGE ──────────────────────────────────────────── ?>
+            <header class="blog-title">
+                <h2>
+                    <?php echo htmlspecialchars($config['blog_name']); ?>
+                    <?php if (!empty($config['header_content'])): ?>
+                        <br><small><?php echo htmlspecialchars($config['header_content']); ?></small>
+                    <?php endif; ?>
+                </h2>
+            </header>
+
+            <main class="main-content">
+                <?php
+                    // Optional blurb: create posts/index.md to add intro text
+                    $indexBlurbFile = $config['posts_dir'] . '/index.md';
+                    $indexBlurb = file_exists($indexBlurbFile)
+                        ? $blog->parseMarkdown(file_get_contents($indexBlurbFile))
+                        : null;
+                    if ($indexBlurb): ?>
+                    <div class="index-content">
+                        <?php echo $indexBlurb; ?>
+                    </div>
+                <?php endif; ?>
+
+                <?php
+                    $allCategories = $blog->getCategories();
+                    if (!empty($allCategories)):
+                ?>
+                <div class="category-cards">
+                    <?php foreach ($allCategories as $slug => $cat): ?>
+                        <a href="?category=<?php echo urlencode($slug); ?>" class="category-card">
+                            <h3><?php echo htmlspecialchars($cat['blog_name']); ?></h3>
+                            <?php if (!empty($cat['header_content'])): ?>
+                                <p><?php echo htmlspecialchars($cat['header_content']); ?></p>
+                            <?php endif; ?>
+                            <span class="post-count"><?php echo $cat['count']; ?> posts</span>
+                        </a>
                     <?php endforeach; ?>
                 </div>
-                
-                <?php if ($pagination['total'] > 1): ?>
-                    <nav class="pagination">
-                        <?php if ($pagination['hasPrev']): ?>
-                            <a href="?<?php echo $categorySlug ? 'category=' . urlencode($categorySlug) . '&' : ''; ?>page=<?php echo $pagination['prev']; ?>" class="pagination-link prev">
-                                ← Previous
-                            </a>
-                        <?php endif; ?>
-                        
-                        <span class="pagination-info">
-                            Page <?php echo $pagination['current']; ?> of <?php echo $pagination['total']; ?>
-                        </span>
-                        
-                        <?php if ($pagination['hasNext']): ?>
-                            <a href="?<?php echo $categorySlug ? 'category=' . urlencode($categorySlug) . '&' : ''; ?>page=<?php echo $pagination['next']; ?>" class="pagination-link next">
-                                Next →
-                            </a>
-                        <?php endif; ?>
-                    </nav>
                 <?php endif; ?>
-            <?php endif; ?>
-        </main>
-        
+            </main>
+        <?php endif; ?>
+
         <?php if (!empty($config['footer_content'])): ?>
         <footer class="site-footer">
             <?php echo $blog->parseMarkdown($config['footer_content']); ?>

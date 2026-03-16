@@ -15,13 +15,15 @@ Made by [@ramayac](https://x.com/ramayac).
 - Responsive design
 - Support for Dark/Light OS selection
 - Gzip compression (when supported by the client)
+- Dynamic navigation menu (driven by `config.php`)
+- Landing page with category cards (no full post scan on homepage)
 
 ## Quick Start
 
 1. Upload files to a PHP-enabled web server
-2. Update config.php for blog name, etc
-2. Create `.md` files in the `posts` directory
-3. That's it!
+2. Update `config.php` for blog name, author, categories, and menu links
+3. Create `.md` files in the `posts/` directory
+4. That's it!
 
 ## Running Locally
 
@@ -41,11 +43,12 @@ make serve HOST=0.0.0.0 PORT=9000
 make new-post TITLE="My Post Title" TAGS="tag1, tag2"
 ```
 
-This creates a pre-filled `.md` file in `posts/` named `YYYY-MM-DD-my-post-title.md` with front matter populated from `config.php`.
+Creates a pre-filled `.md` file in `posts/` named `YYYY-MM-DD-my-post-title.md`.  
+Author is read automatically from `config.php`. `TAGS` is optional.
 
 ## Writing Posts
 
-Create a `.md` file in `posts/` with optional front matter:
+Create a `.md` file in `posts/` (or a category subfolder) with front matter:
 
 ```yaml
 ---
@@ -53,15 +56,73 @@ title: My Post
 date: 2024-01-15
 author: Your Name
 tags: tag1, tag2
-js: script.js
+description: Optional meta description
+js: optional-script.js
 ---
 
 Your markdown content here...
 ```
 
+## Navigation Menu
+
+The nav bar is generated automatically from `config.php` — no more editing `menu.md`.
+
+```php
+// Static custom links (always shown, in order)
+'menu_links' => [
+    ['label' => 'Home',  'url' => 'index.php'],
+    ['label' => 'About', 'url' => 'post.php?slug=about'],
+],
+
+// Per-category: set 'menu' => true to include it in the nav
+'categories' => [
+    'srbyte' => [
+        ...
+        'menu' => true,
+    ],
+],
+```
+
+## Landing Page
+
+`index.php` (no `?category`) shows a static landing page with category cards.  
+To add an optional intro blurb above the cards, create `posts/index.md` with any Markdown content.
+
+Browsing posts works via `index.php?category=slug`.
+
+## Categories
+
+Register categories in `config.php`:
+
+```php
+'categories' => [
+    'my-category' => [
+        'blog_name'      => 'Display Name',
+        'header_content' => 'Subtitle.',
+        'folder'         => 'my-category',   // subfolder under posts/
+        'index'          => true,            // include in aggregated index (legacy)
+        'menu'           => true,            // show in nav bar
+    ],
+],
+```
+
+Then add `.md` files to `posts/my-category/`.
+
 ## Configuration
 
-Edit `config.php` to customize blog settings like posts per page and theme.
+Edit `config.php` to customize all settings. Key fields:
+
+| Key | Purpose |
+|-----|---------|
+| `blog_name` | Site title |
+| `author_name` | Default author for new posts |
+| `header_content` | Landing page subtitle |
+| `menu_links` | Static nav links |
+| `categories` | Category definitions |
+| `posts_per_page` | Pagination size |
+| `cache_enabled` / `cache_ttl` | JSON post cache |
+| `csp_enabled` / `csp_header` | Content Security Policy |
+| `css_theme` | Active CSS theme path |
 
 ## Requirements
 

@@ -22,6 +22,13 @@ return [
 
     // Category configuration
     'categories' => [
+        'personal' => [
+            'blog_name' => 'Personal 🏠',
+            'header_content' => 'Personal.',
+            'folder' => 'personal',
+            'index' => true,  // shows it in the main index
+            'menu'  => true,  // shows it in the nav menu
+        ],
         'srbyte' => [
             'blog_name' => 'Sr. Byte 👨‍💻',
             'header_content' => '(2007-2010) Tecnologia para todos.',
