@@ -14,6 +14,7 @@ Made by [@ramayac](https://x.com/ramayac).
 - Custom JavaScript support
 - Responsive design
 - Support for Dark/Light OS selection
+- Gzip compression (when supported by the client)
 
 ## Quick Start
 
@@ -67,6 +68,7 @@ Edit `config.php` to customize blog settings like posts per page and theme.
 - PHP 7.0+
 - Web server with PHP support
 - No database required
+- `zlib` PHP extension (enabled by default) for gzip compression
 
 ## License
 
