@@ -24,7 +24,7 @@ return [
     'categories' => [
         'personal' => [
             'blog_name' => 'Personal 🏠',
-            'header_content' => 'Personal.',
+            'header_content' => 'Personal Thoughts and Musings.',
             'folder' => 'personal',
             'index' => true,  // shows it in the main index
             'menu'  => true,  // shows it in the nav menu
