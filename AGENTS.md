@@ -102,7 +102,7 @@ To add a landing page blurb: create `posts/index.md` with Markdown content. Dele
 
 ## Coding Conventions
 
-- **PHP 7.0+ compatible.** Do not use PHP 8-only syntax (named arguments, `match` expressions, nullsafe operator `?->`) without verifying the minimum version in `README.md`.
+- **PHP 8.4+ required.** PHP 8.x syntax (named arguments, `match` expressions, nullsafe operator `?->`, `array_key_last()`, etc.) is fine to use.
 - **No frameworks, no Composer dependencies** beyond the bundled `Parsedown.php`.
 - **XSS prevention:** all user-visible output must pass through `htmlspecialchars()`. Posts are rendered via Parsedown with `setSafeMode(true)` — do not disable this.
 - **Path traversal prevention:** `getPostBySlug()` already validates slugs. Any new file-reading code must validate user input before constructing filesystem paths.

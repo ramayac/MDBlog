@@ -11,6 +11,8 @@
 return [
     'blog_name' => 'Rodrigo A. ',
     'author_name' => 'Rodrigo Amaya',
+    // Language attribute for <html lang=""> tag
+    'lang' => 'en',
     // Header and footer content
     'header_content' => 'Wholesome Software Development.',
     // Navigation menu: custom links always shown in the nav bar.
@@ -63,7 +65,7 @@ return [
     'uncategorized_label' => 'General',
     
     // Performance and debugging
-    'show_render_time' => true, // Set to false to hide render time comments
+    'show_render_time' => false, // Set to true to expose render time in HTML comments
     
     // Directory settings
     'posts_dir' => 'posts', // Base directory for all posts and category folders

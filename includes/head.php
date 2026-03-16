@@ -10,18 +10,50 @@ if ($config['csp_enabled'] ?? true) {
 }
 
 // Default values
-$pageTitle = $pageTitle ?? $config['blog_name'];
+$pageTitle       = $pageTitle       ?? $config['blog_name'];
 $pageDescription = $pageDescription ?? $config['default_meta_description'];
+$ogType          = $ogType          ?? 'website';
+
+// Canonical URL — callers may set $pageCanonical before including this file.
+// Falls back to the current request URL, stripping the ?page= parameter.
+if (!isset($pageCanonical)) {
+    $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+    $host   = $_SERVER['HTTP_HOST'] ?? '';
+    $uri    = $_SERVER['REQUEST_URI'] ?? '';
+    // Remove page= query param so paginated URLs don't create duplicate canonicals
+    $uri    = preg_replace('/([?&])page=\d+(&?)/', '$1', $uri);
+    $uri    = rtrim($uri, '?&');
+    $pageCanonical = $host ? $scheme . '://' . $host . $uri : null;
+}
+
+// CSS cache-busting: append the file's mtime as a query string so browsers
+// pick up new styles immediately after a deployment.
+$cssPath = $config['css_theme'];
+$cssVer  = file_exists($cssPath) ? filemtime($cssPath) : '';
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?php echo htmlspecialchars($config['lang'] ?? 'en'); ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo htmlspecialchars($pageTitle); ?></title>
-    <link rel="stylesheet" href="<?php echo $config['css_theme']; ?>">
-    
+    <link rel="stylesheet" href="<?php echo htmlspecialchars($cssPath); ?>?v=<?php echo $cssVer; ?>">
+
     <?php if (!empty($pageDescription)): ?>
     <meta name="description" content="<?php echo htmlspecialchars($pageDescription); ?>">
+    <?php endif; ?>
+
+    <?php if ($pageCanonical): ?>
+    <link rel="canonical" href="<?php echo htmlspecialchars($pageCanonical); ?>">
+    <?php endif; ?>
+
+    <!-- Open Graph -->
+    <meta property="og:title"       content="<?php echo htmlspecialchars($pageTitle); ?>">
+    <meta property="og:type"        content="<?php echo htmlspecialchars($ogType); ?>">
+    <?php if ($pageCanonical): ?>
+    <meta property="og:url"         content="<?php echo htmlspecialchars($pageCanonical); ?>">
+    <?php endif; ?>
+    <?php if (!empty($pageDescription)): ?>
+    <meta property="og:description" content="<?php echo htmlspecialchars($pageDescription); ?>">
     <?php endif; ?>
 </head>

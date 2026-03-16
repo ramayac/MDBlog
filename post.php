@@ -41,7 +41,18 @@ $post = $blog->getPostBySlug($slug, $categorySlug);
 
 if (!$post) {
     http_response_code(404);
-    echo "Post not found";
+    $menu = $blog->getMenu();
+    $pageTitle = '404 Not Found — ' . $config['blog_name'];
+    include 'includes/head.php';
+    echo '<body><div class="container">';
+    if ($menu) {
+        echo '<nav class="site-menu">' . $menu . '</nav>';
+    }
+    echo '<main class="main-content"><div class="no-posts">';
+    echo '<h2>404 &mdash; Post Not Found</h2>';
+    echo '<p>The post you&rsquo;re looking for doesn&rsquo;t exist.</p>';
+    echo '<a href="index.php" class="back-to-home">&larr; Back to home</a>';
+    echo '</div></main></div></body></html>';
     exit;
 }
 
@@ -54,10 +65,26 @@ if (isset($post['frontMatter']['js'])) {
     $jsFiles = is_array($post['frontMatter']['js']) ? $post['frontMatter']['js'] : [$post['frontMatter']['js']];
 }
 
+// HTTP cache headers for post pages
+$postMtime    = strtotime($post['date']) ?: time();
+$lastModified = gmdate('D, d M Y H:i:s', $postMtime) . ' GMT';
+$etag         = '"' . md5($post['slug'] . $post['date']) . '"';
+header('Last-Modified: ' . $lastModified);
+header('ETag: ' . $etag);
+header('Cache-Control: public, max-age=3600');
+
+if (
+    (isset($_SERVER['HTTP_IF_NONE_MATCH']) && trim($_SERVER['HTTP_IF_NONE_MATCH']) === $etag) ||
+    (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) && strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']) >= $postMtime)
+) {
+    http_response_code(304);
+    exit;
+}
 ?>
 <?php
-$pageTitle = htmlspecialchars($post['title']) . ' - ' . $config['blog_name'];
+$pageTitle       = htmlspecialchars($post['title']) . ' - ' . $config['blog_name'];
 $pageDescription = isset($post['frontMatter']['description']) ? $post['frontMatter']['description'] : '';
+$ogType          = 'article';
 include 'includes/head.php';
 ?>
 <body>

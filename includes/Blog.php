@@ -17,6 +17,7 @@ class Blog {
     private $cacheEnabled;
     private $cacheTtl;
     private $cacheDir;
+    private $categoriesCache = null;
     
     public function __construct($configFile = 'config.php') {
         // Load configuration
@@ -107,6 +108,10 @@ class Blog {
     }
     
     public function getInclude($filename) {
+        // Allowlist: only plain filenames with safe characters, no path separators
+        if (!preg_match('/^[a-zA-Z0-9_.-]+$/', $filename) || strpos($filename, '..') !== false) {
+            return '';
+        }
         $path = 'includes/' . $filename;
         if (file_exists($path)) {
             $content = file_get_contents($path);
@@ -148,16 +153,21 @@ class Blog {
     }
     
     public function getCategories() {
+        if ($this->categoriesCache !== null) {
+            return $this->categoriesCache;
+        }
+
         $categories = [];
-        
+
         if (!isset($this->config['categories']) || !is_array($this->config['categories'])) {
+            $this->categoriesCache = $categories;
             return $categories;
         }
-        
+
         foreach ($this->config['categories'] as $key => $category) {
             $folder = $category['folder'] ?? $key;
             $path = $this->postsDir . '/' . $folder;
-            
+
             if (is_dir($path)) {
                 $post_count = count(glob($path . '/*.md'));
                 if ($post_count > 0) {
@@ -171,40 +181,14 @@ class Blog {
                 }
             }
         }
-        
+
+        $this->categoriesCache = $categories;
         return $categories;
     }
     
     public function getCategoryBySlug($slug) {
         $categories = $this->getCategories();
         return $categories[$slug] ?? null;
-    }
-    
-    /**
-     * Create a post array from a markdown file
-     */
-    private function createPostFromFile($file, $includeExcerpt = false) {
-        $content = file_get_contents($this->postsDir . '/' . $file);
-        $parsed = $this->parser->parse($content);
-        
-        $date = $this->extractPostDate($parsed['frontMatter'], $file);
-        $slug = $this->generateSlug($file);
-        $title = $this->extractPostTitle($parsed['frontMatter'], $file);
-        
-        $post = [
-            'filename' => $file,
-            'slug' => $slug,
-            'title' => $title,
-            'date' => $date,
-            'content' => $parsed['html'],
-            'frontMatter' => $parsed['frontMatter']
-        ];
-        
-        if ($includeExcerpt) {
-            $post['excerpt'] = $this->generateExcerpt($parsed['html']);
-        }
-        
-        return $post;
     }
     
     /**
@@ -371,7 +355,7 @@ class Blog {
         }
 
         $data = json_decode(file_get_contents($cacheFile), true);
-        return $data;
+        return (json_last_error() === JSON_ERROR_NONE) ? $data : null;
     }
 
     private function saveToCache($key, $data) {
@@ -380,23 +364,15 @@ class Blog {
         }
 
         if (!is_dir($this->cacheDir)) {
-            mkdir($this->cacheDir, 0777, true);
+            mkdir($this->cacheDir, 0755, true);
         }
 
-        file_put_contents($this->cacheDir . '/' . $key, json_encode($data));
-    }
-    
-    private function getMarkdownFiles() {
-        if (!is_dir($this->postsDir)) {
-            return [];
+        // Atomic write: write to a temp file then rename to avoid partial reads
+        $dest    = $this->cacheDir . '/' . $key;
+        $tmpFile = $dest . '.tmp.' . getmypid();
+        if (file_put_contents($tmpFile, json_encode($data), LOCK_EX) !== false) {
+            rename($tmpFile, $dest);
         }
-        
-        $files = scandir($this->postsDir);
-        $mdFiles = array_filter($files, function($file) {
-            return pathinfo($file, PATHINFO_EXTENSION) === 'md';
-        });
-        
-        return array_values($mdFiles);
     }
     
     private function generateSlug($filename) {
