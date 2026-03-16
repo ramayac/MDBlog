@@ -22,6 +22,26 @@ Made by [@ramayac](https://x.com/ramayac).
 2. Create `.md` files in the `posts` directory
 3. That's it!
 
+## Running Locally
+
+A `Makefile` is included for local development. Requires PHP and `make`.
+
+```bash
+# Start the built-in PHP dev server (default: http://localhost:8080)
+make serve
+
+# Use a custom host/port
+make serve HOST=0.0.0.0 PORT=9000
+```
+
+## Creating a New Post
+
+```bash
+make new-post TITLE="My Post Title" TAGS="tag1, tag2"
+```
+
+This creates a pre-filled `.md` file in `posts/` named `YYYY-MM-DD-my-post-title.md` with front matter populated from `config.php`.
+
 ## Writing Posts
 
 Create a `.md` file in `posts/` with optional front matter:
