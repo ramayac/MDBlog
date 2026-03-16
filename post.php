@@ -46,7 +46,7 @@ if (!$post) {
 }
 
 // Get Menu
-$menu = $blog->getInclude('menu.md');
+$menu = $blog->getMenu();
 
 // Check for custom JavaScript files
 $jsFiles = [];

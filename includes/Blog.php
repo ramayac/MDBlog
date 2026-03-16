@@ -115,6 +115,32 @@ class Blog {
         }
         return '';
     }
+
+    /**
+     * Build the navigation menu HTML from config.
+     * Renders custom menu_links first, then any category with 'menu' => true.
+     */
+    public function getMenu() {
+        $links = [];
+
+        // Custom static links
+        foreach ($this->config['menu_links'] ?? [] as $link) {
+            $label = htmlspecialchars($link['label'] ?? '');
+            $url   = htmlspecialchars($link['url']   ?? '#');
+            $links[] = '<a href="' . $url . '">' . $label . '</a>';
+        }
+
+        // Auto-generated category links
+        foreach ($this->config['categories'] ?? [] as $slug => $category) {
+            if (!empty($category['menu'])) {
+                $label   = htmlspecialchars($category['blog_name'] ?? ucfirst($slug));
+                $catSlug = htmlspecialchars(urlencode($slug));
+                $links[] = '<a href="index.php?category=' . $catSlug . '">' . $label . '</a>';
+            }
+        }
+
+        return implode(' | ', $links);
+    }
     
     public function parseMarkdown($content) {
         $parsed = $this->parser->parse($content);

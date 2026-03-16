@@ -1,1 +1,0 @@
-[Home](index.php) | [Old Musings](index.php?category=old) | [About](post.php?slug=about)

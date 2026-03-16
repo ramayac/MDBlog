@@ -35,7 +35,7 @@ $posts = $data['posts'];
 $pagination = $data['pagination'];
 
 // Get menu
-$menu = $blog->getInclude('menu.md');
+$menu = $blog->getMenu();
 
 ?>
 <?php

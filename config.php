@@ -13,19 +13,28 @@ return [
     'author_name' => 'Rodrigo Amaya',
     // Header and footer content
     'header_content' => 'Wholesome Software Development.',
+    // Navigation menu: custom links always shown in the nav bar.
+    // Category links are added automatically when 'menu' => true in a category entry.
+    'menu_links' => [
+        ['label' => 'Home',  'url' => 'index.php'],
+        ['label' => 'About', 'url' => 'post.php?slug=about'],
+    ],
+
     // Category configuration
     'categories' => [
         'srbyte' => [
             'blog_name' => 'Sr. Byte 👨‍💻',
             'header_content' => '(2007-2010) Tecnologia para todos.',
             'folder' => 'srbyte',
-            'index' => false, //shows it in the main index
+            'index' => false, // shows it in the main index
+            'menu'  => true,  // shows it in the nav menu
         ],
         'substack' => [
             'blog_name' => 'Code Forward ⏩',
             'header_content' => '(2023) Substack failed newsletter.',
             'folder' => 'substack',
-            'index' => false, //shows it in the main index
+            'index' => false, // shows it in the main index
+            'menu'  => true,  // shows it in the nav menu
         ],
     ],
     
