@@ -36,6 +36,13 @@ return [
             'index' => false, // shows it in the main index
             'menu'  => true,  // shows it in the nav menu
         ],
+        'mdblog' => [
+            'blog_name' => 'MDBlog 📝',
+            'header_content' => '(2024) Instructions to use MDBlog.',
+            'folder' => 'mdblog',
+            'index' => true, // shows it in the main index
+            'menu'  => true,  // shows it in the nav menu
+        ],
     ],
     
     'footer_content' => '*Built with [MDBlog](https://github.com/ramayac/MDBlog). 💻*',
