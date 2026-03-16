@@ -37,6 +37,26 @@ make serve
 make serve HOST=0.0.0.0 PORT=9000
 ```
 
+## Docker
+
+Requires Docker with the Compose plugin.
+
+```bash
+# Build the image (bakes version.php automatically)
+make docker-build
+
+# Run at http://localhost:8080
+make docker-run
+
+# Stop and remove containers
+make docker-stop
+
+# Push to a registry
+make docker-push REGISTRY=ghcr.io/your-user/mdblog
+```
+
+The container runs as a non-root user with a read-only filesystem. Only `cache/`, `/tmp`, and `/run` are writable (tmpfs).
+
 ## Creating a New Post
 
 ```bash
@@ -127,7 +147,7 @@ Edit `config.php` to customize all settings. Key fields:
 ## Requirements
 
 - PHP 7.0+
-- Web server with PHP support
+- Web server with PHP support (or Docker)
 - No database required
 - `zlib` PHP extension (enabled by default) for gzip compression
 

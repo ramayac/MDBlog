@@ -1,0 +1,34 @@
+services:
+  blog:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: mdblog:latest
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+
+    # ── Explicit non-root user (www-data in Alpine = uid 82) ─────────────────
+    user: "82:82"
+
+    # ── Harden the container runtime ─────────────────────────────────────────
+    read_only: true          # root filesystem is immutable
+    security_opt:
+      - no-new-privileges:true   # block setuid/setgid escalation
+    cap_drop:
+      - ALL                  # drop every Linux capability
+
+    # ── Writable tmpfs mounts (everything else stays read-only) ─────────────
+    # /tmp            — nginx temp files, supervisord socket/pid, php-fpm pid
+    # /run            — nginx runtime dir
+    # /var/www/html/cache — PHP JSON cache files (auto-regenerated)
+    tmpfs:
+      - /tmp:size=64m,mode=1777
+      - /run:size=4m,uid=82,gid=82
+      - /var/www/html/cache:size=32m,uid=82,gid=82
+
+    # ── Resource limits ───────────────────────────────────────────────────────
+    deploy:
+      resources:
+        limits:
+          memory: 128M

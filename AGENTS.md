@@ -26,7 +26,13 @@ posts/              # All content lives here
   srbyte/           # Category folder
   substack/         # Category folder
 cache/              # JSON cache files (auto-generated, do not commit)
-Makefile            # Developer targets: help, serve, new-post
+Makefile            # Developer targets: help, serve, new-post, docker-*
+Dockerfile          # Production image (nginx + php-fpm + tini, non-root)
+docker-compose.yml  # Hardened local/prod container runtime
+docker/
+  nginx.conf        # nginx config (port 8080, blocks internal paths)
+  php.ini           # PHP hardening overrides
+  entrypoint.sh     # Starts php-fpm then execs nginx under tini
 ```
 
 ## Configuration
@@ -69,9 +75,24 @@ Category posts live under `posts/<category-folder>/`.
 ```bash
 make serve                                      # PHP dev server at localhost:8080
 make new-post TITLE="Title" TAGS="tag1, tag2"   # Scaffold a new post
+make version                                    # Bake git commit/tag into version.php
+make clear-cache                                # Delete all cache/*.json files
 ```
 
 `make new-post` reads `author_name` from `config.php` automatically via a PHP one-liner.
+
+## Docker Workflow
+
+```bash
+make docker-build                               # Bake version.php + build image
+make docker-run                                 # Run via docker compose (localhost:8080)
+make docker-stop                                # Stop and remove containers
+make docker-push REGISTRY=ghcr.io/user/mdblog  # Tag and push to a registry
+```
+
+The image is built from `Dockerfile` (Alpine, ~35MB). The container runs as `www-data` (uid 82) with a read-only root filesystem; only `cache/`, `/tmp`, and `/run` are writable tmpfs mounts. All Linux capabilities are dropped.
+
+**When modifying the Makefile**, always update `README.md` and `AGENTS.md` to reflect the new or changed targets.
 
 ## Navigation Menu
 
@@ -138,3 +159,6 @@ Cache is **scoped per category folder** — adding a post only invalidates that 
 - Do not disable Parsedown's safe mode or markup escaping.
 - Do not add `unsafe-eval` to the CSP without a documented security justification.
 - Do not put new content in the root `posts/` dir — use a category folder.
+- Do not run the container as root or re-add dropped capabilities without justification.
+- Do not modify `docker/nginx.conf` to expose `includes/`, `posts/`, or `cache/` directly.
+- **When modifying the Makefile**, always update `README.md` and `AGENTS.md` to match.

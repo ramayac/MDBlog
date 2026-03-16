@@ -4,7 +4,7 @@ PHP      := php
 
 .DEFAULT_GOAL := help
 
-.PHONY: help serve new-post version clear-cache
+.PHONY: help serve new-post version clear-cache docker-build docker-run docker-stop docker-push
 
 help: ## Show available targets
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
@@ -43,3 +43,20 @@ new-post: ## Create a new post template: make new-post TITLE="my post title" [CA
 	fi
 	@printf -- '---\ntitle: $(TITLE)\ndate: $(DATE)\nauthor: $(AUTHOR)\ntags: $(TAGS)\ndescription: \n---\n\n# $(TITLE)\n' > "$(FILE)"
 	@echo "Created: $(FILE)"
+
+docker-build: ## Build the Docker image (bakes version.php first)
+	$(MAKE) version
+	docker build -t mdblog:latest .
+
+docker-run: ## Start blog via Docker Compose at http://localhost:8080
+	docker compose up
+
+docker-stop: ## Stop and remove Docker Compose containers
+	docker compose down
+
+docker-push: ## Push image to a registry: make docker-push REGISTRY=ghcr.io/user/mdblog
+	@if [ -z "$(REGISTRY)" ]; then \
+		echo "Usage: make docker-push REGISTRY=ghcr.io/your-user/mdblog"; exit 1; \
+	fi
+	docker tag mdblog:latest $(REGISTRY):latest
+	docker push $(REGISTRY):latest

@@ -1,0 +1,25 @@
+# Version control — never bake git history into the image
+.git/
+.github/
+
+# Docker files themselves (no need to copy into the image)
+Dockerfile
+docker-compose.yml
+docker/
+.dockerignore
+
+# Cache files are generated at runtime via tmpfs
+cache/
+
+# Dev docs and tooling
+README.md
+AGENTS.md
+Makefile
+.htaccess
+
+# Editor and OS noise
+.DS_Store
+*.log
+*.tmp
+.idea/
+.vscode/
