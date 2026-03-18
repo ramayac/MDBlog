@@ -86,8 +86,10 @@ make clear-cache                                # Delete all cache/*.json files
 ```bash
 make docker-build                               # Bake version.php + build image
 make docker-run                                 # Run via docker compose (localhost:8080)
+make docker-run-release                         # Run pulled release image without rebuilding
 make docker-stop                                # Stop and remove containers
-make docker-push REGISTRY=ghcr.io/user/mdblog  # Tag and push to a registry
+make docker-push                                # Tag and push to ghcr.io/ramayac/mdblog
+make docker-pull [TAG=1.2.3]                    # Pull release image and retag as mdblog:latest
 ```
 
 The image is built from `Dockerfile` (Alpine, ~35MB). The container runs as `www-data` (uid 82) with a read-only root filesystem; only `cache/`, `/tmp`, and `/run` are writable tmpfs mounts. All Linux capabilities are dropped.

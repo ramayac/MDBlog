@@ -1,10 +1,12 @@
-HOST     ?= localhost
-PORT     ?= 8080
-PHP      := php
+HOST      ?= localhost
+PORT      ?= 8080
+PHP       := php
+TAG       ?= latest
+REGISTRY  ?= ghcr.io/ramayac/mdblog
 
 .DEFAULT_GOAL := help
 
-.PHONY: help serve lint new-post version clear-cache docker-build docker-run docker-stop docker-push
+.PHONY: help serve lint new-post version clear-cache docker-build docker-run docker-run-release docker-stop docker-push docker-pull
 
 help: ## Show available targets
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
@@ -61,9 +63,14 @@ docker-run: ## Start blog via Docker Compose at http://localhost:8080
 docker-stop: ## Stop and remove Docker Compose containers
 	docker compose down
 
-docker-push: ## Push image to a registry: make docker-push REGISTRY=ghcr.io/user/mdblog
-	@if [ -z "$(REGISTRY)" ]; then \
-		echo "Usage: make docker-push REGISTRY=ghcr.io/your-user/mdblog"; exit 1; \
-	fi
+docker-push: ## Push image to registry (REGISTRY=ghcr.io/ramayac/mdblog)
 	docker tag mdblog:latest $(REGISTRY):latest
 	docker push $(REGISTRY):latest
+
+docker-pull: ## Pull a release image from registry: make docker-pull [TAG=1.2.3]
+	docker pull $(REGISTRY):$(TAG)
+	docker tag $(REGISTRY):$(TAG) mdblog:latest
+	@echo "Pulled $(REGISTRY):$(TAG) and tagged as mdblog:latest — run with: make docker-run-release"
+
+docker-run-release: ## Run the pulled release image without rebuilding (use after docker-pull)
+	docker compose up --no-build
