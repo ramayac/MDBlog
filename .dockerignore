@@ -5,7 +5,6 @@
 # Docker files themselves (no need to copy into the image)
 Dockerfile
 docker-compose.yml
-docker/
 .dockerignore
 
 # Cache files are generated at runtime via tmpfs
