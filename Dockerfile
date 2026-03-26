@@ -1,14 +1,9 @@
-# ── Bref FPM base image (Lambda Runtime Interface Client included) ────────────
-FROM --platform=linux/arm64 bref/php-83-fpm:2
+# Remove the hardcoded --platform flag (clears the warning)
+FROM bref/php-83-fpm:2
 
-# ── PHP hardening ─────────────────────────────────────────────────────────────
+# Your existing copy commands
 COPY docker/php.ini /opt/bref/etc/php/conf.d/custom.ini
-
-# ── App files ─────────────────────────────────────────────────────────────────
 COPY . ${LAMBDA_TASK_ROOT}
 
-# ── Ensure the Lambda user can read the files ─────────────────────────────────
-RUN chmod -R 755 ${LAMBDA_TASK_ROOT}
-
-# ── Lambda handler ────────────────────────────────────────────────────────────
+# The Handler
 CMD [ "index.php" ]
