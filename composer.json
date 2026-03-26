@@ -1,0 +1,14 @@
+{
+    "name": "ramayac/mdblog",
+    "description": "A lightweight flat-file Markdown blog engine for PHP / AWS Lambda (Bref)",
+    "type": "project",
+    "require": {
+        "php": "^8.3",
+        "bref/bref": "^2.0",
+        "erusev/parsedown": "^1.7.4"
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "sort-packages": true
+    }
+}

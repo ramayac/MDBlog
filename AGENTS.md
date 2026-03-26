@@ -13,10 +13,10 @@ config.php         # All runtime configuration (single source of truth)
 includes/
   Blog.php          # Core logic: post scanning, slug resolution, pagination, menu
   MarkdownParser.php # Front matter parser + Parsedown wrapper
-  Parsedown.php     # Third-party Markdown renderer (do not modify)
   head.php          # HTML <head> template, CSP header
   debug.php         # Render-time debug output
   templates/        # Reusable HTML partials
+vendor/             # Composer-managed dependencies (not committed; auto-generated in Docker build)
 assets/
   css/              # CSS themes
   js/               # Optional per-post JavaScript files
@@ -125,7 +125,7 @@ To add a landing page blurb: create `posts/index.md` with Markdown content. Dele
 ## Coding Conventions
 
 - **PHP 8.3+ required.** PHP 8.x syntax (named arguments, `match` expressions, nullsafe operator `?->`, `array_key_last()`, etc.) is fine to use.
-- **No frameworks, no Composer dependencies** beyond the bundled `Parsedown.php`.
+- **No frameworks, no Composer dependencies** beyond `bref/bref` and `erusev/parsedown` (managed via `composer.json`).
 - **XSS prevention:** all user-visible output must pass through `htmlspecialchars()`. Posts are rendered via Parsedown with `setSafeMode(true)` — do not disable this.
 - **Path traversal prevention:** `getPostBySlug()` already validates slugs. Any new file-reading code must validate user input before constructing filesystem paths.
 - **CSP:** the `csp_header` in `config.php` controls the policy. If adding new external resource types (fonts, embeds, etc.), update the policy there, not inline.
@@ -156,7 +156,7 @@ Cache is **scoped per category folder** — adding a post only invalidates that 
 
 - Do not add a database layer.
 - Do not introduce a front-end build tool (webpack, vite, etc.).
-- Do not modify `Parsedown.php` — update it by replacing the file wholesale.
+- Do not modify `Parsedown.php` directly — it is managed by Composer (`erusev/parsedown`). Update the version constraint in `composer.json` instead.
 - Do not disable Parsedown's safe mode or markup escaping.
 - Do not add `unsafe-eval` to the CSP without a documented security justification.
 - Do not put new content in the root `posts/` dir — use a category folder.

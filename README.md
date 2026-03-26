@@ -27,7 +27,15 @@ Made by [@ramayac](https://x.com/ramayac).
 
 ## Running Locally
 
-A `Makefile` is included for local development. Requires PHP and `make`.
+A `Makefile` is included for local development. Requires PHP 8.3+, Composer, and `make`.
+
+**Install dependencies first:**
+
+```bash
+composer install
+```
+
+Then start the dev server:
 
 ```bash
 # Start the built-in PHP dev server (default: http://localhost:8080)
