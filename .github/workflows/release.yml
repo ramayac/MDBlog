@@ -55,15 +55,16 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Build and push
+      - name: Build and push to ECR
         uses: docker/build-push-action@v6
         with:
           context: .
           push: true
+          # Force these specific settings for Lambda compatibility:
+          platforms: linux/arm64
+          provenance: false
           tags: |
-            ${{ steps.meta.outputs.tags }}
             ${{ steps.login-ecr.outputs.registry }}/ramayac/mdblog:latest
-          labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
