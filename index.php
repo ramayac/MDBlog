@@ -5,6 +5,9 @@ if (substr_count($_SERVER['HTTP_ACCEPT_ENCODING'] ?? '', 'gzip')) {
     ob_start('ob_gzhandler');
 }
 
+// Composer autoloader
+require __DIR__ . '/vendor/autoload.php';
+
 // Start timing
 $start_time = microtime(true);
 

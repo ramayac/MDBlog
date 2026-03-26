@@ -1,9 +1,5 @@
 <?php
 
-// Download Parsedown from https://parsedown.org or via Composer
-// For this example, we'll include it directly
-require_once 'Parsedown.php';
-
 class MarkdownParser {
     private $parsedown;
     

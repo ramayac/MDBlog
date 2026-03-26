@@ -1,0 +1,60 @@
+name: Deploy — Push to ECR & Update Lambda
+
+on:
+  workflow_run:
+    workflows: ["Release — Build & Push to GHCR"]
+    types: [completed]
+
+jobs:
+  deploy-aws:
+    name: Push to ECR and update Lambda
+    runs-on: ubuntu-latest
+    # Only run when the GHCR workflow succeeded
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - name: Bake version.php
+        run: |
+          COMMIT=$(git log -1 --format="%h")
+          DATE=$(git log -1 --format="%ad" --date=short)
+          # Derive version from the tag that triggered the release
+          VERSION="${{ github.event.workflow_run.head_branch }}"
+          php -r 'file_put_contents("version.php", "<?php return [\"commit\"=>\"'"$COMMIT"'\",\"date\"=>\"'"$DATE"'\",\"version\"=>\"'"$VERSION"'\"];\n");'
+          echo "version.php written: commit=$COMMIT, date=$DATE, version=$VERSION"
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ca-central-1
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push to ECR
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          provenance: false
+          tags: ${{ steps.login-ecr.outputs.registry }}/ramayac/mdblog:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Update Lambda Function
+        run: |
+          aws lambda update-function-code \
+            --function-name mdblog-function \
+            --image-uri ${{ steps.login-ecr.outputs.registry }}/ramayac/mdblog:latest

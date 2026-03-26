@@ -10,6 +10,9 @@ docker-compose.yml
 # Cache files are generated at runtime via tmpfs
 cache/
 
+# Composer vendor — generated during Docker build stage, not needed in build context
+vendor/
+
 # Dev docs and tooling
 README.md
 AGENTS.md
