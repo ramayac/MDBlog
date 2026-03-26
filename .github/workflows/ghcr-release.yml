@@ -1,11 +1,11 @@
-name: Release — Build & Push Docker Image
+name: Release — Build & Push to GHCR
 
 on:
   release:
     types: [published]
 
 jobs:
-  build-and-push:
+  build-and-push-ghcr:
     name: Build and push to ghcr.io
     runs-on: ubuntu-latest
     permissions:
@@ -44,30 +44,13 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ca-central-1
-
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
-
-      - name: Build and push to ECR
+      - name: Build and push to GHCR
         uses: docker/build-push-action@v6
         with:
           context: .
           push: true
           provenance: false
-          tags: |
-            ${{ steps.login-ecr.outputs.registry }}/ramayac/mdblog:latest
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-
-      - name: Update Lambda Function
-        run: |
-          aws lambda update-function-code \
-            --function-name mdblog-function \
-            --image-uri ${{ steps.login-ecr.outputs.registry }}/ramayac/mdblog:latest
