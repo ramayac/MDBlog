@@ -11,6 +11,10 @@ class MarkdownParser {
     }
     
     public function parse($text) {
+        // Ensure input is valid UTF-8; strip or replace any invalid byte sequences
+        // so that Parsedown and json_encode() downstream never see malformed bytes.
+        $text = mb_convert_encoding($text, 'UTF-8', 'UTF-8');
+
         // Remove Windows line endings
         $text = str_replace("\r\n", "\n", $text);
         $text = str_replace("\r", "\n", $text);

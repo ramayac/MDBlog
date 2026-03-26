@@ -76,6 +76,7 @@ make serve                                      # PHP dev server at localhost:80
 make new-post TITLE="Title" TAGS="tag1, tag2"   # Scaffold a new post
 make version                                    # Bake git commit/tag into version.php
 make clear-cache                                # Delete all cache/*.json files
+make utf8-fix                                   # Re-encode non-UTF-8 .md files in posts/ to UTF-8
 ```
 
 `make new-post` reads `author_name` from `config.php` automatically via a PHP one-liner.
