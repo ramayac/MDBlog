@@ -60,8 +60,6 @@ jobs:
         with:
           context: .
           push: true
-          # Force these specific settings for Lambda compatibility:
-          platforms: linux/arm64
           provenance: false
           tags: |
             ${{ steps.login-ecr.outputs.registry }}/ramayac/mdblog:latest
