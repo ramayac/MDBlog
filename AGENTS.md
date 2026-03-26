@@ -28,7 +28,6 @@ posts/              # All content lives here
 cache/              # JSON cache files (auto-generated, do not commit)
 Makefile            # Developer targets: help, serve, new-post, docker-*
 Dockerfile          # Production image — Bref FPM base (Lambda-compatible via API Gateway)
-docker-compose.yml  # Hardened local/prod container runtime
 docker/
   nginx.conf        # nginx config (port 8080, blocks internal paths) — local/dev only
   php.ini           # PHP hardening overrides (mounted into Bref at /opt/bref/etc/php/conf.d/custom.ini)
@@ -94,8 +93,6 @@ make docker-pull [TAG=1.2.3]                    # Pull release image and retag a
 
 The image is built from `Dockerfile` using `bref/php-83-fpm:2` as the base. This image includes the Lambda Runtime Interface Client (RIC); when deployed to AWS Lambda behind API Gateway, Bref's runtime translates API Gateway HTTP events into PHP-FPM requests automatically. `docker/php.ini` is loaded at `/opt/bref/etc/php/conf.d/custom.ini`.
 
-For local development, `docker-compose.yml` and `docker/nginx.conf` / `docker/entrypoint.sh` are still used via `make docker-run`.
-
 **When modifying the Makefile**, always update `README.md` and `AGENTS.md` to reflect the new or changed targets.
 
 ## Navigation Menu
@@ -127,7 +124,7 @@ To add a landing page blurb: create `posts/index.md` with Markdown content. Dele
 
 ## Coding Conventions
 
-- **PHP 8.4+ required.** PHP 8.x syntax (named arguments, `match` expressions, nullsafe operator `?->`, `array_key_last()`, etc.) is fine to use.
+- **PHP 8.3+ required.** PHP 8.x syntax (named arguments, `match` expressions, nullsafe operator `?->`, `array_key_last()`, etc.) is fine to use.
 - **No frameworks, no Composer dependencies** beyond the bundled `Parsedown.php`.
 - **XSS prevention:** all user-visible output must pass through `htmlspecialchars()`. Posts are rendered via Parsedown with `setSafeMode(true)` — do not disable this.
 - **Path traversal prevention:** `getPostBySlug()` already validates slugs. Any new file-reading code must validate user input before constructing filesystem paths.
