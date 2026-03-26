@@ -73,7 +73,7 @@ return [
     'cache_dir' => 'cache',
 
     // Cache settings
-    'cache_enabled' => true,
+    'cache_enabled' => false, #set false when using as a lambda
     'cache_ttl' => 604800, // 1 week in seconds (60 * 60 * 24 * 7)
     
     // Date format (used for file modification dates)
