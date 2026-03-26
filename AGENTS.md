@@ -27,12 +27,11 @@ posts/              # All content lives here
   substack/         # Category folder
 cache/              # JSON cache files (auto-generated, do not commit)
 Makefile            # Developer targets: help, serve, new-post, docker-*
-Dockerfile          # Production image (nginx + php-fpm + tini, non-root)
-docker-compose.yml  # Hardened local/prod container runtime
+Dockerfile          # Production image — Bref FPM base (Lambda-compatible via API Gateway)
 docker/
-  nginx.conf        # nginx config (port 8080, blocks internal paths)
-  php.ini           # PHP hardening overrides
-  entrypoint.sh     # Starts php-fpm then execs nginx under tini
+  nginx.conf        # nginx config (port 8080, blocks internal paths) — local/dev only
+  php.ini           # PHP hardening overrides (mounted into Bref at /opt/bref/etc/php/conf.d/custom.ini)
+  entrypoint.sh     # Starts php-fpm then execs nginx under tini — local/dev only
 ```
 
 ## Configuration
@@ -92,7 +91,7 @@ make docker-push                                # Tag and push to ghcr.io/ramaya
 make docker-pull [TAG=1.2.3]                    # Pull release image and retag as mdblog:latest
 ```
 
-The image is built from `Dockerfile` (Alpine, ~35MB). The container runs as `www-data` (uid 82) with a read-only root filesystem; only `cache/`, `/tmp`, and `/run` are writable tmpfs mounts. All Linux capabilities are dropped.
+The image is built from `Dockerfile` using `bref/php-83-fpm:2` as the base. This image includes the Lambda Runtime Interface Client (RIC); when deployed to AWS Lambda behind API Gateway, Bref's runtime translates API Gateway HTTP events into PHP-FPM requests automatically. `docker/php.ini` is loaded at `/opt/bref/etc/php/conf.d/custom.ini`.
 
 **When modifying the Makefile**, always update `README.md` and `AGENTS.md` to reflect the new or changed targets.
 
@@ -125,7 +124,7 @@ To add a landing page blurb: create `posts/index.md` with Markdown content. Dele
 
 ## Coding Conventions
 
-- **PHP 8.4+ required.** PHP 8.x syntax (named arguments, `match` expressions, nullsafe operator `?->`, `array_key_last()`, etc.) is fine to use.
+- **PHP 8.3+ required.** PHP 8.x syntax (named arguments, `match` expressions, nullsafe operator `?->`, `array_key_last()`, etc.) is fine to use.
 - **No frameworks, no Composer dependencies** beyond the bundled `Parsedown.php`.
 - **XSS prevention:** all user-visible output must pass through `htmlspecialchars()`. Posts are rendered via Parsedown with `setSafeMode(true)` — do not disable this.
 - **Path traversal prevention:** `getPostBySlug()` already validates slugs. Any new file-reading code must validate user input before constructing filesystem paths.

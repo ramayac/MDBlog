@@ -42,23 +42,18 @@ make lint
 
 ## Docker
 
-Requires Docker with the Compose plugin.
+The production image is built on [`bref/php-83-fpm:2`](https://bref.sh/) and is designed to run as an AWS Lambda container image function behind API Gateway. Bref's runtime translates API Gateway HTTP events into PHP-FPM requests automatically.
 
 ```bash
 # Build the image (bakes version.php automatically)
 make docker-build
 
-# Run at http://localhost:8080
-make docker-run
-
-# Stop and remove containers
-make docker-stop
-
 # Push to a registry
 make docker-push REGISTRY=ghcr.io/your-user/mdblog
-```
 
-The container runs as a non-root user with a read-only filesystem. Only `cache/`, `/tmp`, and `/run` are writable (tmpfs).
+# Pull a specific release and retag as latest
+make docker-pull TAG=1.2.3
+```
 
 ## Creating a New Post
 
@@ -149,8 +144,8 @@ Edit `config.php` to customize all settings. Key fields:
 
 ## Requirements
 
-- PHP 7.0+
-- Web server with PHP support (or Docker)
+- PHP 8.3+
+- Web server with PHP support (or deploy as an AWS Lambda container image via Bref)
 - No database required
 - `zlib` PHP extension (enabled by default) for gzip compression
 

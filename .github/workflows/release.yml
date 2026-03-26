@@ -66,3 +66,9 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: Update Lambda Function
+        run: |
+          aws lambda update-function-code \
+            --function-name mdblog-function \
+            --image-uri ${{ steps.login-ecr.outputs.registry }}/ramayac/mdblog:latest
