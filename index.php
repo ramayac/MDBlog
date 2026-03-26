@@ -1,7 +1,9 @@
 <?php
 
 // Enable gzip compression if supported by the client
-if (substr_count($_SERVER['HTTP_ACCEPT_ENCODING'] ?? '', 'gzip')) {
+// Skip on AWS Lambda — Bref JSON-encodes the response body and cannot handle binary gzip output
+if (!isset($_ENV['AWS_LAMBDA_FUNCTION_NAME']) &&
+    substr_count($_SERVER['HTTP_ACCEPT_ENCODING'] ?? '', 'gzip')) {
     ob_start('ob_gzhandler');
 }
 
