@@ -6,7 +6,7 @@ REGISTRY  ?= ghcr.io/ramayac/mdblog
 
 .DEFAULT_GOAL := help
 
-.PHONY: help serve lint new-post version clear-cache docker-build docker-run docker-run-release docker-stop docker-push docker-pull
+.PHONY: help serve lint new-post version clear-cache utf8-fix docker-build docker-run docker-run-release docker-stop docker-push docker-pull
 
 help: ## Show available targets
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
@@ -74,3 +74,16 @@ docker-pull: ## Pull a release image from registry: make docker-pull [TAG=1.2.3]
 
 docker-run-release: ## Run the pulled release image without rebuilding (use after docker-pull)
 	docker compose up --no-build
+
+utf8-fix: ## Re-encode any non-UTF-8 .md files in posts/ to UTF-8 (fixes Bref JSON encoding errors)
+	@echo "Scanning posts/ for non-UTF-8 encoded Markdown files..."
+	@fixed=0; \
+	for f in $$(find posts/ -name '*.md' | sort); do \
+		if ! $(PHP) -r 'exit(mb_check_encoding(file_get_contents("'"$$f"'"), "UTF-8") ? 0 : 1);' 2>/dev/null; then \
+			$(PHP) -r 'file_put_contents("'"$$f"'", mb_convert_encoding(file_get_contents("'"$$f"'"), "UTF-8", "auto"));'; \
+			echo "  Converted: $$f"; \
+			fixed=$$((fixed+1)); \
+		fi; \
+	done; \
+	if [ $$fixed -eq 0 ]; then echo "All files are already valid UTF-8."; \
+	else echo "$$fixed file(s) converted to UTF-8."; fi

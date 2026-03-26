@@ -367,10 +367,17 @@ class Blog {
             mkdir($this->cacheDir, 0755, true);
         }
 
-        // Atomic write: write to a temp file then rename to avoid partial reads
+        // Atomic write: write to a temp file then rename to avoid partial reads.
+        // JSON_UNESCAPED_UNICODE keeps multi-byte characters readable in the cache
+        // file and avoids encoding errors when posts contain non-ASCII content.
         $dest    = $this->cacheDir . '/' . $key;
         $tmpFile = $dest . '.tmp.' . getmypid();
-        if (file_put_contents($tmpFile, json_encode($data), LOCK_EX) !== false) {
+        $encoded = json_encode($data, JSON_UNESCAPED_UNICODE);
+        if ($encoded === false) {
+            error_log('MDBlog: json_encode failed for cache key ' . $key . ': ' . json_last_error_msg());
+            return;
+        }
+        if (file_put_contents($tmpFile, $encoded, LOCK_EX) !== false) {
             rename($tmpFile, $dest);
         }
     }

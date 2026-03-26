@@ -38,14 +38,10 @@ composer install
 Then start the dev server:
 
 ```bash
-# Start the built-in PHP dev server (default: http://localhost:8080)
-make serve
-
-# Use a custom host/port
-make serve HOST=0.0.0.0 PORT=9000
-
-# Check all PHP files for syntax errors
-make lint
+make serve           # Start the built-in PHP dev server (default: http://localhost:8080)
+make lint            # Check all PHP files for syntax errors
+make clear-cache     # Delete all cached .json files from cache/
+make utf8-fix        # Re-encode any non-UTF-8 .md files in posts/ to valid UTF-8
 ```
 
 ## Docker
