@@ -1,10 +1,21 @@
 <?php
 
+// ── Request router ──────────────────────────────────────────────────────────
+// On AWS Lambda (Bref FPM), every HTTP request is routed through this script
+// because it is the CMD handler in the Dockerfile.  Inspect the original
+// request path and delegate to the correct PHP handler before doing anything
+// else, so that post.php receives its own full execution context.
+$requestPath = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH);
+
+// Delegate post.php requests to the post handler.
+if ($requestPath && $requestPath === '/post.php') {
+    require __DIR__ . '/post.php';
+    exit;
+}
+
 // ── Static-asset handler ────────────────────────────────────────────────────
-// On AWS Lambda (Bref FPM), every HTTP request is routed to this script.
 // The PHP built-in dev server and nginx serve static files on their own,
 // so this block only matters when no web-server layer sits in front of PHP.
-$requestPath = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH);
 if ($requestPath && preg_match('#^/assets/(.+)$#', $requestPath, $m)) {
     $assetFile = __DIR__ . '/assets/' . $m[1];
     $realBase  = realpath(__DIR__ . '/assets');
