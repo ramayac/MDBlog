@@ -27,12 +27,13 @@ posts/              # All content lives here
   substack/         # Category folder
 cache/              # JSON cache files (auto-generated, do not commit)
 Makefile            # Developer targets: help, serve, new-post, docker-*
-Dockerfile          # Production image — Bref FPM base (Lambda-compatible via API Gateway)
-docker/
-  nginx.conf        # nginx config (port 8080, blocks internal paths) — local/dev only
-  php.ini           # PHP hardening overrides (mounted into Bref at /opt/bref/etc/php/conf.d/custom.ini)
-  entrypoint.sh     # Starts php-fpm then execs nginx under tini — local/dev only
+Dockerfile          # Production image — Bref FPM base (Lambda container image)
+docker-compose.yml  # Local dev only: exposes port 8080, tmpfs mounts for cache + runtime dirs
 ```
+
+**Deployment model:** The production artifact is a Docker container image pushed to a registry (e.g. ghcr.io) and deployed as an **AWS Lambda container image function** behind API Gateway. Bref translates API Gateway HTTP events into PHP-FPM requests. Posts and all static assets are **baked into the image** — there is no external content source or database.
+
+`docker-compose.yml` is for local development only and is not used in production.
 
 ## Configuration
 
@@ -92,7 +93,7 @@ make docker-push                                # Tag and push to ghcr.io/ramaya
 make docker-pull [TAG=1.2.3]                    # Pull release image and retag as mdblog:latest
 ```
 
-The image is built from `Dockerfile` using `bref/php-83-fpm:2` as the base. This image includes the Lambda Runtime Interface Client (RIC); when deployed to AWS Lambda behind API Gateway, Bref's runtime translates API Gateway HTTP events into PHP-FPM requests automatically. `docker/php.ini` is loaded at `/opt/bref/etc/php/conf.d/custom.ini`.
+The image is built from `Dockerfile` using `bref/php-83-fpm:2` as the base. This image includes the Lambda Runtime Interface Client (RIC); when deployed to AWS Lambda behind API Gateway, Bref's runtime translates API Gateway HTTP events into PHP-FPM requests automatically.
 
 **When modifying the Makefile**, always update `README.md` and `AGENTS.md` to reflect the new or changed targets.
 
@@ -149,9 +150,19 @@ To add a landing page blurb: create `posts/index.md` with Markdown content. Dele
 
 ## Cache
 
-JSON files in `cache/` are auto-generated at runtime. Do not edit them manually. Do not commit them (add to `.gitignore` if not already present).
+### Lambda (production) — file cache is disabled
 
-Cache is **scoped per category folder** — adding a post only invalidates that category's cache, not the whole site. The landing page does no caching because it does no post scanning.
+`cache_enabled` is `false` by default in `config.php` and **must stay `false` for Lambda deployments**. Reasons:
+
+- Lambda's container filesystem is immutable; only `/tmp` is writable
+- Every concurrent Lambda container has its own isolated `/tmp` — containers cannot share cache state
+- Cold starts reset any content in `/tmp`
+
+**Recommended production caching strategy:** place **CloudFront** (or enable **API Gateway caching**) in front of the Lambda function. Since posts are baked into the image and only change on redeploy, cache TTLs of hours or days are safe. Invalidate the CloudFront distribution after each `make docker-push`.
+
+### Traditional web server — file cache is available
+
+For self-hosted deployments (plain PHP web server), set `cache_enabled => true` in `config.php`. JSON files in `cache/` are then auto-generated at runtime, scoped per category folder. The landing page never caches (it does no post scanning). Do not edit cache files manually. Do not commit them (`.gitignore` already excludes them).
 
 ## What NOT to Do
 
@@ -162,5 +173,5 @@ Cache is **scoped per category folder** — adding a post only invalidates that 
 - Do not add `unsafe-eval` to the CSP without a documented security justification.
 - Do not put new content in the root `posts/` dir — use a category folder.
 - Do not run the container as root or re-add dropped capabilities without justification.
-- Do not modify `docker/nginx.conf` to expose `includes/`, `posts/`, or `cache/` directly.
+- Do not expose `includes/`, `posts/`, or `cache/` paths via any web server or proxy config.
 - **When modifying the Makefile**, always update `README.md` and `AGENTS.md` to match.

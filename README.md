@@ -20,10 +20,14 @@ Made by [@ramayac](https://x.com/ramayac).
 
 ## Quick Start
 
-1. Upload files to a PHP-enabled web server
-2. Update `config.php` for blog name, author, categories, and menu links
-3. Create `.md` files in the `posts/` directory
-4. That's it!
+MDBlog is deployed as a Docker container image on AWS Lambda behind API Gateway, using [Bref](https://bref.sh/).
+
+1. Clone the repo and configure `config.php` (blog name, author, categories)
+2. Add `.md` posts to the `posts/<category>/` directories
+3. Build and push the Docker image: `make docker-build && make docker-push`
+4. Deploy the image to AWS Lambda as a container image function behind API Gateway
+
+For local development, see the [Running Locally](#running-locally) section below.
 
 ## Running Locally
 
@@ -44,20 +48,29 @@ make clear-cache     # Delete all cached .json files from cache/
 make utf8-fix        # Re-encode any non-UTF-8 .md files in posts/ to valid UTF-8
 ```
 
-## Docker
+## Deployment (AWS Lambda)
 
-The production image is built on [`bref/php-83-fpm:2`](https://bref.sh/) and is designed to run as an AWS Lambda container image function behind API Gateway. Bref's runtime translates API Gateway HTTP events into PHP-FPM requests automatically.
+The production image is built on [`bref/php-83-fpm:2`](https://bref.sh/) and deployed as an **AWS Lambda container image function** behind API Gateway. Bref's runtime translates API Gateway HTTP events into PHP-FPM requests automatically. Posts are bundled inside the Docker image — there is no database and no external content source.
 
 ```bash
-# Build the image (bakes version.php automatically)
-make docker-build
-
-# Push to a registry
-make docker-push REGISTRY=ghcr.io/your-user/mdblog
-
-# Pull a specific release and retag as latest
-make docker-pull TAG=1.2.3
+make docker-build                        # Bake version.php + build image
+make docker-push REGISTRY=ghcr.io/...   # Tag and push to a container registry
+make docker-pull TAG=1.2.3              # Pull a release image and tag as latest
 ```
+
+After pushing the image, update the Lambda function to use the new image URI. AWS will cold-start new containers from the updated image.
+
+### Cache on Lambda
+
+The file-based JSON cache (`cache/`) **does not work on Lambda** and is disabled by default (`cache_enabled => false` in `config.php`):
+
+- Lambda's container filesystem is immutable (read-only except `/tmp`)
+- Each concurrent Lambda container has its own isolated `/tmp` — containers cannot share cache state
+- Cold starts reset any `/tmp` content
+
+**Recommended caching strategy for Lambda:** place **CloudFront** (or enable **API Gateway caching**) in front of the Lambda function. Since posts are baked into the image and change only on redeploy, a CloudFront TTL of several hours or days works well. Invalidate the distribution after each `make docker-push`.
+
+The file-based cache code is retained for anyone self-hosting on a traditional web server — enable it by setting `cache_enabled => true` in `config.php`.
 
 ## Creating a New Post
 
@@ -148,10 +161,18 @@ Edit `config.php` to customize all settings. Key fields:
 
 ## Requirements
 
+**Production (Lambda):**
+- Docker (to build the image)
+- AWS account with Lambda + API Gateway (+ optionally CloudFront)
+- Container registry (e.g. ghcr.io or ECR) to host the image
+
+**Local development:**
 - PHP 8.3+
-- Web server with PHP support (or deploy as an AWS Lambda container image via Bref)
-- No database required
+- Composer
+- `make`
 - `zlib` PHP extension (enabled by default) for gzip compression
+
+No database required.
 
 ## License
 
