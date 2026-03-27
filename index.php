@@ -1,5 +1,40 @@
 <?php
 
+// ── Static-asset handler ────────────────────────────────────────────────────
+// On AWS Lambda (Bref FPM), every HTTP request is routed to this script.
+// The PHP built-in dev server and nginx serve static files on their own,
+// so this block only matters when no web-server layer sits in front of PHP.
+$requestPath = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH);
+if ($requestPath && preg_match('#^/assets/(.+)$#', $requestPath, $m)) {
+    $assetFile = __DIR__ . '/assets/' . $m[1];
+    $realBase  = realpath(__DIR__ . '/assets');
+    $realFile  = realpath($assetFile);
+
+    // Serve the file only when it truly lives inside assets/ (no traversal)
+    if ($realBase && $realFile && str_starts_with($realFile, $realBase . DIRECTORY_SEPARATOR) && is_file($realFile)) {
+        $ext = strtolower(pathinfo($realFile, PATHINFO_EXTENSION));
+        $mimeMap = [
+            'css'   => 'text/css',
+            'js'    => 'application/javascript',
+            'png'   => 'image/png',
+            'jpg'   => 'image/jpeg',
+            'jpeg'  => 'image/jpeg',
+            'gif'   => 'image/gif',
+            'svg'   => 'image/svg+xml',
+            'ico'   => 'image/x-icon',
+            'woff'  => 'font/woff',
+            'woff2' => 'font/woff2',
+            'ttf'   => 'font/ttf',
+        ];
+        $contentType = $mimeMap[$ext] ?? 'application/octet-stream';
+
+        header('Content-Type: ' . $contentType);
+        header('Cache-Control: public, max-age=86400');
+        readfile($realFile);
+        exit;
+    }
+}
+
 // Enable gzip compression if supported by the client
 // Skip on AWS Lambda — Bref JSON-encodes the response body and cannot handle binary gzip output
 if (!isset($_ENV['AWS_LAMBDA_FUNCTION_NAME']) &&
