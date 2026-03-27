@@ -6,8 +6,6 @@ tags: parenthood, ai, development
 description: 
 ---
 
-# AI and Parenthood
-
 It's been a long time since my last post, and so much has changed. I'm now the proud dad of a beautiful and very bright baby girl. My wife and I couldn't be happier—she was dreamed, planned, expected, and she definitely has a place to belong and grow in this world. So "check" for one of my personal life goals: becoming a dad.
 
 Becoming a dad has been transformative. I was fortunate to take nearly three months of Parental Leave, giving me the chance to care for my wife and daughter. For the first month, I barely touched a computer—the longest break I've had in over 15 years. It was refreshing to disconnect from work and focus on family.
