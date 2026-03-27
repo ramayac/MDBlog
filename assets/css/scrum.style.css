@@ -1,0 +1,180 @@
+/* * MDBlog Modern Professional Theme
+ * Inspired by Scrum.org / Optimized for legibility
+ */
+
+:root {
+    /* Scrum.org Inspired Palette */
+    --primary-blue: #007db8;
+    --text-main: #2d3748;
+    --text-muted: #718096;
+    --bg-page: #ffffff;
+    --bg-alt: #f8fafc;
+    --border-light: #e2e8f0;
+    
+    /* Typography */
+    --font-body: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --font-heading: 'Inter', sans-serif;
+    --font-code: 'JetBrains Mono', 'Fira Code', monospace;
+    
+    /* Layout */
+    --content-width: 720px;
+    --line-height: 1.7;
+}
+
+/* 1. Reset & Global Layout */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: var(--font-body);
+    font-size: 1.125rem;
+    line-height: var(--line-height);
+    color: var(--text-main);
+    background-color: var(--bg-page);
+    -webkit-font-smoothing: antialiased;
+    padding: 3rem 1.25rem;
+}
+
+main, .container {
+    max-width: var(--content-width);
+    margin: 0 auto;
+}
+
+/* 2. Header & Navigation (Lean) */
+nav {
+    display: flex;
+    justify-content: flex-start;
+    gap: 1.5rem;
+    margin-bottom: 4rem;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+}
+
+nav a {
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+nav a:hover { color: var(--primary-blue); }
+
+/* 3. Typography Hierarchy */
+h1 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    line-height: 1.2;
+    margin-bottom: 1rem;
+    color: #1a202c;
+    letter-spacing: -0.02em;
+}
+
+h2 {
+    font-size: 1.75rem;
+    margin-top: 3rem;
+    margin-bottom: 1.25rem;
+    font-weight: 700;
+    color: #2d3748;
+}
+
+p { margin-bottom: 1.5rem; }
+
+a {
+    color: var(--primary-blue);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border 0.2s;
+}
+
+a:hover { border-bottom: 1px solid var(--primary-blue); }
+
+/* 4. The Scrum.org "TL;DR" Box */
+.tldr, blockquote.tldr {
+    background-color: var(--bg-alt);
+    border-left: 5px solid var(--primary-blue);
+    padding: 1.5rem 2rem;
+    margin: 2rem 0;
+    font-style: normal;
+}
+
+.tldr h1, .tldr h2 {
+    font-size: 1.25rem;
+    margin-top: 0;
+    color: var(--primary-blue);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+/* 5. Post Metadata (Date, Author, Tags) */
+.post-meta {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-bottom: 2.5rem;
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.post-meta span::after { content: "•"; margin-left: 1rem; opacity: 0.5; }
+.post-meta span:last-child::after { content: ""; }
+
+/* 6. Technical Elements */
+pre {
+    background: #1a202c;
+    color: #f7fafc;
+    padding: 1.5rem;
+    border-radius: 8px;
+    overflow-x: auto;
+    margin: 2rem 0;
+    font-family: var(--font-code);
+    font-size: 0.95rem;
+}
+
+code {
+    font-family: var(--font-code);
+    background: var(--bg-alt);
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.9em;
+}
+
+pre code { background: none; padding: 0; }
+
+img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 12px;
+    margin: 2.5rem 0;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* 7. Tables (Modern & Clean) */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 2rem 0;
+}
+
+th {
+    text-align: left;
+    background: var(--bg-alt);
+    padding: 0.75rem;
+    border-bottom: 2px solid var(--border-light);
+}
+
+td {
+    padding: 0.75rem;
+    border-bottom: 1px solid var(--border-light);
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg-page: #0f172a;
+        --text-main: #e2e8f0;
+        --text-muted: #94a3b8;
+        --bg-alt: #1e293b;
+        --border-light: #334155;
+    }
+    h1 { color: #f8fafc; }
+}
