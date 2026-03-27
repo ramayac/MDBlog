@@ -38,13 +38,13 @@ return [
             'index' => false, // shows it in the main index
             'menu'  => true,  // shows it in the nav menu
         ],
-        'mdblog' => [
+        /*'mdblog' => [
             'blog_name' => 'MDBlog 📝',
             'header_content' => '(2024) Instructions to use MDBlog.',
             'folder' => 'mdblog',
             'index' => false, // shows it in the main index
             'menu'  => false,  // shows it in the nav menu
-        ],
+        ],*/
         'srbyte' => [
             'blog_name' => 'Sr. Byte 👨‍💻',
             'header_content' => '(2007-2010) Tecnologia para todos.',

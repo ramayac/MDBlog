@@ -24,19 +24,20 @@
 /* 1. Reset & Global Layout */
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
+html, body {
+    height: 100%;
+}
+
 body {
+    display: flex;
+    flex-direction: column;
     font-family: var(--font-body);
     font-size: 1.125rem;
     line-height: var(--line-height);
     color: var(--text-main);
     background-color: var(--bg-page);
     -webkit-font-smoothing: antialiased;
-    padding: 3rem 1.25rem;
-}
-
-main, .container {
-    max-width: var(--content-width);
-    margin: 0 auto;
+    padding: 3rem 1.25rem 1.25rem 1.25rem; 
 }
 
 /* 2. Header & Navigation (Lean) */
@@ -59,13 +60,20 @@ nav a {
 
 nav a:hover { color: var(--primary-blue); }
 
+main, .container {
+    max-width: var(--content-width);
+    margin: 0 auto;
+    flex: 1 0 auto; 
+    width: 100%; /* Ensures container fills width on smaller screens */
+}
+
 /* 3. Typography Hierarchy */
 h1 {
     font-size: 2.5rem;
     font-weight: 800;
     line-height: 1.2;
     margin-bottom: 1rem;
-    color: #1a202c;
+    color: var(--text-main);
     letter-spacing: -0.02em;
 }
 
@@ -78,18 +86,19 @@ h2 {
 }
 
 h3 {
-    font-size: 1.5rem;
-    margin-top: 2.5rem;
-    margin-bottom: 1rem;
-    font-weight: 700;
-    color: #2d3748;
+    font-size: 1.4rem; /* Balanced between h2's 1.75rem and body's 1.125rem */
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+    color: var(--text-main);
 }
 
 /* Post Count Styling */
 .post-count {
-    font-size: 0.85rem;
+    font-size: 0.8rem; /* Scaled down for subtle hierarchy */
     color: var(--text-muted);
     font-weight: 400;
+    margin-left: 0.25rem;
 }
 
 p { margin-bottom: 1.5rem; }
@@ -182,6 +191,28 @@ td {
     border-bottom: 1px solid var(--border-light);
 }
 
+/* 8. Modern Muted Footer */
+footer {
+    flex-shrink: 0; 
+    margin-top: 5rem;
+    padding: 2rem 0;
+    border-top: 1px solid var(--border-light);
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    text-align: center;
+    line-height: 1.6;
+}
+
+footer a {
+    color: var(--text-muted);
+    text-decoration: underline;
+    transition: color 0.2s;
+}
+
+footer a:hover {
+    color: var(--primary-blue);
+}
+
 /* Dark Mode Support */
 @media (prefers-color-scheme: dark) {
     :root {
@@ -191,5 +222,18 @@ td {
         --bg-alt: #1e293b;
         --border-light: #334155;
     }
-    h1 { color: #f8fafc; }
+    h1, h2, h3 { 
+        color: #f8fafc; /* Brighter white for headers in dark mode */
+    }
+}
+
+/* Responsive Typography */
+@media (max-width: 768px) {
+    h1 { font-size: 2rem; }
+    h2 { font-size: 1.5rem; }
+    h3 { font-size: 1.25rem; }
+    
+    body {
+        padding: 2rem 1rem 1rem 1rem; /* Tighter padding for mobile */
+    }
 }
