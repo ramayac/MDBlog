@@ -9,7 +9,7 @@
 
 // Basic blog settings
 return [
-    'blog_name' => 'Rodrigo A. ',
+    'blog_name' => 'Rodrigo A.',
     'author_name' => 'Rodrigo Amaya',
     // Language attribute for <html lang=""> tag
     'lang' => 'en',
@@ -19,7 +19,7 @@ return [
     // Category links are added automatically when 'menu' => true in a category entry.
     'menu_links' => [
         ['label' => 'Home',  'url' => 'index.php'],
-        ['label' => 'About', 'url' => 'post.php?slug=about'],
+        // ['label' => 'About', 'url' => 'post.php?slug=about'],
     ],
 
     // Category configuration
@@ -29,13 +29,6 @@ return [
             'header_content' => 'Personal Thoughts and Musings.',
             'folder' => 'personal',
             'index' => true,  // shows it in the main index
-            'menu'  => true,  // shows it in the nav menu
-        ],
-        'srbyte' => [
-            'blog_name' => 'Sr. Byte 👨‍💻',
-            'header_content' => '(2007-2010) Tecnologia para todos.',
-            'folder' => 'srbyte',
-            'index' => false, // shows it in the main index
             'menu'  => true,  // shows it in the nav menu
         ],
         'substack' => [
@@ -49,12 +42,19 @@ return [
             'blog_name' => 'MDBlog 📝',
             'header_content' => '(2024) Instructions to use MDBlog.',
             'folder' => 'mdblog',
-            'index' => true, // shows it in the main index
+            'index' => false, // shows it in the main index
+            'menu'  => false,  // shows it in the nav menu
+        ],
+        'srbyte' => [
+            'blog_name' => 'Sr. Byte 👨‍💻',
+            'header_content' => '(2007-2010) Tecnologia para todos.',
+            'folder' => 'srbyte',
+            'index' => false, // shows it in the main index
             'menu'  => true,  // shows it in the nav menu
         ],
     ],
     
-    'footer_content' => '*Built with [MDBlog](https://github.com/ramayac/MDBlog). 💻*',
+    'footer_content' => '*Built with [MDBlog](https://github.com/ramayac/mdblog). 💻*',
 
     // Content settings
     'posts_per_page' => 25,
@@ -80,7 +80,7 @@ return [
     'date_format' => 'Y-m-d',
     
     // SEO and meta settings
-    'default_meta_description' => '',
+    'default_meta_description' => 'Personal blog and thoughts of @ramayac.',
     
     // Content Security Policy
     'csp_enabled' => true,
