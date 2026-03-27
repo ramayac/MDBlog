@@ -23,6 +23,8 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+        with:
+          driver: docker  # This uses the host's native docker, no extra image pull needed
 
       - name: Log in to ghcr.io
         uses: docker/login-action@v3
