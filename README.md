@@ -1,9 +1,12 @@
-# MDBlog
+# Markdown Blog
 
-A simple Markdown-based blog system powered by PHP. 
-No database required, Javascript or any BS.
+A simple Markdown-based blog system powered by PHP/composer/docker/lambdas (ok, maybe not that simple).
+The idea behind it is this workflow: Write -> Commit -> Push -> Deploy.
 
-Made by [@ramayac](https://x.com/ramayac).
+This used to be a generic project, but I ended just having my posts and configurations here.
+Eventually, I will work in a general release :)
+
+Author: [@ramayac](https://x.com/ramayac).
 
 
 ## Features
@@ -13,10 +16,12 @@ Made by [@ramayac](https://x.com/ramayac).
 - Code syntax highlighting
 - Custom JavaScript support
 - Responsive design
-- Support for Dark/Light OS selection
+- Support for Dark/Light theme based in OS selection
 - Gzip compression (when supported by the client)
 - Dynamic navigation menu (driven by `config.php`)
 - Landing page with category cards (no full post scan on homepage)
+- Read only docker image
+- AWS ready
 
 ## Quick Start
 
