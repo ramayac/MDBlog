@@ -3,7 +3,7 @@ title: AI and Parenthood
 date: 2026-03-15
 author: Rodrigo Amaya
 tags: parenthood, ai, development
-description: 
+description: Small update for whoever reads
 ---
 
 It's been a long time since my last post, and so much has changed. I'm now the proud dad of a beautiful and very bright baby girl. My wife and I couldn't be happier—she was dreamed, planned, expected, and she definitely has a place to belong and grow in this world. So "check" for one of my personal life goals: becoming a dad.
