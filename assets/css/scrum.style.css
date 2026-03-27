@@ -77,6 +77,21 @@ h2 {
     color: #2d3748;
 }
 
+h3 {
+    font-size: 1.5rem;
+    margin-top: 2.5rem;
+    margin-bottom: 1rem;
+    font-weight: 700;
+    color: #2d3748;
+}
+
+/* Post Count Styling */
+.post-count {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-weight: 400;
+}
+
 p { margin-bottom: 1.5rem; }
 
 a {
