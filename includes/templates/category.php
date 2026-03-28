@@ -35,7 +35,7 @@
             <?php endforeach; ?>
         </div>
 
-        <?php if ($pagination['totalPages'] > 1): ?>
+        <?php if ($pagination['total'] > 1): ?>
             <nav class="pagination">
                 <?php if ($pagination['hasPrev']): ?>
                     <a href="?category=<?php echo urlencode($categorySlug); ?>&page=<?php echo $pagination['prev']; ?>" class="pagination-link prev">
