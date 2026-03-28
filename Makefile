@@ -53,13 +53,13 @@ new-post: ## Create a new post template: make new-post TITLE="my post title" [CA
 	@printf -- '---\ntitle: $(TITLE)\ndate: $(DATE)\nauthor: $(AUTHOR)\ntags: $(TAGS)\ndescription: \n---\n\n# $(TITLE)\n' > "$(FILE)"
 	@echo "Created: $(FILE)"
 
-build-index: ## Generate post metadata index for fast listing/pagination (writes cache/posts.index.json)
+build-index: ## Generate post metadata index for fast listing/pagination (writes posts/posts.index.json)
 	@echo "Building post metadata index..."
 	$(PHP) scripts/build-index.php
 
 docker-build: ## Build the Docker image (bakes version.php + post index, then builds image)
 	$(MAKE) version
-	$(MAKE) build-index
+	# $(MAKE) build-index #no need for this since the Dockerfile already runs build-index.php, but you can run it here if you want to pre-build the index before the Docker build step
 	docker build -t mdblog:latest .
 
 docker-run: ## Start blog via Docker Compose at http://localhost:8080

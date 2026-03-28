@@ -38,6 +38,22 @@ $cssVer  = file_exists($cssPath) ? filemtime($cssPath) : '';
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo htmlspecialchars($pageTitle); ?></title>
     <link rel="stylesheet" href="<?php echo htmlspecialchars($cssPath); ?>?v=<?php echo $cssVer; ?>">
+    <script>
+        const savedTheme = localStorage.getItem('theme-mode');
+        if (savedTheme) {
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        }
+        
+        function toggleTheme() {
+            let currentTheme = document.documentElement.getAttribute('data-theme');
+            if (!currentTheme) {
+                currentTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            }
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme-mode', newTheme);
+        }
+    </script>
 
     <?php if (!empty($pageDescription)): ?>
     <meta name="description" content="<?php echo htmlspecialchars($pageDescription); ?>">

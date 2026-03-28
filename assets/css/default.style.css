@@ -25,8 +25,28 @@
     --color-no-posts-bg: #ecf0f1;
 }
 
+:root[data-theme="dark"] {
+    /* Dark theme colors */
+    --color-bg: #1a1a1a;
+    --color-text: #e0e0e0;
+    --color-text-muted: #a0a0a0;
+    --color-text-light: #c0c0c0;
+    --color-heading: #ffffff;
+    --color-primary: #4fa8d8;
+    --color-primary-hover: #6bb6e0;
+    --color-border: #333;
+    --color-code-bg: #2a2a2a;
+    --color-code-text: #ff6b9d;
+    --color-code-block-text: #e0e0e0;
+    --color-tag-bg: #333;
+    --color-quote-bg: #2a2a2a;
+    --color-muted-heading: #777;
+    --color-no-posts-code: #ffffff;
+    --color-no-posts-bg: #333;
+}
+
 @media (prefers-color-scheme: dark) {
-    :root {
+    :root:not([data-theme="light"]) {
         /* Dark theme colors */
         --color-bg: #1a1a1a;
         --color-text: #e0e0e0;

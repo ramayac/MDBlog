@@ -35,7 +35,7 @@ class Blog {
         $this->cacheEnabled  = $this->config['cache_enabled'] ?? false;
         $this->cacheTtl      = $this->config['cache_ttl'] ?? 604800;
         $this->cacheDir      = $this->config['cache_dir'] ?? 'cache';
-        $this->postIndexFile = $this->config['post_index_file'] ?? 'cache/posts.index.json';
+        $this->postIndexFile = $this->config['post_index_file'] ?? 'posts/posts.index.json';
     }
     
     public function getConfig($key = null) {
@@ -218,21 +218,31 @@ class Blog {
 
         // Custom static links
         foreach ($this->config['menu_links'] ?? [] as $link) {
-            $label = htmlspecialchars($link['label'] ?? '');
-            $url   = htmlspecialchars($link['url']   ?? '#');
-            $links[] = '<a href="' . $url . '">' . $label . '</a>';
+            $links[] = [
+                'label' => $link['label'] ?? '',
+                'url'   => $link['url']   ?? '#'
+            ];
         }
 
         // Auto-generated category links
         foreach ($this->config['categories'] ?? [] as $slug => $category) {
             if (!empty($category['menu'])) {
-                $label   = htmlspecialchars($category['blog_name'] ?? ucfirst($slug));
-                $catSlug = htmlspecialchars(urlencode($slug));
-                $links[] = '<a href="index.php?category=' . $catSlug . '">' . $label . '</a>';
+                $links[] = [
+                    'label' => $category['blog_name'] ?? ucfirst($slug),
+                    'url'   => 'index.php?category=' . urlencode($slug)
+                ];
             }
         }
 
-        return implode(' | ', $links);
+        // Theme switcher button
+        $links[] = [
+            'label' => '🌓',
+            'url'   => 'javascript:void(0);',
+            'onclick' => 'toggleTheme(); return false;',
+            'title' => 'Switch Theme'
+        ];
+
+        return $links;
     }
     
     public function parseMarkdown($content) {

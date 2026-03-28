@@ -5,7 +5,8 @@
     "require": {
         "php": "^8.3",
         "bref/bref": "^2.0",
-        "erusev/parsedown": "^1.7.4"
+        "erusev/parsedown": "^1.7.4",
+        "symfony/polyfill-mbstring": "^1.33"
     },
     "config": {
         "optimize-autoloader": true,

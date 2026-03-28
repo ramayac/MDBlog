@@ -47,7 +47,7 @@ composer install
 Then start the dev server:
 
 ```bash
-make build-index     # Generate post metadata index (cache/posts.index.json)
+make build-index     # Generate post metadata index (posts/posts.index.json)
 make serve           # Start the built-in PHP dev server (default: http://localhost:8080)
 make lint            # Check all PHP files for syntax errors
 make clear-cache     # Delete all cached .json files from cache/
@@ -155,25 +155,25 @@ Then add `.md` files to `posts/my-category/`.
 
 ## Post Metadata Index
 
-Listing and pagination pages are powered by a **pre-built metadata index** (`cache/posts.index.json`) instead of scanning and parsing all Markdown files on every request. This avoids Lambda timeouts and memory spikes when categories grow large (300+ posts).
+Listing and pagination pages are powered by a **pre-built metadata index** (`posts/posts.index.json`) instead of scanning and parsing all Markdown files on every request. This avoids Lambda timeouts and memory spikes when categories grow large (300+ posts).
 
 ### How it works
 
-1. `make build-index` scans all posts, extracts front-matter metadata (slug, title, date, author, tags, description), and writes `cache/posts.index.json`. Full post bodies are never rendered during this step.
+1. `make build-index` scans all posts, extracts front-matter metadata (slug, title, date, author, tags, description), and writes `posts/posts.index.json`. Full post bodies are never rendered during this step.
 2. `make docker-build` runs `make build-index` automatically before `docker build`, so the index is baked into the Docker image.
 3. At request time, `Blog::getPosts()` reads the index for filtering and pagination — no `.md` files are opened.
 4. Individual post pages (`post.php`) still parse the full Markdown body, but only for the single requested post.
 
 ### Fallback
 
-If `cache/posts.index.json` is absent (e.g., a fresh local clone before running `make build-index`), the blog falls back to the original filesystem scan — correct behavior with a performance warning logged.
+If `posts/posts.index.json` is absent (e.g., a fresh local clone before running `make build-index`), the blog falls back to the original filesystem scan — correct behavior with a performance warning logged.
 
 ### Keeping the index fresh
 
 Re-run `make build-index` after adding, editing, or deleting posts:
 
 ```bash
-make build-index   # regenerate cache/posts.index.json
+make build-index   # regenerate posts/posts.index.json
 make serve         # restart dev server if needed
 ```
 
@@ -189,7 +189,7 @@ Edit `config.php` to customize all settings. Key fields:
 | `menu_links` | Static nav links |
 | `categories` | Category definitions |
 | `posts_per_page` | Pagination size |
-| `post_index_file` | Path to pre-built metadata index (`cache/posts.index.json`) |
+| `post_index_file` | Path to pre-built metadata index (`posts/posts.index.json`) |
 | `cache_enabled` / `cache_ttl` | JSON post cache |
 | `csp_enabled` / `csp_header` | Content Security Policy |
 | `css_theme` | Active CSS theme path |

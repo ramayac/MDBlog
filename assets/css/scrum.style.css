@@ -214,15 +214,30 @@ footer a:hover {
 }
 
 /* Dark Mode Support */
+:root[data-theme="dark"] {
+    --bg-page: #0f172a;
+    --text-main: #e2e8f0;
+    --text-muted: #94a3b8;
+    --bg-alt: #1e293b;
+    --border-light: #334155;
+}
+:root[data-theme="dark"] h1, 
+:root[data-theme="dark"] h2, 
+:root[data-theme="dark"] h3 { 
+    color: #f8fafc;
+}
+
 @media (prefers-color-scheme: dark) {
-    :root {
+    :root:not([data-theme="light"]) {
         --bg-page: #0f172a;
         --text-main: #e2e8f0;
         --text-muted: #94a3b8;
         --bg-alt: #1e293b;
         --border-light: #334155;
     }
-    h1, h2, h3 { 
+    :root:not([data-theme="light"]) h1, 
+    :root:not([data-theme="light"]) h2, 
+    :root:not([data-theme="light"]) h3 { 
         color: #f8fafc; /* Brighter white for headers in dark mode */
     }
 }
