@@ -218,24 +218,31 @@ class Blog {
 
         // Custom static links
         foreach ($this->config['menu_links'] ?? [] as $link) {
-            $label = htmlspecialchars($link['label'] ?? '');
-            $url   = htmlspecialchars($link['url']   ?? '#');
-            $links[] = '<a href="' . $url . '">' . $label . '</a>';
+            $links[] = [
+                'label' => $link['label'] ?? '',
+                'url'   => $link['url']   ?? '#'
+            ];
         }
 
         // Auto-generated category links
         foreach ($this->config['categories'] ?? [] as $slug => $category) {
             if (!empty($category['menu'])) {
-                $label   = htmlspecialchars($category['blog_name'] ?? ucfirst($slug));
-                $catSlug = htmlspecialchars(urlencode($slug));
-                $links[] = '<a href="index.php?category=' . $catSlug . '">' . $label . '</a>';
+                $links[] = [
+                    'label' => $category['blog_name'] ?? ucfirst($slug),
+                    'url'   => 'index.php?category=' . urlencode($slug)
+                ];
             }
         }
 
         // Theme switcher button
-        $links[] = '<a href="javascript:void(0);" onclick="toggleTheme(); return false;" title="Switch Theme">🌓</a>';
+        $links[] = [
+            'label' => '🌓',
+            'url'   => 'javascript:void(0);',
+            'onclick' => 'toggleTheme(); return false;',
+            'title' => 'Switch Theme'
+        ];
 
-        return implode(' | ', $links);
+        return $links;
     }
     
     public function parseMarkdown($content) {

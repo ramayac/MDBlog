@@ -94,4 +94,18 @@ return [
     // CSS theme
     'css_theme' => 'assets/css/default.style.css',
     //'css_theme' => 'assets/css/scrum.style.css',
+
+    // UI Labels
+    'labels' => [
+        'read_more' => 'Read more &rarr;',
+        'back_to_all' => '&larr; Back to all posts',
+        'back_to_category' => '&larr; Back to %s',
+        'not_found_title' => '404 &mdash; Post Not Found',
+        'not_found_message' => 'The post you&rsquo;re looking for doesn&rsquo;t exist.',
+        'no_posts_in_category' => 'No posts found in this category.',
+        'pagination_prev' => '&larr; Newer Posts',
+        'pagination_next' => 'Older Posts &rarr;',
+        'page_indicator' => 'Page %d of %d',
+        'author_by' => 'By %s',
+    ],
 ];
