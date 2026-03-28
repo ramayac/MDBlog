@@ -7,8 +7,9 @@ Dockerfile
 docker-compose.yml
 .dockerignore
 
-# Cache files are generated at runtime via tmpfs.
-# Exception: the pre-built post metadata index is baked into the image by `make build-index`.
+# Cache files are generated at runtime via tmpfs and are not copied into the image.
+# The pre-built post metadata index now lives at posts/posts.index.json and is included
+# in the Docker build context by default (no cache/ exception rule is needed here).
 cache/
 
 # Composer vendor — generated during Docker build stage, not needed in build context
