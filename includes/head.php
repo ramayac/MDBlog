@@ -37,27 +37,21 @@ $cssVer  = file_exists($cssPath) ? filemtime($cssPath) : '';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo htmlspecialchars($pageTitle); ?></title>
-    <link id="theme-stylesheet" rel="stylesheet" href="<?php echo htmlspecialchars($cssPath); ?>?v=<?php echo $cssVer; ?>">
+    <link rel="stylesheet" href="<?php echo htmlspecialchars($cssPath); ?>?v=<?php echo $cssVer; ?>">
     <script>
-        const themes = {
-            'default': 'assets/css/default.style.css',
-            'scrum': 'assets/css/scrum.style.css'
-        };
-        const savedTheme = localStorage.getItem('theme');
-        if (savedTheme && themes[savedTheme]) {
-            document.getElementById('theme-stylesheet').href = themes[savedTheme] + '?v=<?php echo $cssVer; ?>';
+        const savedTheme = localStorage.getItem('theme-mode');
+        if (savedTheme) {
+            document.documentElement.setAttribute('data-theme', savedTheme);
         }
         
         function toggleTheme() {
-            const link = document.getElementById('theme-stylesheet');
-            let currentThemeKey = localStorage.getItem('theme');
-            if (!currentThemeKey) {
-                const currentHref = link.getAttribute('href').split('?')[0];
-                currentThemeKey = Object.keys(themes).find(key => themes[key] === currentHref) || 'default';
+            let currentTheme = document.documentElement.getAttribute('data-theme');
+            if (!currentTheme) {
+                currentTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
             }
-            const newThemeKey = currentThemeKey === 'default' ? 'scrum' : 'default';
-            localStorage.setItem('theme', newThemeKey);
-            link.href = themes[newThemeKey] + '?v=<?php echo $cssVer; ?>';
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme-mode', newTheme);
         }
     </script>
 
