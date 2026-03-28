@@ -9,17 +9,20 @@ include __DIR__ . '/../head.php';
     <div class="container">
         <?php if (!empty($menu)): ?>
         <nav class="site-menu">
-            <?php 
-            $menuHtml = [];
-            foreach ($menu as $item) {
-                if (isset($item['onclick'])) {
-                    $menuHtml[] = '<a href="' . htmlspecialchars($item['url']) . '" onclick="' . htmlspecialchars($item['onclick']) . '" title="' . htmlspecialchars($item['title'] ?? '') . '">' . htmlspecialchars($item['label']) . '</a>';
-                } else {
-                    $menuHtml[] = '<a href="' . htmlspecialchars($item['url']) . '">' . htmlspecialchars($item['label']) . '</a>';
+            <div class="menu-links">
+                <?php 
+                $menuHtml = [];
+                foreach ($menu as $item) {
+                    if (isset($item['onclick'])) {
+                        $menuHtml[] = '<a href="' . htmlspecialchars($item['url']) . '" onclick="' . htmlspecialchars($item['onclick']) . '" title="' . htmlspecialchars($item['title'] ?? '') . '">' . htmlspecialchars($item['label']) . '</a>';
+                    } else {
+                        $menuHtml[] = '<a href="' . htmlspecialchars($item['url']) . '">' . htmlspecialchars($item['label']) . '</a>';
+                    }
                 }
-            }
-            echo implode(' | ', $menuHtml);
-            ?>
+                $menuHtml[] = '<a href="index.php?search=1" title="Search" class="search-btn" style="text-decoration: none;">🔍</a>';
+                echo implode(' | ', $menuHtml);
+                ?>
+            </div>
         </nav>
         <?php endif; ?>
 
