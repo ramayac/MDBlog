@@ -10,6 +10,29 @@ class MarkdownParser {
         $this->parsedown->setMarkupEscaped(true); // Escape HTML for security
     }
     
+    /**
+     * Extract front matter and return the raw Markdown body without rendering HTML.
+     * Faster than parse() — use this during build-time index generation when only
+     * metadata is needed, so Parsedown is never invoked.
+     */
+    public function parseMetaOnly(string $text): array {
+        $text = mb_convert_encoding($text, 'UTF-8', 'UTF-8');
+        $text = str_replace("\r\n", "\n", $text);
+        $text = str_replace("\r", "\n", $text);
+
+        $frontMatter = [];
+        $body        = $text;
+        if (preg_match('/^---\n(.*?)\n---\n(.*)$/s', $text, $matches)) {
+            $frontMatter = $this->parseFrontMatter($matches[1]);
+            $body        = $matches[2];
+        }
+
+        return [
+            'frontMatter' => $frontMatter,
+            'body'        => $body,
+        ];
+    }
+
     public function parse($text) {
         // Ensure input is valid UTF-8; strip or replace any invalid byte sequences
         // so that Parsedown and json_encode() downstream never see malformed bytes.
