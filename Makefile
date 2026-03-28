@@ -53,7 +53,7 @@ new-post: ## Create a new post template: make new-post TITLE="my post title" [CA
 	@printf -- '---\ntitle: $(TITLE)\ndate: $(DATE)\nauthor: $(AUTHOR)\ntags: $(TAGS)\ndescription: \n---\n\n# $(TITLE)\n' > "$(FILE)"
 	@echo "Created: $(FILE)"
 
-build-index: ## Generate post metadata index for fast listing/pagination (writes cache/posts.index.json)
+build-index: ## Generate post metadata index for fast listing/pagination (writes posts/posts.index.json)
 	@echo "Building post metadata index..."
 	$(PHP) scripts/build-index.php
 

@@ -4,7 +4,7 @@
  * Build-time post metadata index generator.
  *
  * Scans all Markdown post files and writes a lightweight JSON index to
- * cache/posts.index.json containing only the metadata needed for listing
+ * posts/posts.index.json containing only the metadata needed for listing
  * and pagination — no full Markdown bodies are rendered.
  *
  * Usage:   php scripts/build-index.php
@@ -20,7 +20,7 @@ require_once 'includes/MarkdownParser.php';
 $config     = require 'config.php';
 $parser     = new MarkdownParser();
 $postsDir   = $config['posts_dir']        ?? 'posts';
-$indexFile  = $config['post_index_file']  ?? 'cache/posts.index.json';
+$indexFile  = $config['post_index_file']  ?? 'posts/posts.index.json';
 $dateFormat = $config['date_format']      ?? 'Y-m-d';
 $categories = $config['categories']       ?? [];
 

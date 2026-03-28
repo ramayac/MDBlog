@@ -35,7 +35,7 @@ class Blog {
         $this->cacheEnabled  = $this->config['cache_enabled'] ?? false;
         $this->cacheTtl      = $this->config['cache_ttl'] ?? 604800;
         $this->cacheDir      = $this->config['cache_dir'] ?? 'cache';
-        $this->postIndexFile = $this->config['post_index_file'] ?? 'cache/posts.index.json';
+        $this->postIndexFile = $this->config['post_index_file'] ?? 'posts/posts.index.json';
     }
     
     public function getConfig($key = null) {
