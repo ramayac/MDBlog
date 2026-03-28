@@ -1,3 +1,4 @@
 cache/*.json
+posts/posts.index.json
 version.php
 vendor/

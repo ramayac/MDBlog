@@ -11,7 +11,7 @@ FROM bref/php-83-fpm:2
 COPY . ${LAMBDA_TASK_ROOT}
 COPY --from=vendor /app/vendor ${LAMBDA_TASK_ROOT}/vendor
 
-# Build the search index
+# Build the post metadata index
 RUN php scripts/build-index.php
 
 CMD [ "index.php"]
