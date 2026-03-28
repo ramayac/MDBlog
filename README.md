@@ -12,7 +12,7 @@ Author: [@ramayac](https://x.com/ramayac).
 ## Features
 
 - Write posts in Markdown
-- Built-in pagination
+- Built-in pagination powered by a **build-time metadata index** (handles 300+ posts without Lambda timeouts)
 - Code syntax highlighting
 - Custom JavaScript support
 - Responsive design
@@ -47,18 +47,23 @@ composer install
 Then start the dev server:
 
 ```bash
+make build-index     # Generate post metadata index (cache/posts.index.json)
 make serve           # Start the built-in PHP dev server (default: http://localhost:8080)
 make lint            # Check all PHP files for syntax errors
 make clear-cache     # Delete all cached .json files from cache/
 make utf8-fix        # Re-encode any non-UTF-8 .md files in posts/ to valid UTF-8
 ```
 
+> **Tip:** Run `make build-index` whenever you add or edit posts locally so that paginated
+> listings reflect your changes immediately. Without the index file the blog falls back to
+> a full filesystem scan — correct but slower for large categories.
+
 ## Deployment (AWS Lambda)
 
 The production image is built on [`bref/php-83-fpm:2`](https://bref.sh/) and deployed as an **AWS Lambda container image function** behind API Gateway. Bref's runtime translates API Gateway HTTP events into PHP-FPM requests automatically. Posts are bundled inside the Docker image — there is no database and no external content source.
 
 ```bash
-make docker-build                        # Bake version.php + build image
+make docker-build                        # Bake version.php + index, then build image
 make docker-push REGISTRY=ghcr.io/...   # Tag and push to a container registry
 make docker-pull TAG=1.2.3              # Pull a release image and tag as latest
 ```
@@ -148,6 +153,30 @@ Register categories in `config.php`:
 
 Then add `.md` files to `posts/my-category/`.
 
+## Post Metadata Index
+
+Listing and pagination pages are powered by a **pre-built metadata index** (`cache/posts.index.json`) instead of scanning and parsing all Markdown files on every request. This avoids Lambda timeouts and memory spikes when categories grow large (300+ posts).
+
+### How it works
+
+1. `make build-index` scans all posts, extracts front-matter metadata (slug, title, date, author, tags, description), and writes `cache/posts.index.json`. Full post bodies are never rendered during this step.
+2. `make docker-build` runs `make build-index` automatically before `docker build`, so the index is baked into the Docker image.
+3. At request time, `Blog::getPosts()` reads the index for filtering and pagination — no `.md` files are opened.
+4. Individual post pages (`post.php`) still parse the full Markdown body, but only for the single requested post.
+
+### Fallback
+
+If `cache/posts.index.json` is absent (e.g., a fresh local clone before running `make build-index`), the blog falls back to the original filesystem scan — correct behavior with a performance warning logged.
+
+### Keeping the index fresh
+
+Re-run `make build-index` after adding, editing, or deleting posts:
+
+```bash
+make build-index   # regenerate cache/posts.index.json
+make serve         # restart dev server if needed
+```
+
 ## Configuration
 
 Edit `config.php` to customize all settings. Key fields:
@@ -160,6 +189,7 @@ Edit `config.php` to customize all settings. Key fields:
 | `menu_links` | Static nav links |
 | `categories` | Category definitions |
 | `posts_per_page` | Pagination size |
+| `post_index_file` | Path to pre-built metadata index (`cache/posts.index.json`) |
 | `cache_enabled` / `cache_ttl` | JSON post cache |
 | `csp_enabled` / `csp_header` | Content Security Policy |
 | `css_theme` | Active CSS theme path |

@@ -17,6 +17,7 @@ class Blog {
     private $cacheEnabled;
     private $cacheTtl;
     private $cacheDir;
+    private $postIndexFile;
     private $categoriesCache = null;
     
     public function __construct($configFile = 'config.php') {
@@ -31,9 +32,10 @@ class Blog {
         $this->dateFormat = $this->config['date_format'];
         
         // Cache settings
-        $this->cacheEnabled = $this->config['cache_enabled'] ?? false;
-        $this->cacheTtl = $this->config['cache_ttl'] ?? 604800;
-        $this->cacheDir = $this->config['cache_dir'] ?? 'cache';
+        $this->cacheEnabled  = $this->config['cache_enabled'] ?? false;
+        $this->cacheTtl      = $this->config['cache_ttl'] ?? 604800;
+        $this->cacheDir      = $this->config['cache_dir'] ?? 'cache';
+        $this->postIndexFile = $this->config['post_index_file'] ?? 'cache/posts.index.json';
     }
     
     public function getConfig($key = null) {
@@ -44,6 +46,13 @@ class Blog {
     }
     
     public function getPosts($page = 1, $categorySlug = null) {
+        // Fast path: use the pre-built metadata index (no body parsing).
+        $index = $this->loadPostIndex();
+        if ($index !== null) {
+            return $this->getPostsFromIndex($index, $page, $categorySlug);
+        }
+
+        // Fallback: filesystem scan (local dev without a generated index).
         if ($categorySlug) {
             $category = $this->getCategoryBySlug($categorySlug);
             if (!$category) {
@@ -66,6 +75,85 @@ class Blog {
         return [
             'posts' => $posts,
             'pagination' => $this->buildPaginationData($page, $totalPages)
+        ];
+    }
+
+    /**
+     * Load the pre-built post metadata index from disk.
+     * Returns the decoded array on success, or null if the index is absent/corrupt.
+     */
+    private function loadPostIndex(): ?array {
+        if (empty($this->postIndexFile) || !file_exists($this->postIndexFile)) {
+            return null;
+        }
+
+        $raw = file_get_contents($this->postIndexFile);
+        if ($raw === false) {
+            return null;
+        }
+
+        $data = json_decode($raw, true);
+        if (json_last_error() !== JSON_ERROR_NONE || !is_array($data)) {
+            error_log('MDBlog: post index corrupt or unreadable — falling back to filesystem scan.');
+            return null;
+        }
+
+        return $data;
+    }
+
+    /**
+     * Paginate a pre-built index for listing pages.
+     * Filtering and slicing only — no file I/O, no Markdown rendering.
+     */
+    private function getPostsFromIndex(array $index, int $page, ?string $categorySlug): array {
+        if ($categorySlug !== null) {
+            // Single-category listing
+            $posts = array_values(array_filter(
+                $index,
+                fn($p) => ($p['category_slug'] ?? null) === $categorySlug
+            ));
+        } else {
+            // Aggregated listing: uncategorized + categories with 'index' => true
+            $indexCategories = [];
+            foreach ($this->config['categories'] ?? [] as $slug => $cat) {
+                if ($cat['index'] ?? true) {
+                    $indexCategories[] = $slug;
+                }
+            }
+            $showUncategorized = $this->config['show_uncategorized'] ?? true;
+
+            $posts = array_values(array_filter(
+                $index,
+                function ($p) use ($indexCategories, $showUncategorized): bool {
+                    $cat = $p['category_slug'] ?? null;
+                    if ($cat === null) {
+                        return $showUncategorized;
+                    }
+                    return in_array($cat, $indexCategories, true);
+                }
+            ));
+        }
+
+        // Index is pre-sorted by date descending — no additional sort needed.
+
+        $totalPosts = count($posts);
+        $totalPages = max(1, (int)ceil($totalPosts / $this->postsPerPage));
+        $offset     = ($page - 1) * $this->postsPerPage;
+        $posts      = array_slice($posts, $offset, $this->postsPerPage);
+
+        // Attach resolved category info (needed by templates for display)
+        foreach ($posts as &$post) {
+            if (!array_key_exists('category', $post)) {
+                $post['category'] = isset($post['category_slug'])
+                    ? $this->getCategoryBySlug($post['category_slug'])
+                    : null;
+            }
+        }
+        unset($post);
+
+        return [
+            'posts'      => $posts,
+            'pagination' => $this->buildPaginationData($page, $totalPages),
         ];
     }
     

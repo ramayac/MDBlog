@@ -6,7 +6,7 @@ REGISTRY  ?= ghcr.io/ramayac/mdblog
 
 .DEFAULT_GOAL := help
 
-.PHONY: help serve lint new-post version clear-cache utf8-fix docker-build docker-run docker-run-release docker-stop docker-push docker-pull
+.PHONY: help serve lint new-post version clear-cache build-index utf8-fix docker-build docker-run docker-run-release docker-stop docker-push docker-pull
 
 help: ## Show available targets
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
@@ -53,8 +53,13 @@ new-post: ## Create a new post template: make new-post TITLE="my post title" [CA
 	@printf -- '---\ntitle: $(TITLE)\ndate: $(DATE)\nauthor: $(AUTHOR)\ntags: $(TAGS)\ndescription: \n---\n\n# $(TITLE)\n' > "$(FILE)"
 	@echo "Created: $(FILE)"
 
-docker-build: ## Build the Docker image (bakes version.php first)
+build-index: ## Generate post metadata index for fast listing/pagination (writes cache/posts.index.json)
+	@echo "Building post metadata index..."
+	$(PHP) scripts/build-index.php
+
+docker-build: ## Build the Docker image (bakes version.php + post index, then builds image)
 	$(MAKE) version
+	$(MAKE) build-index
 	docker build -t mdblog:latest .
 
 docker-run: ## Start blog via Docker Compose at http://localhost:8080
