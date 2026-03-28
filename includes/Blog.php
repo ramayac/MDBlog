@@ -232,6 +232,9 @@ class Blog {
             }
         }
 
+        // Theme switcher button
+        $links[] = '<a href="javascript:void(0);" onclick="toggleTheme(); return false;" title="Switch Theme">🌓</a>';
+
         return implode(' | ', $links);
     }
     

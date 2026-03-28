@@ -37,7 +37,29 @@ $cssVer  = file_exists($cssPath) ? filemtime($cssPath) : '';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo htmlspecialchars($pageTitle); ?></title>
-    <link rel="stylesheet" href="<?php echo htmlspecialchars($cssPath); ?>?v=<?php echo $cssVer; ?>">
+    <link id="theme-stylesheet" rel="stylesheet" href="<?php echo htmlspecialchars($cssPath); ?>?v=<?php echo $cssVer; ?>">
+    <script>
+        const themes = {
+            'default': 'assets/css/default.style.css',
+            'scrum': 'assets/css/scrum.style.css'
+        };
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme && themes[savedTheme]) {
+            document.getElementById('theme-stylesheet').href = themes[savedTheme] + '?v=<?php echo $cssVer; ?>';
+        }
+        
+        function toggleTheme() {
+            const link = document.getElementById('theme-stylesheet');
+            let currentThemeKey = localStorage.getItem('theme');
+            if (!currentThemeKey) {
+                const currentHref = link.getAttribute('href').split('?')[0];
+                currentThemeKey = Object.keys(themes).find(key => themes[key] === currentHref) || 'default';
+            }
+            const newThemeKey = currentThemeKey === 'default' ? 'scrum' : 'default';
+            localStorage.setItem('theme', newThemeKey);
+            link.href = themes[newThemeKey] + '?v=<?php echo $cssVer; ?>';
+        }
+    </script>
 
     <?php if (!empty($pageDescription)): ?>
     <meta name="description" content="<?php echo htmlspecialchars($pageDescription); ?>">

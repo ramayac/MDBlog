@@ -59,7 +59,7 @@ build-index: ## Generate post metadata index for fast listing/pagination (writes
 
 docker-build: ## Build the Docker image (bakes version.php + post index, then builds image)
 	$(MAKE) version
-	$(MAKE) build-index
+	# $(MAKE) build-index #no need for this since the Dockerfile already runs build-index.php, but you can run it here if you want to pre-build the index before the Docker build step
 	docker build -t mdblog:latest .
 
 docker-run: ## Start blog via Docker Compose at http://localhost:8080
