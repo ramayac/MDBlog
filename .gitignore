@@ -4,3 +4,4 @@ version.php
 vendor/
 .phpunit.result.cache
 phpunit.xml
+render/

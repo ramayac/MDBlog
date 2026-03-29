@@ -6,7 +6,7 @@ REGISTRY  ?= ghcr.io/ramayac/mdblog
 
 .DEFAULT_GOAL := help
 
-.PHONY: help serve lint new-post version clear-cache build-index utf8-fix docker-build docker-run docker-run-release docker-stop docker-push docker-pull
+.PHONY: help serve lint new-post version clear-cache build-index utf8-fix docker-build docker-run docker-run-release docker-stop docker-push docker-pull render
 
 help: ## Show available targets
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
@@ -92,6 +92,15 @@ utf8-fix: ## Re-encode any non-UTF-8 .md files in posts/ to UTF-8 (fixes Bref JS
 	done; \
 	if [ $$fixed -eq 0 ]; then echo "All files are already valid UTF-8."; \
 	else echo "$$fixed file(s) converted to UTF-8."; fi
+
+# Allow extra arguments to `make render`
+ifeq (render,$(firstword $(MAKECMDGOALS)))
+  RENDER_ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
+  $(eval $(RENDER_ARGS):;@:)
+endif
+
+render: ## Test render a post to HTML (e.g., make render random, make render srbyte random, make render filename.md)
+	@$(PHP) scripts/render.php $(RENDER_ARGS)
 
 .PHONY: test
 test: vendor/bin/phpunit build-index
