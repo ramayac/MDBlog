@@ -215,21 +215,42 @@ func (b *Blog) GetPostBySlug(slug, categorySlug string) *Post {
 	return post
 }
 
+// categoryMenuEntry is used internally to sort category nav links.
+type categoryMenuEntry struct {
+	slug  string
+	cat   config.Category
+}
+
 // GetMenu returns the ordered list of navigation links.
+// Static [[menu_links]] come first (in config order), followed by categories
+// with menu=true sorted by menu_order (ascending), then slug for ties.
 func (b *Blog) GetMenu() []MenuLink {
 	var links []MenuLink
 	for _, ml := range b.cfg.MenuLinks {
 		links = append(links, MenuLink{Label: ml.Label, URL: ml.URL})
 	}
+
+	// Collect and sort category entries for deterministic order.
+	var catEntries []categoryMenuEntry
 	for slug, cat := range b.cfg.Categories {
 		if cat.Menu {
-			links = append(links, MenuLink{
-				Label: cat.BlogName,
-				URL:   "index.php?category=" + slug,
-			})
+			catEntries = append(catEntries, categoryMenuEntry{slug: slug, cat: cat})
 		}
 	}
-	// Theme toggle
+	sort.Slice(catEntries, func(i, j int) bool {
+		if catEntries[i].cat.MenuOrder != catEntries[j].cat.MenuOrder {
+			return catEntries[i].cat.MenuOrder < catEntries[j].cat.MenuOrder
+		}
+		return catEntries[i].slug < catEntries[j].slug
+	})
+	for _, e := range catEntries {
+		links = append(links, MenuLink{
+			Label: e.cat.BlogName,
+			URL:   "index.php?category=" + e.slug,
+		})
+	}
+
+	// Theme toggle always last.
 	links = append(links, MenuLink{
 		Label:   "🌓",
 		URL:     "javascript:void(0);",

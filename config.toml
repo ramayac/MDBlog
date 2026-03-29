@@ -28,6 +28,7 @@ header_content = "Personal Thoughts and Musings."
 folder         = "personal"
 index          = true
 menu           = true
+menu_order     = 1
 
 [categories.substack]
 blog_name      = "Code Forward ⏩"
@@ -35,6 +36,7 @@ header_content = "(2023) Substack failed newsletter."
 folder         = "substack"
 index          = false
 menu           = true
+menu_order     = 2
 
 [categories.srbyte]
 blog_name      = "Sr. Byte 👨‍💻"
@@ -42,6 +44,7 @@ header_content = "(2007-2010) Tecnologia para todos."
 folder         = "srbyte"
 index          = false
 menu           = true
+menu_order     = 3
 
 [labels]
 read_more              = "Read more →"

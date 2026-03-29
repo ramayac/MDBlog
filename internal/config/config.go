@@ -49,6 +49,7 @@ type Category struct {
 	Folder        string `toml:"folder"`
 	Index         bool   `toml:"index"`
 	Menu          bool   `toml:"menu"`
+	MenuOrder     int    `toml:"menu_order"` // controls position among category nav links; lower = earlier
 }
 
 // Labels holds all user-visible UI strings.
