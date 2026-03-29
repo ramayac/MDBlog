@@ -113,5 +113,6 @@ return [
         'search_showing_results' => 'Showing results for "<strong>%s</strong>"',
         'search_empty_query' => 'Enter a keyword above to search through posts.',
         'search_no_results' => 'No posts found matching your query.',
+        'search_results_title' => 'Search Results for "%s"',
     ],
 ];

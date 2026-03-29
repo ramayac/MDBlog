@@ -69,7 +69,12 @@ if ($categorySlug) {
 $menu = $blog->getMenu();
 $pageTitle = $config['blog_name'];
 if ($isSearchPage) {
-    $pageTitle = ($searchQuery !== '') ? 'Search Results for "' . htmlspecialchars($searchQuery) . '" - ' . $config['blog_name'] : 'Search - ' . $config['blog_name'];
+    if ($searchQuery !== '') {
+        $searchLabel = $config['labels']['search_results_title'] ?? 'Search Results for "%s"';
+        $pageTitle = sprintf($searchLabel, htmlspecialchars($searchQuery)) . ' - ' . $config['blog_name'];
+    } else {
+        $pageTitle = ($config['labels']['search_title'] ?? 'Search') . ' - ' . $config['blog_name'];
+    }
 } elseif ($currentCategory) {
     $pageTitle = $config['blog_name'] . ' - ' . $currentCategory['blog_name'];
 }

@@ -19,7 +19,8 @@ include __DIR__ . '/../head.php';
                         $menuHtml[] = '<a href="' . htmlspecialchars($item['url']) . '">' . htmlspecialchars($item['label']) . '</a>';
                     }
                 }
-                $menuHtml[] = '<a href="index.php?search=1" title="Search" class="search-btn" style="text-decoration: none;">🔍</a>';
+                $searchTitle = $config['labels']['search_title'] ?? 'Search';
+                $menuHtml[] = '<a href="index.php?search=1" title="' . htmlspecialchars($searchTitle) . '" class="search-btn" style="text-decoration: none;">🔍</a>';
                 echo implode(' | ', $menuHtml);
                 ?>
             </div>
