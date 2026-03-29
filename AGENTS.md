@@ -163,7 +163,7 @@ Core domain logic. The `Blog` struct is the main service object:
 `net/http` handler. Key details:
 - `New(cfg *config.Config, b *blog.Blog) *Handler` — loads templates, returns the handler
 - `TemplateFS` and `AssetsFS` package-level variables — override in embed builds
-- Routes: `/` (home/category/search), `/post.php` (single post), `/assets/*` (static files)
+- Routes: `/` (home/category/search), `/post` (single post), `/assets/*` (static files)
 - Gzip compression via `compress/gzip` (when `Accept-Encoding: gzip` is present)
 - CSP header injected per request when `csp.enabled = true`
 - Templates use `html/template` with custom functions: `safeHTML`, `formatDate`, `urlquery`, `postPreviewData`, `defaultStr`
