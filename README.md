@@ -114,7 +114,7 @@ The nav bar is generated automatically from `config.toml`.
 # Static custom links (always shown, in order)
 [[menu_links]]
 label = "Home"
-url   = "index.php"
+url   = "/"
 
 # Per-category: set menu = true to include it in the nav
 [categories.srbyte]
@@ -221,7 +221,7 @@ Dockerfile.embed    # Embed variant (binary + posts + config only)
 - Go 1.24+
 - `make`
 
-No database. No PHP. No Node.js.
+No database. All data is read from the `posts/` directory and the pre-built JSON index.
 
 ## License
 

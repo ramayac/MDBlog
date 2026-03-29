@@ -31,13 +31,12 @@ type IndexPost struct {
 }
 
 var (
-	slugCleanup   = regexp.MustCompile(`[^a-z0-9]+`)
-	datePrefix    = regexp.MustCompile(`^\d{4}-\d{2}-\d{2}-`)
+	slugCleanup = regexp.MustCompile(`[^a-z0-9]+`)
+	datePrefix  = regexp.MustCompile(`^\d{4}-\d{2}-\d{2}-`)
 )
 
 // Build scans all post directories, extracts metadata, and writes
 // posts.index.json to the path specified in cfg.PostIndexFile.
-// Mirrors the logic in scripts/build-index.php.
 func Build(cfg *config.Config) error {
 	var entries []IndexPost
 
@@ -193,7 +192,6 @@ func titleFromFilename(filename string) string {
 }
 
 // rawMarkdownExcerpt strips Markdown syntax to produce a plain-text excerpt.
-// Mirrors the rawMarkdownExcerpt() function in scripts/build-index.php.
 func rawMarkdownExcerpt(raw string, length int) string {
 	// Strip fenced code blocks
 	text := regexp.MustCompile("(?s)```[\\s\\S]*?```").ReplaceAllString(raw, "")

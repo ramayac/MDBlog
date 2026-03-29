@@ -18,7 +18,6 @@ import (
 )
 
 // Run renders a single post to an HTML file in the render/ directory.
-// Mirrors scripts/render.php.
 //
 // Supported argument patterns (args = os.Args[1:] after "render"):
 //   - (empty)               → print usage
@@ -96,7 +95,7 @@ func Run(cfg *config.Config, args []string) error {
 	// We reuse the server's template machinery via a fake HTTP round-trip.
 	h := server.New(cfg, b)
 
-	url := "/post.php?slug=" + target.Slug
+	url := "/post?slug=" + target.Slug
 	if target.CategorySlug != "" {
 		url += "&category=" + target.CategorySlug
 	}

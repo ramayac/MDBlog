@@ -22,7 +22,7 @@ header = "Content-Security-Policy: default-src 'self';"
 
 [[menu_links]]
 label = "Home"
-url   = "index.php"
+url   = "/"
 
 [categories.foo]
 blog_name = "Foo"

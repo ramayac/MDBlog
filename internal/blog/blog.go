@@ -58,9 +58,9 @@ type Pagination struct {
 
 // PostList is returned by GetPosts and SearchPosts.
 type PostList struct {
-	Posts         []Post
-	Pagination    Pagination
-	TotalMatches  int // populated by SearchPosts
+	Posts        []Post
+	Pagination   Pagination
+	TotalMatches int // populated by SearchPosts
 }
 
 // MenuLink is a navigation link item.
@@ -91,9 +91,9 @@ type indexPost struct {
 }
 
 var (
-	slugCleanupRegex  = regexp.MustCompile(`[^a-z0-9]+`)
-	datePrefixRegex   = regexp.MustCompile(`^\d{4}-\d{2}-\d{2}-`)
-	whitespaceRegex   = regexp.MustCompile(`\s+`)
+	slugCleanupRegex = regexp.MustCompile(`[^a-z0-9]+`)
+	datePrefixRegex  = regexp.MustCompile(`^\d{4}-\d{2}-\d{2}-`)
+	whitespaceRegex  = regexp.MustCompile(`\s+`)
 )
 
 // Blog is the core service for reading and serving blog posts.
@@ -168,7 +168,7 @@ func (b *Blog) SearchPosts(query string, page int) PostList {
 // GetPostBySlug returns a fully-rendered post by its slug, optionally scoped
 // to a category. Returns nil when not found.
 func (b *Blog) GetPostBySlug(slug, categorySlug string) *Post {
-	// Path traversal guard — mirrors Blog.php validation
+	// Path traversal guard validation
 	if strings.Contains(slug, "..") || strings.Contains(slug, "/") || strings.Contains(slug, `\`) {
 		return nil
 	}
@@ -215,8 +215,8 @@ func (b *Blog) GetPostBySlug(slug, categorySlug string) *Post {
 
 // categoryMenuEntry is used internally to sort category nav links.
 type categoryMenuEntry struct {
-	slug  string
-	cat   config.Category
+	slug string
+	cat  config.Category
 }
 
 // GetMenu returns the ordered list of navigation links.

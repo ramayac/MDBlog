@@ -135,7 +135,7 @@ func TestSearchPosts_NoIndex(t *testing.T) {
 
 func TestGetMenu_CategoryLinks(t *testing.T) {
 	cfg := makeTestConfig(t.TempDir())
-	cfg.MenuLinks = []config.MenuLink{{Label: "Home", URL: "index.php"}}
+	cfg.MenuLinks = []config.MenuLink{{Label: "Home", URL: "/"}}
 	b := New(cfg)
 
 	menu := b.GetMenu()

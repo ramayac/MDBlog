@@ -108,13 +108,13 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set(splitCSPHeader(h.cfg.CSP.Header))
 	}
 
-	// ── Route: single post (/post.php) ─────────────────────────────────────
-	if path == "/post.php" || strings.HasSuffix(path, "/post.php") {
+	// ── Route: single post (/post) ─────────────────────────────────────────
+	if path == "/post" || strings.HasSuffix(path, "/post") {
 		h.servPost(w, r)
 		return
 	}
 
-	// ── Route: index (/, /index.php) ──────────────────────────────────────
+	// ── Route: index (/) ──────────────────────────────────────────────────
 	h.serveIndex(w, r)
 }
 
