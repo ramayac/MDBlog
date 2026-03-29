@@ -12,28 +12,26 @@ One of the great features of MDBlog is its excellent support for code examples a
 
 ## Inline Code
 
-You can include `inline code` using backticks. This is perfect for mentioning variables like `$username` or functions like `getData()`.
+You can include `inline code` using backticks. This is perfect for mentioning variables like `username` or functions like `GetData()`.
 
 ## Code Blocks
 
 For larger code examples, use fenced code blocks with language specification:
 
-### PHP Example
+### Go Example
 
-```php
-<?php
-class BlogPost {
-    private $title;
-    private $content;
-    
-    public function __construct($title, $content) {
-        $this->title = $title;
-        $this->content = $content;
-    }
-    
-    public function render() {
-        return "<h1>{$this->title}</h1><p>{$this->content}</p>";
-    }
+```go
+package main
+
+import "fmt"
+
+type BlogPost struct {
+    Title   string
+    Content string
+}
+
+func (p *BlogPost) Render() string {
+    return fmt.Sprintf("<h1>%s</h1><p>%s</p>", p.Title, p.Content)
 }
 ```
 
