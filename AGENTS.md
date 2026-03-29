@@ -80,6 +80,7 @@ Category posts live under `posts/<category-folder>/`.
 ```bash
 make serve                                      # PHP dev server at localhost:8080
 make build-index                                # Generate post metadata index (posts/posts.index.json)
+make test                                       # Run PHPUnit test suite (E2E and unit tests)
 make new-post TITLE="Title" TAGS="tag1, tag2"   # Scaffold a new post
 make version                                    # Bake git commit/tag into version.php
 make clear-cache                                # Delete all cache/*.json files

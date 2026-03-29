@@ -11,5 +11,8 @@
     "config": {
         "optimize-autoloader": true,
         "sort-packages": true
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^13.0"
     }
 }

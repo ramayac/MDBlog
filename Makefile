@@ -92,3 +92,8 @@ utf8-fix: ## Re-encode any non-UTF-8 .md files in posts/ to UTF-8 (fixes Bref JS
 	done; \
 	if [ $$fixed -eq 0 ]; then echo "All files are already valid UTF-8."; \
 	else echo "$$fixed file(s) converted to UTF-8."; fi
+
+.PHONY: test
+test: vendor/bin/phpunit build-index
+	@echo "Running tests..."
+	vendor/bin/phpunit

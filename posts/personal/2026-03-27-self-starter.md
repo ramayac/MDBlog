@@ -39,7 +39,7 @@ That is part of the "art." I did it first. I took the risk.
 Even a failed experiment is a data point that makes me $1\%$ better for the next attempt. 
 In the framework of a career, those small percentages compound into something massive.
 
-### Just pick up the brush.**
+### Just pick up the brush.
 
 The fundamental difference between a critic and a creator is simple: the creator actually did it.
 

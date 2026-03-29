@@ -52,6 +52,7 @@ Then start the dev server:
 make build-index     # Generate post metadata index (posts/posts.index.json)
 make serve           # Start the built-in PHP dev server (default: http://localhost:8080)
 make lint            # Check all PHP files for syntax errors
+make test            # Run PHPUnit test suite
 make clear-cache     # Delete all cached .json files from cache/
 make utf8-fix        # Re-encode any non-UTF-8 .md files in posts/ to valid UTF-8
 ```
