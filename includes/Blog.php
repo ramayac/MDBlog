@@ -45,6 +45,44 @@ class Blog {
         return isset($this->config[$key]) ? $this->config[$key] : null;
     }
     
+    public function searchPosts($query, $page = 1) {
+        $index = $this->loadPostIndex();
+        if ($index === null) {
+            return ['posts' => [], 'pagination' => $this->buildPaginationData(1, 1), 'total_matches' => 0];
+        }
+
+        $query = strtolower(trim($query));
+        if (empty($query)) {
+            return ['posts' => [], 'pagination' => $this->buildPaginationData(1, 1), 'total_matches' => 0];
+        }
+
+        $results = [];
+        foreach ($index as $slug => $post) {
+            $searchableText = strtolower(
+                ($post['title'] ?? '') . ' ' . 
+                ($post['excerpt'] ?? '') . ' ' . 
+                (isset($post['tags']) ? (is_array($post['tags']) ? implode(' ', $post['tags']) : $post['tags']) : '')
+            );
+
+            if (str_contains($searchableText, $query)) {
+                $results[] = $post;
+            }
+        }
+
+        usort($results, [$this, 'sortPostsByDate']);
+        
+        $perPage = $this->config['posts_per_page'];
+        $total = count($results);
+        $totalPages = ceil($total / $perPage);
+        $offset = ($page - 1) * $perPage;
+
+        return [
+            'posts' => array_slice($results, $offset, $perPage),
+            'pagination' => $this->buildPaginationData($page, max(1, $totalPages)),
+            'total_matches' => $total
+        ];
+    }
+
     public function getPosts($page = 1, $categorySlug = null) {
         // Fast path: use the pre-built metadata index (no body parsing).
         $index = $this->loadPostIndex();
@@ -182,6 +220,30 @@ class Blog {
         }
         
         $filepath = $posts_dir . '/' . $slug . '.md';
+        
+        if (!file_exists($filepath)) {
+            if (!$categorySlug) {
+                $index = $this->loadPostIndex();
+                if ($index !== null) {
+                    foreach ($index as $postMeta) {
+                        if (isset($postMeta['slug']) && $postMeta['slug'] === $slug) {
+                            $catSlug = $postMeta['category_slug'] ?? null;
+                            if ($catSlug) {
+                                $cat = $this->getCategoryBySlug($catSlug);
+                                if ($cat) {
+                                    $newFilepath = $this->postsDir . '/' . $cat['folder'] . '/' . $slug . '.md';
+                                    if (file_exists($newFilepath)) {
+                                        $filepath = $newFilepath;
+                                        $categorySlug = $catSlug;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
         
         if (file_exists($filepath)) {
             $post = $this->parsePost($filepath);

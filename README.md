@@ -13,6 +13,8 @@ Author: [@ramayac](https://x.com/ramayac).
 
 - Write posts in Markdown
 - Built-in pagination powered by a **build-time metadata index** (handles 300+ posts without Lambda timeouts)
+- Standalone search page using the pre-built metadata index
+- Fallback post routing for clean URLs (handles 404s missing a category path)
 - Code syntax highlighting
 - Custom JavaScript support
 - Responsive design
@@ -50,6 +52,7 @@ Then start the dev server:
 make build-index     # Generate post metadata index (posts/posts.index.json)
 make serve           # Start the built-in PHP dev server (default: http://localhost:8080)
 make lint            # Check all PHP files for syntax errors
+make test            # Run PHPUnit test suite
 make clear-cache     # Delete all cached .json files from cache/
 make utf8-fix        # Re-encode any non-UTF-8 .md files in posts/ to valid UTF-8
 ```
@@ -69,6 +72,10 @@ make docker-pull TAG=1.2.3              # Pull a release image and tag as latest
 ```
 
 After pushing the image, update the Lambda function to use the new image URI. AWS will cold-start new containers from the updated image.
+
+### Continuous Deployment (CI/CD)
+
+MDBlog includes GitHub Actions for automated deployment. When you push changes to any `.md` file inside the `posts/` directory on the `master` branch, it automatically triggers a new Docker build. Once pushed to GitHub Container Registry (GHCR), a secondary workflow propagates the up-to-date image to Amazon ECR and updates your AWS Lambda function immediately with the new content.
 
 ### Cache on Lambda
 
@@ -128,12 +135,13 @@ The nav bar is generated automatically from `config.php` — no more editing `me
 ],
 ```
 
-## Landing Page
+## Landing Page and Search
 
-`index.php` (no `?category`) shows a static landing page with category cards.  
+`index.php` (no `?category`, no `?q`) shows a static landing page with category cards.  
 To add an optional intro blurb above the cards, create `posts/index.md` with any Markdown content.
 
-Browsing posts works via `index.php?category=slug`.
+Browsing posts works via `index.php?category=slug`.  
+Searching posts works via `index.php?q=keyword` (requires post metadata index).
 
 ## Categories
 
@@ -161,12 +169,12 @@ Listing and pagination pages are powered by a **pre-built metadata index** (`pos
 
 1. `make build-index` scans all posts, extracts front-matter metadata (slug, title, date, author, tags, description), and writes `posts/posts.index.json`. Full post bodies are never rendered during this step.
 2. `make docker-build` runs `make build-index` automatically before `docker build`, so the index is baked into the Docker image.
-3. At request time, `Blog::getPosts()` reads the index for filtering and pagination — no `.md` files are opened.
-4. Individual post pages (`post.php`) still parse the full Markdown body, but only for the single requested post.
+3. At request time, `Blog::getPosts()` reads the index for filtering, regular pagination, and **search feature** (`?q=keyword`) — no `.md` files are opened.
+4. Individual post pages (`post.php`) still parse the full Markdown body, but only for the single requested post. It also relies on the pre-built index as a fallback routing mechanism to deduce the parent category of a post if a user visits a post without specifying the category slug.
 
 ### Fallback
 
-If `posts/posts.index.json` is absent (e.g., a fresh local clone before running `make build-index`), the blog falls back to the original filesystem scan — correct behavior with a performance warning logged.
+If `posts/posts.index.json` is absent (e.g., a fresh local clone before running `make build-index`), the blog falls back to the original filesystem scan — correct behavior with a performance warning logged. The search function and 404 URL fallback will return no results or fail natively without the index.
 
 ### Keeping the index fresh
 

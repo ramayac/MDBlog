@@ -53,6 +53,8 @@ require_once 'includes/View.php';
 $blog = new Blog();
 
 $categorySlug = isset($_GET['category']) ? $_GET['category'] : null;
+$isSearchPage = isset($_GET['search']) || isset($_GET['q']);
+$searchQuery = isset($_GET['q']) ? (string)$_GET['q'] : '';
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $page = max(1, $page);
 
@@ -65,11 +67,31 @@ if ($categorySlug) {
 }
 
 $menu = $blog->getMenu();
-$pageTitle = $currentCategory
-    ? $config['blog_name'] . ' - ' . $currentCategory['blog_name']
-    : $config['blog_name'];
+$pageTitle = $config['blog_name'];
+if ($isSearchPage) {
+    if ($searchQuery !== '') {
+        $searchLabel = $config['labels']['search_results_title'] ?? 'Search Results for "%s"';
+        $pageTitle = sprintf($searchLabel, htmlspecialchars($searchQuery)) . ' - ' . $config['blog_name'];
+    } else {
+        $pageTitle = ($config['labels']['search_title'] ?? 'Search') . ' - ' . $config['blog_name'];
+    }
+} elseif ($currentCategory) {
+    $pageTitle = $config['blog_name'] . ' - ' . $currentCategory['blog_name'];
+}
 
-if ($currentCategory) {
+if ($isSearchPage) {
+    $data = $blog->searchPosts($searchQuery, $page);
+    View::render('search.php', [
+        'config' => $config,
+        'blog' => $blog,
+        'menu' => $menu,
+        'pageTitle' => $pageTitle,
+        'query' => $searchQuery,
+        'posts' => $data['posts'],
+        'pagination' => $data['pagination'],
+        'start_time' => $start_time
+    ]);
+} elseif ($currentCategory) {
     $data = $blog->getPosts($page, $categorySlug);
     View::render('category.php', [
         'config' => $config,
