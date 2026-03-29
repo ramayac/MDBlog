@@ -1,0 +1,67 @@
+blog_name              = "Rodrigo A."
+author_name            = "Rodrigo Amaya"
+lang                   = "en"
+header_content         = "Wholesome Software Development."
+footer_content         = "*Built with [MDBlog](https://github.com/ramayac/mdblog). 💻*"
+posts_per_page         = 25
+excerpt_length         = 200
+show_uncategorized     = true
+uncategorized_label    = "General"
+show_render_time       = false
+posts_dir              = "posts"
+post_index_file        = "posts/posts.index.json"
+date_format            = "2006-01-02"
+default_meta_description = "Personal blog and thoughts of @ramayac."
+css_theme              = "assets/css/default.style.css"
+
+[csp]
+enabled = true
+header  = "Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:;"
+
+[[menu_links]]
+label = "Home"
+url   = "/"
+
+[categories.personal]
+blog_name      = "Personal 🏠"
+header_content = "Personal Thoughts and Musings."
+folder         = "personal"
+index          = true
+menu           = true
+menu_order     = 1
+
+[categories.substack]
+blog_name      = "Code Forward ⏩"
+header_content = "(2023) Substack failed newsletter."
+folder         = "substack"
+index          = false
+menu           = true
+menu_order     = 2
+
+[categories.srbyte]
+blog_name      = "Sr. Byte 👨‍💻"
+header_content = "(2007-2010) Tecnologia para todos."
+folder         = "srbyte"
+index          = false
+menu           = true
+menu_order     = 3
+
+[labels]
+read_more              = "Read more →"
+back_to_all            = "← Back to all posts"
+back_to_category       = "← Back to %s"
+not_found_title        = "404 — Post Not Found"
+not_found_message      = "The post you're looking for doesn't exist."
+no_posts_in_category   = "No posts found in this category."
+pagination_prev        = "← Newer Posts"
+pagination_next        = "Older Posts →"
+page_indicator         = "Page %d of %d"
+author_by              = "By %s"
+posted_on              = "on %s"
+search_title           = "Search"
+search_placeholder     = "What are you looking for?"
+search_button          = "🔍 Search"
+search_showing_results = "Showing results for \"%s\""
+search_empty_query     = "Enter a keyword above to search through posts."
+search_no_results      = "No posts found matching your query."
+search_results_title   = "Search Results for \"%s\""

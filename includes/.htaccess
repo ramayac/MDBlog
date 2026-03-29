@@ -1,8 +1,0 @@
-# Deny all access to the includes directory
-Order Allow,Deny
-Deny from all
-
-# Prevent execution of any scripts
-<Files "*">
-    SetHandler default-handler
-</Files>

@@ -13,18 +13,20 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Setup PHP
-      uses: shivammathur/setup-php@v2
+    - name: Set up Go
+      uses: actions/setup-go@v5
       with:
-        php-version: '8.3'
-        extensions: mbstring, xml, dom
-        coverage: none
+        go-version-file: go.mod
+        cache: true
 
-    - name: Install dependencies
-      run: composer install --prefer-dist --no-progress
+    - name: Build all packages
+      run: go build ./...
 
-    - name: Lint PHP files
-      run: make lint
+    - name: Vet
+      run: go vet ./...
+
+    - name: Build post index
+      run: go run ./cmd/mdblog build-index
 
     - name: Run tests
-      run: make test
+      run: go test ./...

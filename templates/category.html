@@ -1,0 +1,30 @@
+<h2 class="category-title">
+    {{ .CurrentCategory.BlogName }}
+    {{ if .CurrentCategory.HeaderContent }}<br><small>{{ .CurrentCategory.HeaderContent }}</small>{{ end }}
+</h2>
+
+<main class="main-content">
+    {{ if not .Posts }}
+    <div class="no-posts">
+        <p>{{ .Config.Labels.NoPostsInCategory }}</p>
+    </div>
+    {{ else }}
+    <div class="posts-grid">
+        {{ range .Posts }}
+        {{ template "post_preview" (postPreviewData . $.CategorySlug $.Config) }}
+        {{ end }}
+    </div>
+
+    {{ if gt .Pagination.Total 1 }}
+    <nav class="pagination">
+        {{ if .Pagination.HasPrev }}
+        <a href="?category={{ .CategorySlug | urlquery }}&page={{ .Pagination.Prev }}" class="pagination-link prev">{{ .Config.Labels.PaginationPrev }}</a>
+        {{ end }}
+        <span class="pagination-info">{{ printf .Config.Labels.PageIndicator .Pagination.Current .Pagination.Total }}</span>
+        {{ if .Pagination.HasNext }}
+        <a href="?category={{ .CategorySlug | urlquery }}&page={{ .Pagination.Next }}" class="pagination-link next">{{ .Config.Labels.PaginationNext }}</a>
+        {{ end }}
+    </nav>
+    {{ end }}
+    {{ end }}
+</main>
