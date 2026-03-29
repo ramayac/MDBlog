@@ -14,24 +14,7 @@
     <?php else: ?>
         <div class="posts-grid">
             <?php foreach ($posts as $post): ?>
-                <article class="post-preview">
-                    <h2 class="post-title">
-                        <a href="post.php?slug=<?php echo urlencode($post['slug']); ?>&category=<?php echo urlencode($categorySlug); ?>">
-                            <?php echo htmlspecialchars($post['title']); ?>
-                        </a>
-                    </h2>
-                    <div class="post-meta">
-                        <span class="post-date"><?php echo htmlspecialchars(sprintf($config['labels']['posted_on'] ?? 'on %s', date('F j, Y', strtotime($post['date'])))); ?></span>
-                    </div>
-                    <?php if (!empty($post['excerpt'])): ?>
-                    <div class="post-excerpt">
-                        <?php echo $post['excerpt']; ?>
-                    </div>
-                    <?php endif; ?>
-                    <a href="post.php?slug=<?php echo urlencode($post['slug']); ?>&category=<?php echo urlencode($categorySlug); ?>" class="read-more">
-                        <?php echo $config['labels']['read_more'] ?? 'Read more &rarr;'; ?>
-                    </a>
-                </article>
+                <?php include __DIR__ . '/_post_preview.php'; ?>
             <?php endforeach; ?>
         </div>
 

@@ -107,5 +107,11 @@ return [
         'pagination_next' => 'Older Posts &rarr;',
         'page_indicator' => 'Page %d of %d',
         'author_by' => 'By %s',
+        'search_title' => 'Search',
+        'search_placeholder' => 'What are you looking for?',
+        'search_button' => '🔍 Search',
+        'search_showing_results' => 'Showing results for "<strong>%s</strong>"',
+        'search_empty_query' => 'Enter a keyword above to search through posts.',
+        'search_no_results' => 'No posts found matching your query.',
     ],
 ];
