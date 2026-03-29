@@ -1,0 +1,46 @@
+# Dockerfile.embed — single-binary variant
+#
+# Builds cmd/lambda-embed, which has templates/ and assets/ baked into the
+# binary via go:embed. The resulting image only needs the binary, posts/, and
+# config.toml — no templates/ or assets/ directories on disk.
+#
+# Usage:
+#   make docker-build-embed
+#   docker run --rm -p 9000:8080 mdblog-embed:latest
+
+# ── Stage 1: Build Go binary with embedded static files ──────────────────────
+FROM golang:1.24 AS build
+
+WORKDIR /src
+
+COPY go.mod go.sum ./
+RUN go mod download
+
+COPY . .
+
+ARG VERSION=dev
+ARG COMMIT=unknown
+ARG DATE=unknown
+ARG LDFLAGS="-s -w -X main.version=${VERSION} -X main.commit=${COMMIT} -X main.date=${DATE}"
+
+# Build the embed-variant Lambda binary (templates + assets baked in)
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
+    go build -ldflags "${LDFLAGS}" -o /out/lambda-embed ./cmd/lambda-embed
+
+# Build CLI to run build-index
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
+    go build -o /out/mdblog ./cmd/mdblog
+
+# Generate post metadata index
+RUN cd /src && /out/mdblog build-index
+
+# ── Stage 2: Truly minimal image — binary + posts + config only ───────────────
+FROM scratch
+
+COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+
+COPY --from=build /out/lambda-embed /lambda
+COPY --from=build /src/posts/       /posts/
+COPY --from=build /src/config.toml  /config.toml
+
+ENTRYPOINT ["/lambda"]

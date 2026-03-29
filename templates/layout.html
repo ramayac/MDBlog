@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="{{ .Config.Lang }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ .PageTitle }}</title>
+    <link rel="stylesheet" href="{{ .Config.CSSTheme }}?v={{ .CSSVersion }}">
+    <script>
+        const savedTheme = localStorage.getItem('theme-mode');
+        if (savedTheme) {
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        }
+        function toggleTheme() {
+            let currentTheme = document.documentElement.getAttribute('data-theme');
+            if (!currentTheme) {
+                currentTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            }
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme-mode', newTheme);
+        }
+    </script>
+    {{ if .PageDescription }}<meta name="description" content="{{ .PageDescription }}">{{ end }}
+    {{ if .Canonical }}<link rel="canonical" href="{{ .Canonical }}">{{ end }}
+    <!-- Open Graph -->
+    <meta property="og:title"   content="{{ .PageTitle }}">
+    <meta property="og:type"    content="{{ .OGType }}">
+    {{ if .Canonical }}<meta property="og:url" content="{{ .Canonical }}">{{ end }}
+    {{ if .PageDescription }}<meta property="og:description" content="{{ .PageDescription }}">{{ end }}
+    {{ if .Config.CSP.Enabled }}<!-- CSP set via HTTP header -->{{ end }}
+</head>
+<body>
+<div class="container">
+    {{ if .Menu }}
+    <nav class="site-menu">
+        <div class="menu-links">
+            {{- range $i, $item := .Menu -}}
+            {{- if $i }} | {{ end -}}
+            {{- if $item.OnClick -}}
+            <a href="{{ $item.URL }}" onclick="{{ $item.OnClick }}" title="{{ $item.Title }}">{{ $item.Label }}</a>
+            {{- else -}}
+            <a href="{{ $item.URL }}">{{ $item.Label }}</a>
+            {{- end -}}
+            {{- end -}}
+             | <a href="index.php?search=1" title="{{ .Config.Labels.SearchTitle }}" class="search-btn" style="text-decoration: none;">🔍</a>
+        </div>
+    </nav>
+    {{ end }}
+
+    {{ .Content }}
+
+    <footer class="site-footer">
+        {{ if .FooterHTML }}{{ .FooterHTML }}{{ end }}
+        {{ with .Version }}
+        {{ if .Commit }}
+        <small class="site-version">
+            {{ if .Version }}{{ .Version }} &middot; {{ end }}{{ .Commit }}{{ if .Date }} &middot; {{ .Date }}{{ end }}
+        </small>
+        {{ end }}
+        {{ end }}
+        {{ if .RenderTime }}
+        <small>Page rendered in {{ .RenderTime }}ms</small>
+        {{ end }}
+    </footer>
+</div>
+
+{{ range .JSFiles }}
+<script src="assets/js/{{ . }}"></script>
+{{ end }}
+</body>
+</html>

@@ -1,46 +1,67 @@
 HOST      ?= localhost
 PORT      ?= 8080
-PHP       := php
 TAG       ?= latest
 REGISTRY  ?= ghcr.io/ramayac/mdblog
 
+# Version info injected into binaries via -ldflags
+COMMIT  := $(shell git log -1 --format="%h" 2>/dev/null || echo unknown)
+DATE    := $(shell git log -1 --format="%ad" --date=short 2>/dev/null || echo unknown)
+_TAG    := $(shell git describe --tags --abbrev=0 2>/dev/null || true)
+VERSION := $(if $(_TAG),$(_TAG),$(COMMIT))
+LDFLAGS := -s -w -X main.version=$(VERSION) -X main.commit=$(COMMIT) -X main.date=$(DATE)
+
 .DEFAULT_GOAL := help
 
-.PHONY: help serve lint new-post version clear-cache build-index utf8-fix docker-build docker-run docker-run-release docker-stop docker-push docker-pull render
+.PHONY: help serve build build-embed build-index lint test new-post render \
+        docker-build docker-build-embed docker-run docker-run-release \
+        docker-stop docker-push docker-pull
 
 help: ## Show available targets
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
-		awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-12s\033[0m %s\n", $$1, $$2}'
+		awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}'
 
-serve: ## Start PHP built-in dev server (HOST=localhost PORT=8080)
+# ── Development ───────────────────────────────────────────────────────────────
+
+serve: ## Start local HTTP server (HOST=localhost PORT=8080)
 	@echo "Starting dev server at http://$(HOST):$(PORT)"
-	$(PHP) -S $(HOST):$(PORT)
+	PORT=$(PORT) go run -ldflags "$(LDFLAGS)" ./cmd/mdblog serve
 
-lint: ## Check all PHP files for syntax errors
-	@errors=0; \
-	for f in $$(find . -name '*.php' | sort); do \
-		$(PHP) -l "$$f" || errors=$$((errors+1)); \
-	done; \
-	[ $$errors -eq 0 ] && echo "All PHP files OK." || { echo "$$errors file(s) failed."; exit 1; }
+build: ## Compile production binaries to bin/
+	@mkdir -p bin
+	CGO_ENABLED=0 go build -ldflags "$(LDFLAGS)" -o bin/mdblog   ./cmd/mdblog
+	CGO_ENABLED=0 go build -ldflags "$(LDFLAGS)" -o bin/lambda   ./cmd/lambda
+	@echo "Built: bin/mdblog  bin/lambda"
 
-clear-cache: ## Delete all cached .json files from the cache/ folder
-	@find cache/ -name '*.json' -type f -delete
-	@echo "Cache cleared."
+build-embed: ## Compile embed-variant Lambda binary to bin/lambda-embed
+	@mkdir -p bin
+	CGO_ENABLED=0 go build -ldflags "$(LDFLAGS)" -o bin/lambda-embed ./cmd/lambda-embed
+	@echo "Built: bin/lambda-embed (templates + assets embedded)"
 
-version: ## Bake current git commit+tag into version.php (run before FTP upload or Docker build)
-	$(eval _COMMIT  := $(shell git log -1 --format="%h" 2>/dev/null))
-	$(eval _DATE    := $(shell git log -1 --format="%ad" --date=short 2>/dev/null))
-	$(eval _TAG     := $(shell git describe --tags --abbrev=0 2>/dev/null || true))
-	$(eval _VERSION := $(if $(_TAG),$(_TAG),$(_COMMIT)))
-	@$(PHP) -r 'file_put_contents("version.php", "<?php return [\"commit\"=>\"$(_COMMIT)\",\"date\"=>\"$(_DATE)\",\"version\"=>\"$(_VERSION)\"];\n");'
-	@echo "Written: version.php  (commit=$(_COMMIT), version=$(_VERSION), date=$(_DATE))"
+build-index: ## Generate post metadata index (writes posts/posts.index.json)
+	@echo "Building post metadata index..."
+	go run ./cmd/mdblog build-index
 
-new-post: ## Create a new post template: make new-post TITLE="my post title" [CATEGORY=slug] [TAGS="tag1, tag2"]
+lint: ## Run go vet on all packages
+	go vet ./...
+
+test: build-index ## Run the Go test suite
+	go test ./...
+
+# Allow extra arguments to `make render`
+ifeq (render,$(firstword $(MAKECMDGOALS)))
+  RENDER_ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
+  $(eval $(RENDER_ARGS):;@:)
+endif
+
+render: ## Render a post to HTML: make render random | make render [category] random | make render filename.md
+	go run ./cmd/mdblog render $(RENDER_ARGS)
+
+new-post: ## Scaffold a new post: make new-post TITLE="title" [CATEGORY=slug] [TAGS="tag1, tag2"]
 	$(eval DATE    := $(shell date +%Y-%m-%d))
 	$(eval SLUG    := $(shell echo "$(TITLE)" | tr '[:upper:]' '[:lower:]' | tr ' ' '-' | tr -cd '[:alnum:]-'))
 	$(eval DIR     := $(if $(CATEGORY),posts/$(CATEGORY),posts))
 	$(eval FILE    := $(DIR)/$(DATE)-$(SLUG).md)
-	$(eval AUTHOR  := $(shell $(PHP) -r '$$c=include("config.php"); echo $$c["author_name"];'))
+	$(eval AUTHOR  := $(shell grep -oP 'author_name\s*=\s*"\K[^"]+' config.toml 2>/dev/null || echo "Author"))
 	@if [ -z "$(TITLE)" ]; then \
 		echo "Usage: make new-post TITLE=\"my post title\" [CATEGORY=slug] [TAGS=\"tag1, tag2\"]"; exit 1; \
 	fi
@@ -53,14 +74,22 @@ new-post: ## Create a new post template: make new-post TITLE="my post title" [CA
 	@printf -- '---\ntitle: $(TITLE)\ndate: $(DATE)\nauthor: $(AUTHOR)\ntags: $(TAGS)\ndescription: \n---\n\n# $(TITLE)\n' > "$(FILE)"
 	@echo "Created: $(FILE)"
 
-build-index: ## Generate post metadata index for fast listing/pagination (writes posts/posts.index.json)
-	@echo "Building post metadata index..."
-	$(PHP) scripts/build-index.php
+# ── Docker ────────────────────────────────────────────────────────────────────
 
-docker-build: ## Build the Docker image (bakes version.php + post index, then builds image)
-	$(MAKE) version
-	# $(MAKE) build-index #no need for this since the Dockerfile already runs build-index.php, but you can run it here if you want to pre-build the index before the Docker build step
-	docker build -t mdblog:latest .
+docker-build: ## Build the production Docker image (FROM scratch, Lambda-ready)
+	docker build \
+		--build-arg VERSION=$(VERSION) \
+		--build-arg COMMIT=$(COMMIT) \
+		--build-arg DATE=$(DATE) \
+		-t mdblog:latest .
+
+docker-build-embed: ## Build the embed-variant Docker image (templates+assets inside binary)
+	docker build \
+		--build-arg VERSION=$(VERSION) \
+		--build-arg COMMIT=$(COMMIT) \
+		--build-arg DATE=$(DATE) \
+		-f Dockerfile.embed \
+		-t mdblog-embed:latest .
 
 docker-run: ## Start blog via Docker Compose at http://localhost:8080
 	docker compose up
@@ -68,41 +97,14 @@ docker-run: ## Start blog via Docker Compose at http://localhost:8080
 docker-stop: ## Stop and remove Docker Compose containers
 	docker compose down
 
-docker-push: ## Push image to registry (REGISTRY=ghcr.io/ramayac/mdblog)
-	docker tag mdblog:latest $(REGISTRY):latest
-	docker push $(REGISTRY):latest
+docker-push: ## Push image to registry (REGISTRY=ghcr.io/ramayac/mdblog TAG=latest)
+	docker tag mdblog:latest $(REGISTRY):$(TAG)
+	docker push $(REGISTRY):$(TAG)
 
 docker-pull: ## Pull a release image from registry: make docker-pull [TAG=1.2.3]
 	docker pull $(REGISTRY):$(TAG)
 	docker tag $(REGISTRY):$(TAG) mdblog:latest
-	@echo "Pulled $(REGISTRY):$(TAG) and tagged as mdblog:latest — run with: make docker-run-release"
+	@echo "Pulled $(REGISTRY):$(TAG) → mdblog:latest — run with: make docker-run-release"
 
 docker-run-release: ## Run the pulled release image without rebuilding (use after docker-pull)
 	docker compose up --no-build
-
-utf8-fix: ## Re-encode any non-UTF-8 .md files in posts/ to UTF-8 (fixes Bref JSON encoding errors)
-	@echo "Scanning posts/ for non-UTF-8 encoded Markdown files..."
-	@fixed=0; \
-	for f in $$(find posts/ -name '*.md' | sort); do \
-		if ! $(PHP) -r 'exit(mb_check_encoding(file_get_contents("'"$$f"'"), "UTF-8") ? 0 : 1);' 2>/dev/null; then \
-			$(PHP) -r 'file_put_contents("'"$$f"'", mb_convert_encoding(file_get_contents("'"$$f"'"), "UTF-8", "auto"));'; \
-			echo "  Converted: $$f"; \
-			fixed=$$((fixed+1)); \
-		fi; \
-	done; \
-	if [ $$fixed -eq 0 ]; then echo "All files are already valid UTF-8."; \
-	else echo "$$fixed file(s) converted to UTF-8."; fi
-
-# Allow extra arguments to `make render`
-ifeq (render,$(firstword $(MAKECMDGOALS)))
-  RENDER_ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
-  $(eval $(RENDER_ARGS):;@:)
-endif
-
-render: ## Test render a post to HTML (e.g., make render random, make render srbyte random, make render filename.md)
-	@$(PHP) scripts/render.php $(RENDER_ARGS)
-
-.PHONY: test
-test: vendor/bin/phpunit build-index
-	@echo "Running tests..."
-	vendor/bin/phpunit

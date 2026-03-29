@@ -1,25 +1,34 @@
-# Version control — never bake git history into the image
+# Version control
 .git/
 .github/
 
-# Docker files themselves (no need to copy into the image)
+# Docker files (not needed inside build context)
 Dockerfile
+Dockerfile.embed
 docker-compose.yml
 .dockerignore
 
-# Cache files are generated at runtime via tmpfs and are not copied into the image.
-# The pre-built post metadata index now lives at posts/posts.index.json and is included
-# in the Docker build context by default (no cache/ exception rule is needed here).
-cache/
-
-# Composer vendor — generated during Docker build stage, not needed in build context
+# Go build outputs — rebuilt inside the Docker build stage
+bin/
 vendor/
+
+# PHP artifacts no longer in use
+cache/
+vendor/
+composer.json
+composer.lock
+phpunit.xml
+.phpunit.result.cache
 
 # Dev docs and tooling
 README.md
 AGENTS.md
 Makefile
 .htaccess
+
+# The pre-built post index is allowed so docker can use it if present
+# (the Dockerfile rebuilds it inside the container regardless)
+# posts/posts.index.json  ← intentionally NOT excluded
 
 # Editor and OS noise
 .DS_Store
@@ -28,3 +37,6 @@ Makefile
 .idea/
 .vscode/
 render/
+
+# Test fixtures not needed in production image
+tests/

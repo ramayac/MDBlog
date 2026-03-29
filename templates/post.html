@@ -1,0 +1,38 @@
+<main class="main-content">
+    <article class="post">
+        <header class="post-header">
+            <h1 class="post-title">{{ .Post.Title }}</h1>
+            <div class="post-meta">
+                {{ if .Post.Category }}
+                <span class="post-category">
+                    {{ .Post.Date | formatDate }} in <a href="index.php?category={{ .Post.CategorySlug | urlquery }}">{{ .Post.Category.BlogName }}</a>
+                </span>
+                {{ end }}
+                {{ if .Post.FrontMatter.Author }}
+                <span class="post-author">{{ printf .Config.Labels.AuthorBy .Post.FrontMatter.Author }}</span>
+                {{ end }}
+            </div>
+        </header>
+
+        <div class="post-content">
+            {{ .Post.Content | safeHTML }}
+        </div>
+
+        {{ if .Post.FrontMatter.Tags }}
+        <div class="post-tags">
+            <strong>Tags:</strong>
+            {{ range .Tags }}
+            <span class="tag">{{ . }}</span>
+            {{ end }}
+        </div>
+        {{ end }}
+    </article>
+
+    <nav class="post-navigation">
+        {{ if .CategorySlug }}
+        <a href="index.php?category={{ .CategorySlug | urlquery }}" class="back-to-home">{{ printf .Config.Labels.BackToCategory .Post.Category.BlogName }}</a>
+        {{ else }}
+        <a href="index.php" class="back-to-home">{{ .Config.Labels.BackToAll }}</a>
+        {{ end }}
+    </nav>
+</main>

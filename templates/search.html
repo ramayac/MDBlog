@@ -1,0 +1,40 @@
+<div class="search-header" style="text-align: center; margin-bottom: 2em; margin-top: 1em;">
+    <h2 class="category-title" style="margin-bottom: 0.5em;">{{ .Config.Labels.SearchTitle }}</h2>
+    <form action="index.php" method="GET" class="standalone-search-form" style="display: flex; justify-content: center; gap: 10px; max-width: 500px; margin: 0 auto;">
+        <input type="text" name="q" value="{{ .Query }}" placeholder="{{ .Config.Labels.SearchPlaceholder }}" required autofocus style="flex: 1; padding: 10px; font-size: 1.1em; border: 1px solid #ccc; border-radius: 6px;">
+        <button type="submit" style="padding: 10px 20px; font-size: 1.1em; border: 1px solid #ccc; border-radius: 6px; background: #f0f0f0; cursor: pointer;">{{ .Config.Labels.SearchButton }}</button>
+    </form>
+    {{ if .Query }}
+    <p style="margin-top: 1em; color: #666;">{{ printf .Config.Labels.SearchShowingResults .Query | safeHTML }}</p>
+    {{ end }}
+</div>
+
+<main class="main-content">
+    {{ if not .Query }}
+    <div class="no-posts" style="text-align: center;">
+        <p>{{ .Config.Labels.SearchEmptyQuery }}</p>
+    </div>
+    {{ else if not .Posts }}
+    <div class="no-posts" style="text-align: center;">
+        <p>{{ .Config.Labels.SearchNoResults }}</p>
+    </div>
+    {{ else }}
+    <div class="posts-grid">
+        {{ range .Posts }}
+        {{ template "post_preview" (postPreviewData . $.CategorySlug $.Config) }}
+        {{ end }}
+    </div>
+
+    {{ if gt .Pagination.Total 1 }}
+    <nav class="pagination">
+        {{ if .Pagination.HasPrev }}
+        <a href="?q={{ .Query | urlquery }}&page={{ .Pagination.Prev }}" class="pagination-link prev">{{ .Config.Labels.PaginationPrev }}</a>
+        {{ end }}
+        <span class="pagination-info">{{ printf .Config.Labels.PageIndicator .Pagination.Current .Pagination.Total }}</span>
+        {{ if .Pagination.HasNext }}
+        <a href="?q={{ .Query | urlquery }}&page={{ .Pagination.Next }}" class="pagination-link next">{{ .Config.Labels.PaginationNext }}</a>
+        {{ end }}
+    </nav>
+    {{ end }}
+    {{ end }}
+</main>
