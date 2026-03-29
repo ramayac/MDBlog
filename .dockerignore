@@ -10,21 +10,12 @@ docker-compose.yml
 
 # Go build outputs — rebuilt inside the Docker build stage
 bin/
-vendor/
 
-# PHP artifacts no longer in use
-cache/
-vendor/
-composer.json
-composer.lock
-phpunit.xml
-.phpunit.result.cache
 
 # Dev docs and tooling
 README.md
 AGENTS.md
 Makefile
-.htaccess
 
 # The pre-built post index is allowed so docker can use it if present
 # (the Dockerfile rebuilds it inside the container regardless)
