@@ -18,7 +18,7 @@ First time I'm doing a 100% hands off a rewrite on an existing project, I would 
 
 ### What are the changes done?
 
-:construction_worker: 100% Go 
+👷 100% Go 
 
 Well, I have some .html pages as templates, and the .md files pollute the statistic a bit if you see the repo, but all executing code is no in Go. No PHP left here! (no hate for PHP I'm just moving to other pastures).
 
