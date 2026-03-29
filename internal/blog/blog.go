@@ -65,10 +65,8 @@ type PostList struct {
 
 // MenuLink is a navigation link item.
 type MenuLink struct {
-	Label   string
-	URL     string
-	OnClick string
-	Title   string
+	Label string
+	URL   string
 }
 
 // VersionInfo holds build version metadata.
@@ -224,6 +222,7 @@ type categoryMenuEntry struct {
 // GetMenu returns the ordered list of navigation links.
 // Static [[menu_links]] come first (in config order), followed by categories
 // with menu=true sorted by menu_order (ascending), then slug for ties.
+// The theme toggle and search links are rendered directly in the layout template.
 func (b *Blog) GetMenu() []MenuLink {
 	var links []MenuLink
 	for _, ml := range b.cfg.MenuLinks {
@@ -246,17 +245,9 @@ func (b *Blog) GetMenu() []MenuLink {
 	for _, e := range catEntries {
 		links = append(links, MenuLink{
 			Label: e.cat.BlogName,
-			URL:   "index.php?category=" + e.slug,
+			URL:   "/?category=" + e.slug,
 		})
 	}
-
-	// Theme toggle always last.
-	links = append(links, MenuLink{
-		Label:   "🌓",
-		URL:     "javascript:void(0);",
-		OnClick: "toggleTheme(); return false;",
-		Title:   "Switch Theme",
-	})
 	return links
 }
 

@@ -220,7 +220,7 @@ func (h *Handler) servPost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if slug == "" || !validSlug(slug) {
-		http.Redirect(w, r, "index.php", http.StatusFound)
+		http.Redirect(w, r, "/", http.StatusFound)
 		return
 	}
 

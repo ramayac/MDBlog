@@ -38,4 +38,4 @@ COPY --from=build /src/assets/     /assets/
 COPY --from=build /src/templates/  /templates/
 COPY --from=build /src/config.toml /config.toml
 
-ENTRYPOINT ["/lambda"]
+CMD ["/lambda"]

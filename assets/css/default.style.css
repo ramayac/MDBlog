@@ -126,7 +126,8 @@ body {
     text-align: center;
 }
 
-.site-menu a {
+.site-menu a,
+.site-menu button {
     color: var(--color-text);
     text-decoration: none;
     padding: 0.5rem 1rem;
@@ -136,7 +137,18 @@ body {
     display: inline-block;
 }
 
-.site-menu a:hover {
+.site-menu button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    font-family: inherit;
+    line-height: inherit;
+    vertical-align: baseline;
+}
+
+.site-menu a:hover,
+.site-menu button:hover {
     background-color: var(--color-primary);
     color: white;
     text-decoration: none;

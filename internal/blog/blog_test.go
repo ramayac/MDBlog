@@ -146,8 +146,8 @@ func TestGetMenu_CategoryLinks(t *testing.T) {
 	if _, ok := labels["Tech"]; !ok {
 		t.Error("expected 'Tech' category link in menu")
 	}
-	if labels["Tech"] != "index.php?category=tech" {
-		t.Errorf("Tech URL = %q, want index.php?category=tech", labels["Tech"])
+	if labels["Tech"] != "/?category=tech" {
+		t.Errorf("Tech URL = %q, want /?category=tech", labels["Tech"])
 	}
 }
 

@@ -5,7 +5,7 @@
             <div class="post-meta">
                 {{ if .Post.Category }}
                 <span class="post-category">
-                    {{ .Post.Date | formatDate }} in <a href="index.php?category={{ .Post.CategorySlug | urlquery }}">{{ .Post.Category.BlogName }}</a>
+                    {{ .Post.Date | formatDate }} in <a href="/?category={{ .Post.CategorySlug | urlquery }}">{{ .Post.Category.BlogName }}</a>
                 </span>
                 {{ end }}
                 {{ if .Post.FrontMatter.Author }}
@@ -30,9 +30,9 @@
 
     <nav class="post-navigation">
         {{ if .CategorySlug }}
-        <a href="index.php?category={{ .CategorySlug | urlquery }}" class="back-to-home">{{ printf .Config.Labels.BackToCategory .Post.Category.BlogName }}</a>
+        <a href="/?category={{ .CategorySlug | urlquery }}" class="back-to-home">{{ printf .Config.Labels.BackToCategory .Post.Category.BlogName }}</a>
         {{ else }}
-        <a href="index.php" class="back-to-home">{{ .Config.Labels.BackToAll }}</a>
+        <a href="/" class="back-to-home">{{ .Config.Labels.BackToAll }}</a>
         {{ end }}
     </nav>
 </main>

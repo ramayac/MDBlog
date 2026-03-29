@@ -20,7 +20,7 @@ header  = "Content-Security-Policy: default-src 'self'; script-src 'self' 'unsaf
 
 [[menu_links]]
 label = "Home"
-url   = "index.php"
+url   = "/"
 
 [categories.personal]
 blog_name      = "Personal 🏠"

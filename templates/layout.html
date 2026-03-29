@@ -31,21 +31,15 @@
 </head>
 <body>
 <div class="container">
-    {{ if .Menu }}
     <nav class="site-menu">
         <div class="menu-links">
             {{- range $i, $item := .Menu -}}
             {{- if $i }} | {{ end -}}
-            {{- if $item.OnClick -}}
-            <a href="{{ $item.URL }}" onclick="{{ $item.OnClick }}" title="{{ $item.Title }}">{{ $item.Label }}</a>
-            {{- else -}}
             <a href="{{ $item.URL }}">{{ $item.Label }}</a>
             {{- end -}}
-            {{- end -}}
-             | <a href="index.php?search=1" title="{{ .Config.Labels.SearchTitle }}" class="search-btn" style="text-decoration: none;">🔍</a>
+            {{- if .Menu }} | {{ end -}}<a href="/?search=1" title="{{ .Config.Labels.SearchTitle }}" class="search-btn">🔍</a> | <button onclick="toggleTheme()" class="theme-toggle" title="Switch Theme" aria-label="Switch Theme">🌓</button>
         </div>
     </nav>
-    {{ end }}
 
     {{ .Content }}
 

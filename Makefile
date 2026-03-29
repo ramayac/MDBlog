@@ -91,8 +91,8 @@ docker-build-embed: ## Build the embed-variant Docker image (templates+assets in
 		-f Dockerfile.embed \
 		-t mdblog-embed:latest .
 
-docker-run: ## Start blog via Docker Compose at http://localhost:8080
-	docker compose up
+docker-run: ## Build and start blog via Docker Compose at http://localhost:8080
+	docker compose up --build
 
 docker-stop: ## Stop and remove Docker Compose containers
 	docker compose down
