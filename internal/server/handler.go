@@ -62,9 +62,9 @@ type postPreviewData struct {
 
 // Handler is the main HTTP handler for the blog.
 type Handler struct {
-	cfg    *config.Config
-	b      *blog.Blog
-	tmpl   *template.Template
+	cfg     *config.Config
+	b       *blog.Blog
+	tmpl    *template.Template
 	mimeMap map[string]string
 }
 
@@ -77,17 +77,17 @@ func New(cfg *config.Config, b *blog.Blog) *Handler {
 		b:    b,
 		tmpl: tmpl,
 		mimeMap: map[string]string{
-			"css":  "text/css",
-			"js":   "application/javascript",
-			"png":  "image/png",
-			"jpg":  "image/jpeg",
-			"jpeg": "image/jpeg",
-			"gif":  "image/gif",
-			"svg":  "image/svg+xml",
-			"ico":  "image/x-icon",
-			"woff": "font/woff",
-			"woff2":"font/woff2",
-			"ttf":  "font/ttf",
+			"css":   "text/css",
+			"js":    "application/javascript",
+			"png":   "image/png",
+			"jpg":   "image/jpeg",
+			"jpeg":  "image/jpeg",
+			"gif":   "image/gif",
+			"svg":   "image/svg+xml",
+			"ico":   "image/x-icon",
+			"woff":  "font/woff",
+			"woff2": "font/woff2",
+			"ttf":   "font/ttf",
 		},
 	}
 	return h
@@ -409,7 +409,7 @@ func mustLoadTemplates() *template.Template {
 			if slug == "" {
 				slug = catSlug
 			}
-			url := "post.php?slug=" + p.Slug
+			url := "/post?slug=" + p.Slug
 			if slug != "" {
 				url += "&category=" + slug
 			}

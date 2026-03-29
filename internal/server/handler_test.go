@@ -76,7 +76,7 @@ Many useful commands.
 			Enabled: true,
 			Header:  "Content-Security-Policy: default-src 'self';",
 		},
-		MenuLinks: []config.MenuLink{{Label: "Home", URL: "index.php"}},
+		MenuLinks: []config.MenuLink{{Label: "Home", URL: "/"}},
 		Categories: map[string]config.Category{
 			"srbyte": {BlogName: "Sr. Byte 👨‍💻", Folder: "srbyte", Index: false, Menu: true},
 		},
@@ -187,7 +187,7 @@ func TestSearchWorking(t *testing.T) {
 
 func TestPost(t *testing.T) {
 	h := testSetup(t)
-	w := get(h, "/post.php?slug=srbyte-12-34-56-7-8-9-y-el-tiempo&category=srbyte")
+	w := get(h, "/post?slug=srbyte-12-34-56-7-8-9-y-el-tiempo&category=srbyte")
 	if w.Code != http.StatusOK {
 		t.Errorf("status = %d, want 200", w.Code)
 	}
@@ -202,7 +202,7 @@ func TestPost(t *testing.T) {
 
 func Test404(t *testing.T) {
 	h := testSetup(t)
-	w := get(h, "/post.php?slug=does-not-exist")
+	w := get(h, "/post?slug=does-not-exist")
 	if w.Code != http.StatusNotFound {
 		t.Errorf("status = %d, want 404", w.Code)
 	}
