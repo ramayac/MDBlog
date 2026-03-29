@@ -73,6 +73,10 @@ make docker-pull TAG=1.2.3              # Pull a release image and tag as latest
 
 After pushing the image, update the Lambda function to use the new image URI. AWS will cold-start new containers from the updated image.
 
+### Continuous Deployment (CI/CD)
+
+MDBlog includes GitHub Actions for automated deployment. When you push changes to any `.md` file inside the `posts/` directory on the `master` branch, it automatically triggers a new Docker build. Once pushed to GitHub Container Registry (GHCR), a secondary workflow propagates the up-to-date image to Amazon ECR and updates your AWS Lambda function immediately with the new content.
+
 ### Cache on Lambda
 
 The file-based JSON cache (`cache/`) **does not work on Lambda** and is disabled by default (`cache_enabled => false` in `config.php`):

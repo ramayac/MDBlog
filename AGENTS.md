@@ -36,6 +36,7 @@ docker-compose.yml  # Local dev only: exposes port 8080, tmpfs mounts for cache 
 ```
 
 **Deployment model:** The production artifact is a Docker container image pushed to a registry (e.g. ghcr.io) and deployed as an **AWS Lambda container image function** behind API Gateway. Bref translates API Gateway HTTP events into PHP-FPM requests. Posts and all static assets are **baked into the image** — there is no external content source or database.
+**Continuous Deployment:** A GitHub Action is configured to automatically build and release a new container image to GHCR whenever a Markdown (`.md`) file inside the `posts/` folder is pushed to `master`. A chained workflow then automatically deploys the latest image to AWS ECR and updates the Lambda function.
 
 `docker-compose.yml` is for local development only and is not used in production.
 
