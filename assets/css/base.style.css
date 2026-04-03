@@ -429,3 +429,84 @@ blockquote {
         color: #666;
     }
 }
+
+/* ── Feed page ─────────────────────────────────────────────────────────── */
+.feed-subscribe {
+    font-size: 0.95rem;
+    color: var(--color-text-muted);
+}
+
+.feed-subscribe a {
+    color: var(--color-primary);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.feed-subscribe a:hover {
+    color: var(--color-primary-hover);
+    text-decoration: underline;
+}
+
+.feed-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+    margin-top: 1rem;
+}
+
+.feed-table thead th {
+    text-align: left;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+    border-bottom: 2px solid var(--color-border);
+    padding: 0.4rem 1rem 0.4rem 0;
+}
+
+.feed-table tbody tr {
+    border-bottom: 1px solid var(--color-border);
+}
+
+.feed-table tbody tr:hover {
+    background: var(--color-tag-bg);
+}
+
+.feed-table td {
+    padding: 0.55rem 1rem 0.55rem 0;
+    vertical-align: middle;
+}
+
+.feed-date {
+    white-space: nowrap;
+    color: var(--color-text-muted);
+    font-size: 0.875rem;
+    min-width: 7em;
+}
+
+.feed-category {
+    white-space: nowrap;
+    min-width: 9em;
+}
+
+.feed-category a {
+    color: var(--color-text-muted);
+    text-decoration: none;
+    font-size: 0.875rem;
+}
+
+.feed-category a:hover { color: var(--color-primary); }
+
+.feed-title a {
+    color: var(--color-text);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.feed-title a:hover { color: var(--color-primary); }
+
+@media (max-width: 600px) {
+    .feed-category { display: none; }
+    .feed-table thead th:nth-child(2) { display: none; }
+}

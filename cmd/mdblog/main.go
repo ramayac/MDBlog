@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/ramayac/mdblog/internal/blog"
+	"github.com/ramayac/mdblog/internal/buildfeed"
 	"github.com/ramayac/mdblog/internal/buildindex"
 	"github.com/ramayac/mdblog/internal/config"
 	"github.com/ramayac/mdblog/internal/render"
@@ -38,6 +39,8 @@ func main() {
 		runServe(cfg)
 	case "build-index":
 		runBuildIndex(cfg)
+	case "build-feed":
+		runBuildFeed(cfg)
 	case "render":
 		runRender(cfg, os.Args[2:])
 	case "version":
@@ -55,6 +58,7 @@ func printUsage() {
 	fmt.Println("Subcommands:")
 	fmt.Println("  serve         Start HTTP server (default :8080, set PORT env to override)")
 	fmt.Println("  build-index   Generate posts/posts.index.json")
+	fmt.Println("  build-feed    Generate feed.xml (requires build-index to run first)")
 	fmt.Println("  render        Render a post to a standalone HTML file")
 	fmt.Println("  version       Print version information")
 }
@@ -82,6 +86,13 @@ func runBuildIndex(cfg *config.Config) {
 		os.Exit(1)
 	}
 	fmt.Println("Post index built successfully.")
+}
+
+func runBuildFeed(cfg *config.Config) {
+	if err := buildfeed.Build(cfg); err != nil {
+		fmt.Fprintf(os.Stderr, "build-feed: %v\n", err)
+		os.Exit(1)
+	}
 }
 
 func runRender(cfg *config.Config, args []string) {

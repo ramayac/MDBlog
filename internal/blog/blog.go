@@ -348,6 +348,24 @@ func (b *Blog) GetCategoryBySlug(slug string) *CategoryInfo {
 	return b.GetCategories()[slug]
 }
 
+// GetFeedPosts returns up to maxItems posts (newest first) for feed/RSS use.
+// Posts are loaded from the JSON index without pagination.
+func (b *Blog) GetFeedPosts(maxItems int) []Post {
+	index := b.loadPostIndex()
+	if index == nil {
+		return nil
+	}
+	if maxItems > 0 && len(index) > maxItems {
+		index = index[:maxItems]
+	}
+	posts := make([]Post, 0, len(index))
+	for _, ip := range index {
+		posts = append(posts, indexPostToPost(ip))
+	}
+	b.attachCategories(posts)
+	return posts
+}
+
 // ParseMarkdown renders a Markdown string to HTML.
 func (b *Blog) ParseMarkdown(content string) string {
 	return markdown.Parse(content).HTML

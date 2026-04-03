@@ -32,7 +32,7 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
     go build -o /out/mdblog ./cmd/mdblog
 
 # Generate post metadata index
-RUN cd /src && /out/mdblog build-index
+RUN cd /src && /out/mdblog build-index && /out/mdblog build-feed
 
 # ── Stage 2: Truly minimal image — binary + posts + config only ───────────────
 FROM scratch
@@ -42,5 +42,6 @@ COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=build /out/lambda-embed /lambda
 COPY --from=build /src/posts/       /posts/
 COPY --from=build /src/config.toml  /config.toml
+COPY --from=build /src/feed.xml     /feed.xml
 
 ENTRYPOINT ["/lambda"]

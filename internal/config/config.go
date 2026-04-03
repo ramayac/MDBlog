@@ -26,10 +26,21 @@ type Config struct {
 	CSSTheme               string            `toml:"css_theme"`
 	CSP                    CSPConfig         `toml:"csp"`
 	Cache                  CacheConfig       `toml:"cache"`
+	Feed                   FeedConfig        `toml:"feed"`
 	Menu                   MenuConfig        `toml:"menu"`
 	MenuLinks              []MenuLink        `toml:"menu_links"`
 	Categories             map[string]Category `toml:"categories"`
 	Labels                 Labels            `toml:"labels"`
+}
+
+// FeedConfig holds RSS feed generation settings.
+type FeedConfig struct {
+	Enabled     bool   `toml:"enabled"`
+	Title       string `toml:"title"`
+	Description string `toml:"description"`
+	BaseURL     string `toml:"base_url"`
+	MaxItems    int    `toml:"max_items"`
+	OutputFile  string `toml:"output_file"`
 }
 
 // CSPConfig holds Content-Security-Policy settings.
@@ -75,6 +86,7 @@ type Category struct {
 	HeaderContent string `toml:"header_content"`
 	Folder        string `toml:"folder"`
 	Index         bool   `toml:"index"`
+	Menu          bool   `toml:"menu"`
 }
 
 // Labels holds all user-visible UI strings.
@@ -143,6 +155,17 @@ func Load(path string) (*Config, error) {
 	}
 	if cfg.Cache.MaxAgeAssets == 0 {
 		cfg.Cache.MaxAgeAssets = 86400
+	}
+
+	// Feed defaults
+	if cfg.Feed.MaxItems == 0 {
+		cfg.Feed.MaxItems = 50
+	}
+	if cfg.Feed.OutputFile == "" {
+		cfg.Feed.OutputFile = "feed.xml"
+	}
+	if cfg.Feed.Enabled && cfg.Feed.BaseURL == "" {
+		return nil, fmt.Errorf("config: feed.enabled is true but feed.base_url is not set")
 	}
 
 	// Backfill folder key from map key when not set explicitly

@@ -1,0 +1,37 @@
+<div class="feed-header" style="text-align: center; margin-bottom: 2em; margin-top: 1em;">
+    <h2 class="category-title" style="margin-bottom: 0.5em;">Feed</h2>
+    <p class="feed-subscribe">
+        Subscribe: <a href="/feed.xml" title="RSS Feed">RSS 📡</a>
+    </p>
+</div>
+
+<main class="main-content">
+    {{ if not .Posts }}
+    <div class="no-posts" style="text-align: center;">
+        <p>No posts available.</p>
+    </div>
+    {{ else }}
+    <table class="feed-table">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Category</th>
+                <th>Title</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{ range .Posts }}
+            <tr>
+                <td class="feed-date">{{ formatDate .Date }}</td>
+                <td class="feed-category">
+                    {{ if .Category }}<a href="/?category={{ .CategorySlug | urlquery }}">{{ .Category.BlogName }}</a>{{ end }}
+                </td>
+                <td class="feed-title">
+                    <a href="/post?slug={{ .Slug | urlquery }}{{ if .CategorySlug }}&category={{ .CategorySlug | urlquery }}{{ end }}">{{ .Title }}</a>
+                </td>
+            </tr>
+            {{ end }}
+        </tbody>
+    </table>
+    {{ end }}
+</main>

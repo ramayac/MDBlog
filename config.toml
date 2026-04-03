@@ -23,6 +23,14 @@ enabled        = true
 max_age_pages  = 3600   # 1 hour  — HTML pages
 max_age_assets = 86400  # 24 hours — CSS/JS/images
 
+[feed]
+enabled     = true
+title       = "Rodrigo A."
+description = "Wholesome Software Development."
+base_url    = "https://ramayac.com"
+max_items   = 50
+output_file = "feed.xml"
+
 [[menu.pinned]]
 category = "guides"
 order    = 2
