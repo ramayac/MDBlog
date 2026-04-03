@@ -26,6 +26,7 @@ type Config struct {
 	CSSTheme               string            `toml:"css_theme"`
 	CSP                    CSPConfig         `toml:"csp"`
 	Cache                  CacheConfig       `toml:"cache"`
+	Menu                   MenuConfig        `toml:"menu"`
 	MenuLinks              []MenuLink        `toml:"menu_links"`
 	Categories             map[string]Category `toml:"categories"`
 	Labels                 Labels            `toml:"labels"`
@@ -50,14 +51,30 @@ type MenuLink struct {
 	URL   string `toml:"url"`
 }
 
+// MenuConfig holds all navigation placement configuration.
+type MenuConfig struct {
+	Pinned     []MenuCategoryRef `toml:"pinned"`     // direct inline nav links
+	Categories MenuDropdown      `toml:"categories"` // dropdown section
+}
+
+// MenuDropdown describes the dropdown section of the nav.
+type MenuDropdown struct {
+	Label string            `toml:"label"` // dropdown button text, e.g. "Writings"
+	Item  []MenuCategoryRef `toml:"item"`
+}
+
+// MenuCategoryRef references a category by slug with an ordering hint.
+type MenuCategoryRef struct {
+	Category string `toml:"category"` // must match a key in [categories.*]
+	Order    int    `toml:"order"`    // lower = earlier in list
+}
+
 // Category defines configuration for a post category folder.
 type Category struct {
 	BlogName      string `toml:"blog_name"`
 	HeaderContent string `toml:"header_content"`
 	Folder        string `toml:"folder"`
 	Index         bool   `toml:"index"`
-	Menu          bool   `toml:"menu"`
-	MenuOrder     int    `toml:"menu_order"` // controls position among category nav links; lower = earlier
 }
 
 // Labels holds all user-visible UI strings.
@@ -111,6 +128,10 @@ func Load(path string) (*Config, error) {
 	}
 	if cfg.ExcerptLength == 0 {
 		cfg.ExcerptLength = 200
+	}
+
+	if cfg.Menu.Categories.Label == "" {
+		cfg.Menu.Categories.Label = "Writings"
 	}
 
 	// Cache defaults — only apply when nothing was explicitly configured

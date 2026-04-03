@@ -83,7 +83,15 @@ Many useful commands.
 		},
 		MenuLinks: []config.MenuLink{{Label: "Home", URL: "/"}},
 		Categories: map[string]config.Category{
-			"srbyte": {BlogName: "Sr. Byte 👨‍💻", Folder: "srbyte", Index: false, Menu: true},
+			"srbyte": {BlogName: "Sr. Byte 👨‍💻", Folder: "srbyte", Index: false},
+		},
+		Menu: config.MenuConfig{
+			Categories: config.MenuDropdown{
+				Label: "Writings",
+				Item: []config.MenuCategoryRef{
+					{Category: "srbyte", Order: 1},
+				},
+			},
 		},
 		Labels: config.Labels{
 			ReadMore:             "Read more →",

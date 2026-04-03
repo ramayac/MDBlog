@@ -7,7 +7,7 @@ posts_per_page         = 25
 excerpt_length         = 200
 show_uncategorized     = true
 uncategorized_label    = "General"
-show_render_time       = trye
+show_render_time       = true
 posts_dir              = "posts"
 post_index_file        = "posts/posts.index.json"
 date_format            = "2006-01-02"
@@ -23,6 +23,29 @@ enabled        = true
 max_age_pages  = 3600   # 1 hour  — HTML pages
 max_age_assets = 86400  # 24 hours — CSS/JS/images
 
+[[menu.pinned]]
+category = "guides"
+order    = 2
+
+[[menu.pinned]]
+category = "projects"
+order    = 3
+
+[menu.categories]
+label = "Writings"
+
+[[menu.categories.item]]
+category = "personal"
+order    = 1
+
+[[menu.categories.item]]
+category = "substack"
+order    = 4
+
+[[menu.categories.item]]
+category = "srbyte"
+order    = 5
+
 [[menu_links]]
 label = "Home"
 url   = "/"
@@ -32,24 +55,18 @@ blog_name      = "Personal 🏠"
 header_content = "Personal Thoughts and Musings."
 folder         = "personal"
 index          = true
-menu           = true
-menu_order     = 1
 
 [categories.substack]
 blog_name      = "Code Forward ⏩"
 header_content = "(2023) Substack failed newsletter."
 folder         = "substack"
 index          = false
-menu           = true
-menu_order     = 2
 
 [categories.srbyte]
 blog_name      = "Sr. Byte 👨‍💻"
 header_content = "(2007-2010) Tecnologia para todos."
 folder         = "srbyte"
 index          = false
-menu           = true
-menu_order     = 3
 
 [labels]
 read_more              = "Read more →"

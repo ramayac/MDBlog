@@ -28,7 +28,6 @@ url   = "/"
 blog_name = "Foo"
 folder    = "foo"
 index     = true
-menu      = true
 
 [labels]
 read_more = "Read more"

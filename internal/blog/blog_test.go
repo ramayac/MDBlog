@@ -58,7 +58,14 @@ func makeTestConfig(postsDir string) *config.Config {
 		DateFormat:        "2006-01-02",
 		ShowUncategorized: true,
 		Categories: map[string]config.Category{
-			"tech": {BlogName: "Tech", Folder: "tech", Index: true, Menu: true},
+			"tech": {BlogName: "Tech", Folder: "tech", Index: true},
+		},
+		Menu: config.MenuConfig{
+			Categories: config.MenuDropdown{
+				Item: []config.MenuCategoryRef{
+					{Category: "tech", Order: 1},
+				},
+			},
 		},
 	}
 }
