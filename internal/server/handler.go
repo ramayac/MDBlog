@@ -6,6 +6,7 @@ import (
 	"html/template"
 	"io"
 	"io/fs"
+	"log"
 	"math"
 	"net/http"
 	"os"
@@ -242,7 +243,7 @@ func (h *Handler) servPost(w http.ResponseWriter, r *http.Request) {
 	lastMod := time.Unix(postMtime, 0).UTC().Format(http.TimeFormat)
 	w.Header().Set("Last-Modified", lastMod)
 	w.Header().Set("ETag", etag)
-	w.Header().Set("Cache-Control", "public, max-age=3600")
+	w.Header().Set("Cache-Control", h.cacheControlPages())
 
 	ifNoneMatch := strings.TrimSpace(r.Header.Get("If-None-Match"))
 	ifModSince := r.Header.Get("If-Modified-Since")
@@ -284,6 +285,20 @@ func (h *Handler) servPost(w http.ResponseWriter, r *http.Request) {
 	data.JSFiles = jsFiles
 	data.Tags = tags
 	h.renderPage(w, r, start, "post.html", &data)
+}
+
+func (h *Handler) cacheControlPages() string {
+	if !h.cfg.Cache.Enabled {
+		return "no-store"
+	}
+	return fmt.Sprintf("public, max-age=%d", h.cfg.Cache.MaxAgePages)
+}
+
+func (h *Handler) cacheControlAssets() string {
+	if !h.cfg.Cache.Enabled {
+		return "no-store"
+	}
+	return fmt.Sprintf("public, max-age=%d", h.cfg.Cache.MaxAgeAssets)
 }
 
 func (h *Handler) serve404(w http.ResponseWriter, r *http.Request, start time.Time, menu []blog.MenuLink, canonical, cssV string) {
@@ -332,7 +347,7 @@ func (h *Handler) serveAsset(w http.ResponseWriter, r *http.Request, urlPath str
 		contentType = "application/octet-stream"
 	}
 	w.Header().Set("Content-Type", contentType)
-	w.Header().Set("Cache-Control", "public, max-age=86400")
+	w.Header().Set("Cache-Control", h.cacheControlAssets())
 	http.ServeContent(w, r, rel, st.ModTime(), rs)
 }
 
@@ -352,6 +367,7 @@ func (h *Handler) renderPage(w http.ResponseWriter, r *http.Request, start time.
 	if h.cfg.ShowRenderTime {
 		ms := math.Round(float64(time.Since(start).Microseconds()) / 1000.0)
 		data.RenderTime = fmt.Sprintf("%.2f", ms)
+		log.Printf("render %s %s %.2fms", r.Method, r.URL.RequestURI(), ms)
 	}
 
 	// Gzip when supported (skip on Lambda — API Gateway / CloudFront handles it)

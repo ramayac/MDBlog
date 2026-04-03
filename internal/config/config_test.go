@@ -164,3 +164,64 @@ func TestDefaults_ExcerptLength(t *testing.T) {
 		t.Errorf("default excerpt_length = %d, want 200", cfg.ExcerptLength)
 	}
 }
+
+func TestCacheDefaults_WhenNotSet(t *testing.T) {
+	tmp := filepath.Join(t.TempDir(), "config.toml")
+	_ = os.WriteFile(tmp, []byte(`blog_name = "X"`), 0644)
+	cfg, err := Load(tmp)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !cfg.Cache.Enabled {
+		t.Error("cache should be enabled by default when not configured")
+	}
+	if cfg.Cache.MaxAgePages != 3600 {
+		t.Errorf("MaxAgePages = %d, want 3600", cfg.Cache.MaxAgePages)
+	}
+	if cfg.Cache.MaxAgeAssets != 86400 {
+		t.Errorf("MaxAgeAssets = %d, want 86400", cfg.Cache.MaxAgeAssets)
+	}
+}
+
+func TestCacheExplicitValues_ArePreserved(t *testing.T) {
+	toml := `
+[cache]
+enabled        = true
+max_age_pages  = 600
+max_age_assets = 7200
+`
+	tmp := filepath.Join(t.TempDir(), "config.toml")
+	_ = os.WriteFile(tmp, []byte(toml), 0644)
+	cfg, err := Load(tmp)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !cfg.Cache.Enabled {
+		t.Error("Cache.Enabled should be true")
+	}
+	if cfg.Cache.MaxAgePages != 600 {
+		t.Errorf("MaxAgePages = %d, want 600", cfg.Cache.MaxAgePages)
+	}
+	if cfg.Cache.MaxAgeAssets != 7200 {
+		t.Errorf("MaxAgeAssets = %d, want 7200", cfg.Cache.MaxAgeAssets)
+	}
+}
+
+func TestCacheDisabled_WhenExplicitlySet(t *testing.T) {
+	// Non-zero TTLs prevent the "not configured" heuristic from firing.
+	toml := `
+[cache]
+enabled        = false
+max_age_pages  = 3600
+max_age_assets = 86400
+`
+	tmp := filepath.Join(t.TempDir(), "config.toml")
+	_ = os.WriteFile(tmp, []byte(toml), 0644)
+	cfg, err := Load(tmp)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if cfg.Cache.Enabled {
+		t.Error("Cache.Enabled should be false when explicitly disabled")
+	}
+}

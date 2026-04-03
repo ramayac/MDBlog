@@ -76,6 +76,11 @@ Many useful commands.
 			Enabled: true,
 			Header:  "Content-Security-Policy: default-src 'self';",
 		},
+		Cache: config.CacheConfig{
+			Enabled:      true,
+			MaxAgePages:  3600,
+			MaxAgeAssets: 86400,
+		},
 		MenuLinks: []config.MenuLink{{Label: "Home", URL: "/"}},
 		Categories: map[string]config.Category{
 			"srbyte": {BlogName: "Sr. Byte 👨‍💻", Folder: "srbyte", Index: false, Menu: true},
@@ -233,5 +238,30 @@ func TestCSPHeader(t *testing.T) {
 	w := get(h, "/")
 	if csp := w.Header().Get("Content-Security-Policy"); csp == "" {
 		t.Error("CSP header should be set")
+	}
+}
+
+func TestCacheControl_PostPage_Enabled(t *testing.T) {
+	h := testSetup(t)
+	w := get(h, "/post?slug=srbyte-12-34-56-7-8-9-y-el-tiempo&category=srbyte")
+	if w.Code != http.StatusOK {
+		t.Fatalf("status = %d, want 200", w.Code)
+	}
+	cc := w.Header().Get("Cache-Control")
+	if cc != "public, max-age=3600" {
+		t.Errorf("Cache-Control = %q, want %q", cc, "public, max-age=3600")
+	}
+}
+
+func TestCacheControl_PostPage_Disabled(t *testing.T) {
+	h := testSetup(t)
+	h.cfg.Cache.Enabled = false
+	w := get(h, "/post?slug=srbyte-12-34-56-7-8-9-y-el-tiempo&category=srbyte")
+	if w.Code != http.StatusOK {
+		t.Fatalf("status = %d, want 200", w.Code)
+	}
+	cc := w.Header().Get("Cache-Control")
+	if cc != "no-store" {
+		t.Errorf("Cache-Control = %q, want %q", cc, "no-store")
 	}
 }

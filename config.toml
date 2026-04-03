@@ -7,7 +7,7 @@ posts_per_page         = 25
 excerpt_length         = 200
 show_uncategorized     = true
 uncategorized_label    = "General"
-show_render_time       = false
+show_render_time       = trye
 posts_dir              = "posts"
 post_index_file        = "posts/posts.index.json"
 date_format            = "2006-01-02"
@@ -17,6 +17,11 @@ css_theme              = "assets/css/anthropic.style.css"
 [csp]
 enabled = true
 header  = "Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:;"
+
+[cache]
+enabled        = true
+max_age_pages  = 3600   # 1 hour  — HTML pages
+max_age_assets = 86400  # 24 hours — CSS/JS/images
 
 [[menu_links]]
 label = "Home"

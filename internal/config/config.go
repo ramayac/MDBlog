@@ -25,6 +25,7 @@ type Config struct {
 	DefaultMetaDescription string            `toml:"default_meta_description"`
 	CSSTheme               string            `toml:"css_theme"`
 	CSP                    CSPConfig         `toml:"csp"`
+	Cache                  CacheConfig       `toml:"cache"`
 	MenuLinks              []MenuLink        `toml:"menu_links"`
 	Categories             map[string]Category `toml:"categories"`
 	Labels                 Labels            `toml:"labels"`
@@ -34,6 +35,13 @@ type Config struct {
 type CSPConfig struct {
 	Enabled bool   `toml:"enabled"`
 	Header  string `toml:"header"`
+}
+
+// CacheConfig holds HTTP cache-control settings.
+type CacheConfig struct {
+	Enabled      bool `toml:"enabled"`
+	MaxAgePages  int  `toml:"max_age_pages"`  // seconds
+	MaxAgeAssets int  `toml:"max_age_assets"` // seconds
 }
 
 // MenuLink is a static navigation link.
@@ -103,6 +111,17 @@ func Load(path string) (*Config, error) {
 	}
 	if cfg.ExcerptLength == 0 {
 		cfg.ExcerptLength = 200
+	}
+
+	// Cache defaults — only apply when nothing was explicitly configured
+	if !cfg.Cache.Enabled && cfg.Cache.MaxAgePages == 0 && cfg.Cache.MaxAgeAssets == 0 {
+		cfg.Cache.Enabled = true
+	}
+	if cfg.Cache.MaxAgePages == 0 {
+		cfg.Cache.MaxAgePages = 3600
+	}
+	if cfg.Cache.MaxAgeAssets == 0 {
+		cfg.Cache.MaxAgeAssets = 86400
 	}
 
 	// Backfill folder key from map key when not set explicitly

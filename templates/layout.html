@@ -48,12 +48,12 @@
         {{ with .Version }}
         {{ if .Commit }}
         <small class="site-version">
-            {{ if .Version }}{{ .Version }} &middot; {{ end }}{{ .Commit }}{{ if .Date }} &middot; {{ .Date }}{{ end }}
+            {{ if .Version }}{{ .Version }} &middot; {{ end }}{{ .Commit }}{{ if .Date }} &middot; {{ .Date }}{{ end }}{{ if $.RenderTime }} &middot; {{ $.RenderTime }}ms{{ end }}
         </small>
         {{ end }}
         {{ end }}
-        {{ if .RenderTime }}
-        <small>Page rendered in {{ .RenderTime }}ms</small>
+        {{ if and .RenderTime (eq .Version.Commit "") }}
+        <small class="site-version">{{ .RenderTime }}ms</small>
         {{ end }}
     </footer>
 </div>
