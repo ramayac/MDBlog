@@ -14,11 +14,11 @@
 
     {{ if .Categories }}
     <div class="category-cards">
-        {{ range $slug, $cat := .Categories }}
-        <a href="?category={{ $slug | urlquery }}" class="category-card">
-            <h3>{{ $cat.BlogName }}</h3>
-            {{ if $cat.HeaderContent }}<p>{{ $cat.HeaderContent }}</p>{{ end }}
-            <span class="post-count">{{ $cat.Count }} posts</span>
+        {{ range .Categories }}
+        <a href="?category={{ .Slug | urlquery }}" class="category-card">
+            <h3>{{ .BlogName }}</h3>
+            {{ if .HeaderContent }}<p>{{ .HeaderContent }}</p>{{ end }}
+            <span class="post-count">{{ .Count }} posts</span>
         </a>
         {{ end }}
     </div>

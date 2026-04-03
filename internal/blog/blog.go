@@ -44,6 +44,7 @@ type CategoryInfo struct {
 	Folder        string
 	Slug          string
 	Count         int
+	MenuOrder     int
 }
 
 // Pagination holds data for building prev/next page links in templates.
@@ -251,7 +252,8 @@ func (b *Blog) GetMenu() []MenuLink {
 	return links
 }
 
-// GetCategories returns all categories that have at least one post.
+// GetCategories returns all categories that have at least one post,
+// ordered by MenuOrder (ascending), then slug for ties.
 func (b *Blog) GetCategories() map[string]*CategoryInfo {
 	if b.categoriesCache != nil {
 		return b.categoriesCache
@@ -276,11 +278,28 @@ func (b *Blog) GetCategories() map[string]*CategoryInfo {
 				Folder:        cat.Folder,
 				Slug:          slug,
 				Count:         count,
+				MenuOrder:     cat.MenuOrder,
 			}
 		}
 	}
 	b.categoriesCache = cats
 	return cats
+}
+
+// GetCategoriesSorted returns categories sorted by MenuOrder (ascending), then slug.
+func (b *Blog) GetCategoriesSorted() []CategoryInfo {
+	m := b.GetCategories()
+	out := make([]CategoryInfo, 0, len(m))
+	for _, c := range m {
+		out = append(out, *c)
+	}
+	sort.Slice(out, func(i, j int) bool {
+		if out[i].MenuOrder != out[j].MenuOrder {
+			return out[i].MenuOrder < out[j].MenuOrder
+		}
+		return out[i].Slug < out[j].Slug
+	})
+	return out
 }
 
 // GetCategoryBySlug returns category info by slug, or nil if not found.

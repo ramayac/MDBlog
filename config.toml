@@ -12,7 +12,7 @@ posts_dir              = "posts"
 post_index_file        = "posts/posts.index.json"
 date_format            = "2006-01-02"
 default_meta_description = "Personal blog and thoughts of @ramayac."
-css_theme              = "assets/css/default.style.css"
+css_theme              = "assets/css/anthropic.style.css"
 
 [csp]
 enabled = true

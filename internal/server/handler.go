@@ -48,7 +48,7 @@ type templateData struct {
 	CategorySlug    string
 	CurrentCategory *blog.CategoryInfo
 	Pagination      blog.Pagination
-	Categories      map[string]*blog.CategoryInfo
+	Categories      []blog.CategoryInfo
 	IndexBlurb      template.HTML
 	Query           string
 }
@@ -181,7 +181,7 @@ func (h *Handler) serveIndex(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Landing page — no post scanning
-	cats := h.b.GetCategories()
+	cats := h.b.GetCategoriesSorted()
 	blurb := ""
 	blurbFile := filepath.Join(h.cfg.PostsDir, "index.md")
 	if fileExists(blurbFile) {
