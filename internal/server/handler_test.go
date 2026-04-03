@@ -59,6 +59,27 @@ Many useful commands.
 		t.Fatal(err)
 	}
 
+	// Create "guides" category with a static page
+	guidesDir := dir + "/guides"
+	if err := os.MkdirAll(guidesDir, 0755); err != nil {
+		t.Fatal(err)
+	}
+
+	staticPage := `---
+title: Paternity Guide
+date: 2026-04-03
+author: Rodrigo Amaya
+description: A personal guide to navigating parenthood.
+---
+
+# Paternity Guide
+
+Some content about parenthood.
+`
+	if err := os.WriteFile(guidesDir+"/paternity-guide.md", []byte(staticPage), 0644); err != nil {
+		t.Fatal(err)
+	}
+
 	cfg := &config.Config{
 		BlogName:               "Rodrigo A.",
 		AuthorName:             "Rodrigo Amaya",
@@ -76,9 +97,26 @@ Many useful commands.
 			Enabled: true,
 			Header:  "Content-Security-Policy: default-src 'self';",
 		},
-		MenuLinks: []config.MenuLink{{Label: "Home", URL: "/"}},
+		MenuLinks: nil,
+		Cache: config.CacheConfig{
+			Enabled:      true,
+			MaxAgePages:  3600,
+			MaxAgeAssets: 86400,
+		},
 		Categories: map[string]config.Category{
-			"srbyte": {BlogName: "Sr. Byte 👨‍💻", Folder: "srbyte", Index: false, Menu: true},
+			"srbyte": {BlogName: "Sr. Byte 👨‍💻", Folder: "srbyte", Index: false},
+			"guides": {BlogName: "Guides 📖", Folder: "guides", Index: false},
+		},
+		Menu: config.MenuConfig{
+			Pinned: []config.MenuCategoryRef{
+				{Category: "guides", Order: 2},
+			},
+			Categories: config.MenuDropdown{
+				Label: "Writings",
+				Item: []config.MenuCategoryRef{
+					{Category: "srbyte", Order: 1},
+				},
+			},
 		},
 		Labels: config.Labels{
 			ReadMore:             "Read more →",
@@ -233,5 +271,93 @@ func TestCSPHeader(t *testing.T) {
 	w := get(h, "/")
 	if csp := w.Header().Get("Content-Security-Policy"); csp == "" {
 		t.Error("CSP header should be set")
+	}
+}
+
+func TestGuidePage_Accessible(t *testing.T) {
+	h := testSetup(t)
+	w := get(h, "/post?slug=paternity-guide&category=guides")
+	if w.Code != http.StatusOK {
+		t.Errorf("status = %d, want 200", w.Code)
+	}
+	body := w.Body.String()
+	if !strings.Contains(body, "Paternity Guide") {
+		t.Error("should contain guide page title")
+	}
+	if !strings.Contains(body, "parenthood") {
+		t.Error("should contain guide page content")
+	}
+}
+
+func TestGuidesCategory_InNav(t *testing.T) {
+	h := testSetup(t)
+	w := get(h, "/")
+	body := w.Body.String()
+	// Guides is nav_pinned so it should appear as a direct nav link (not in dropdown).
+	if !strings.Contains(body, "Guides 📖") {
+		t.Error("Guides category should appear in the nav")
+	}
+	if !strings.Contains(body, "?category=guides") {
+		t.Error("Guides category link URL should be present")
+	}
+}
+
+func TestGuidesCategory_AsHomeCard(t *testing.T) {
+	h := testSetup(t)
+	w := get(h, "/")
+	body := w.Body.String()
+	// Guides has a post so it should appear as a category card on home.
+	if !strings.Contains(body, "Guides 📖") {
+		t.Error("Guides category should appear as a card on home page")
+	}
+}
+
+func TestGuidesCategory_Listing(t *testing.T) {
+	h := testSetup(t)
+	w := get(h, "/?category=guides")
+	if w.Code != http.StatusOK {
+		t.Errorf("status = %d, want 200", w.Code)
+	}
+	body := w.Body.String()
+	if !strings.Contains(body, "Paternity Guide") {
+		t.Error("guides category listing should show the paternity guide post")
+	}
+}
+
+func TestGuidePage_Searchable(t *testing.T) {
+	h := testSetup(t)
+	w := get(h, "/?q=parenthood")
+	if w.Code != http.StatusOK {
+		t.Errorf("status = %d, want 200", w.Code)
+	}
+	body := w.Body.String()
+	if !strings.Contains(body, "Paternity Guide") {
+		t.Error("guide page should be findable via search")
+	}
+}
+
+func TestCacheControl_PostPage_Enabled(t *testing.T) {
+	h := testSetup(t)
+	// default setup has Cache.Enabled=true, MaxAgePages=3600
+	w := get(h, "/post?slug=srbyte-12-34-56-7-8-9-y-el-tiempo&category=srbyte")
+	if w.Code != http.StatusOK {
+		t.Fatalf("status = %d, want 200", w.Code)
+	}
+	cc := w.Header().Get("Cache-Control")
+	if cc != "public, max-age=3600" {
+		t.Errorf("Cache-Control = %q, want \"public, max-age=3600\"", cc)
+	}
+}
+
+func TestCacheControl_PostPage_Disabled(t *testing.T) {
+	h := testSetup(t)
+	h.cfg.Cache.Enabled = false
+	w := get(h, "/post?slug=srbyte-12-34-56-7-8-9-y-el-tiempo&category=srbyte")
+	if w.Code != http.StatusOK {
+		t.Fatalf("status = %d, want 200", w.Code)
+	}
+	cc := w.Header().Get("Cache-Control")
+	if cc != "no-store" {
+		t.Errorf("Cache-Control = %q, want \"no-store\"", cc)
 	}
 }

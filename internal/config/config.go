@@ -9,25 +9,52 @@ import (
 
 // Config holds all runtime configuration for the blog.
 type Config struct {
-	BlogName               string            `toml:"blog_name"`
-	AuthorName             string            `toml:"author_name"`
-	Lang                   string            `toml:"lang"`
-	HeaderContent          string            `toml:"header_content"`
-	FooterContent          string            `toml:"footer_content"`
-	PostsPerPage           int               `toml:"posts_per_page"`
-	ExcerptLength          int               `toml:"excerpt_length"`
-	ShowUncategorized      bool              `toml:"show_uncategorized"`
-	UncategorizedLabel     string            `toml:"uncategorized_label"`
-	ShowRenderTime         bool              `toml:"show_render_time"`
-	PostsDir               string            `toml:"posts_dir"`
-	PostIndexFile          string            `toml:"post_index_file"`
-	DateFormat             string            `toml:"date_format"`
-	DefaultMetaDescription string            `toml:"default_meta_description"`
-	CSSTheme               string            `toml:"css_theme"`
-	CSP                    CSPConfig         `toml:"csp"`
-	MenuLinks              []MenuLink        `toml:"menu_links"`
+	BlogName               string              `toml:"blog_name"`
+	AuthorName             string              `toml:"author_name"`
+	Lang                   string              `toml:"lang"`
+	HeaderContent          string              `toml:"header_content"`
+	FooterContent          string              `toml:"footer_content"`
+	PostsPerPage           int                 `toml:"posts_per_page"`
+	ExcerptLength          int                 `toml:"excerpt_length"`
+	ShowUncategorized      bool                `toml:"show_uncategorized"`
+	UncategorizedLabel     string              `toml:"uncategorized_label"`
+	ShowRenderTime         bool                `toml:"show_render_time"`
+	PostsDir               string              `toml:"posts_dir"`
+	PostIndexFile          string              `toml:"post_index_file"`
+	DateFormat             string              `toml:"date_format"`
+	DefaultMetaDescription string              `toml:"default_meta_description"`
+	CSSTheme               string              `toml:"css_theme"`
+	Menu                   MenuConfig          `toml:"menu"`
+	CSP                    CSPConfig           `toml:"csp"`
+	Cache                  CacheConfig         `toml:"cache"`
+	MenuLinks              []MenuLink          `toml:"menu_links"`
 	Categories             map[string]Category `toml:"categories"`
-	Labels                 Labels            `toml:"labels"`
+	Labels                 Labels              `toml:"labels"`
+}
+
+// MenuConfig defines the navigation bar structure.
+type MenuConfig struct {
+	Pinned     []MenuCategoryRef `toml:"pinned"`     // direct nav links (shown inline)
+	Categories MenuDropdown      `toml:"categories"` // dropdown section
+}
+
+// MenuDropdown holds the dropdown label and its category items.
+type MenuDropdown struct {
+	Label string            `toml:"label"` // e.g. "Writings"
+	Item  []MenuCategoryRef `toml:"item"`
+}
+
+// MenuCategoryRef references a category by slug for nav placement.
+type MenuCategoryRef struct {
+	Category string `toml:"category"` // must match a key in [categories.*]
+	Order    int    `toml:"order"`    // lower = earlier in list
+}
+
+// CacheConfig controls client-side HTTP caching.
+type CacheConfig struct {
+	Enabled      bool `toml:"enabled"`
+	MaxAgePages  int  `toml:"max_age_pages"`  // Cache-Control max-age for HTML pages, in seconds
+	MaxAgeAssets int  `toml:"max_age_assets"` // Cache-Control max-age for static assets, in seconds
 }
 
 // CSPConfig holds Content-Security-Policy settings.
@@ -43,13 +70,12 @@ type MenuLink struct {
 }
 
 // Category defines configuration for a post category folder.
+// Navigation placement is controlled by [menu] — not by fields on this struct.
 type Category struct {
 	BlogName      string `toml:"blog_name"`
 	HeaderContent string `toml:"header_content"`
 	Folder        string `toml:"folder"`
 	Index         bool   `toml:"index"`
-	Menu          bool   `toml:"menu"`
-	MenuOrder     int    `toml:"menu_order"` // controls position among category nav links; lower = earlier
 }
 
 // Labels holds all user-visible UI strings.
@@ -103,6 +129,20 @@ func Load(path string) (*Config, error) {
 	}
 	if cfg.ExcerptLength == 0 {
 		cfg.ExcerptLength = 200
+	}
+	if cfg.Menu.Categories.Label == "" {
+		cfg.Menu.Categories.Label = "Writings"
+	}
+
+	// Cache defaults: enabled with sensible TTLs
+	if !cfg.Cache.Enabled && cfg.Cache.MaxAgePages == 0 && cfg.Cache.MaxAgeAssets == 0 {
+		cfg.Cache.Enabled = true
+	}
+	if cfg.Cache.MaxAgePages == 0 {
+		cfg.Cache.MaxAgePages = 3600 // 1 hour
+	}
+	if cfg.Cache.MaxAgeAssets == 0 {
+		cfg.Cache.MaxAgeAssets = 86400 // 24 hours
 	}
 
 	// Backfill folder key from map key when not set explicitly

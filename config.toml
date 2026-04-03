@@ -7,44 +7,79 @@ posts_per_page         = 25
 excerpt_length         = 200
 show_uncategorized     = true
 uncategorized_label    = "General"
-show_render_time       = false
+show_render_time       = true
 posts_dir              = "posts"
 post_index_file        = "posts/posts.index.json"
 date_format            = "2006-01-02"
 default_meta_description = "Personal blog and thoughts of @ramayac."
 css_theme              = "assets/css/anthropic.style.css"
 
+# ── Navigation ────────────────────────────────────────────────────────────────
+# [[menu.pinned]]  → rendered as direct inline nav links
+# [[menu.categories.item]] → listed inside the dropdown
+# The order field controls left-to-right / top-to-bottom position.
+
+[[menu.pinned]]
+category = "guides"
+order    = 2
+
+[[menu.pinned]]
+category = "projects"
+order    = 3
+
+[menu.categories]
+label = "Writings"
+
+[[menu.categories.item]]
+category = "personal"
+order    = 1
+
+[[menu.categories.item]]
+category = "substack"
+order    = 4
+
+[[menu.categories.item]]
+category = "srbyte"
+order    = 5
+
 [csp]
 enabled = true
 header  = "Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:;"
 
-[[menu_links]]
-label = "Home"
-url   = "/"
+[cache]
+enabled        = true
+max_age_pages  = 3600   # 1 hour  — HTML page responses
+max_age_assets = 86400  # 24 hours — CSS / JS / image files
 
 [categories.personal]
 blog_name      = "Personal 🏠"
 header_content = "Personal Thoughts and Musings."
 folder         = "personal"
 index          = true
-menu           = true
-menu_order     = 1
+
+[categories.guides]
+blog_name      = "Guides 📖"
+header_content = "Long-form guides and references."
+folder         = "guides"
+index          = false
+
+[categories.projects]
+blog_name      = "Projects 🛠️"
+header_content = "Side projects and creative coding."
+folder         = "projects"
+index          = false
 
 [categories.substack]
 blog_name      = "Code Forward ⏩"
 header_content = "(2023) Substack failed newsletter."
 folder         = "substack"
 index          = false
-menu           = true
-menu_order     = 2
 
 [categories.srbyte]
 blog_name      = "Sr. Byte 👨‍💻"
 header_content = "(2007-2010) Tecnologia para todos."
 folder         = "srbyte"
 index          = false
-menu           = true
-menu_order     = 3
 
 [labels]
 read_more              = "Read more →"

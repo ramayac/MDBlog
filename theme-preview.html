@@ -108,12 +108,20 @@
 <span class="preview-section-label">nav</span>
 
 <nav class="site-menu">
+    <div class="nav-brand">
+        <a href="#" class="brand-link">Home</a>
+    </div>
     <div class="menu-links">
-        <a href="#">Home</a> |
-        <a href="#">Personal 🏠</a> |
-        <a href="#">Code Forward ⏩</a> |
-        <a href="#">Sr. Byte 👨‍💻</a> |
-        <a href="#" title="Search" class="search-btn">🔍</a> |
+        <a href="#">Home</a>
+        <div class="nav-dropdown">
+            <button class="nav-dropdown-trigger">Writings <span class="dropdown-arrow">&#x25BE;</span></button>
+            <div class="nav-dropdown-menu">
+                <a href="#">Personal 🏠</a>
+                <a href="#">Code Forward ⏩</a>
+                <a href="#">Sr. Byte 👨‍💻</a>
+            </div>
+        </div>
+        <a href="#" title="Search" class="search-btn">🔍</a>
         <button onclick="toggleDark()" class="theme-toggle" title="Switch Theme" aria-label="Switch Theme">🌓</button>
     </div>
 </nav>
@@ -162,8 +170,8 @@
 </main>
 
 <footer class="site-footer">
-    Built with <a href="#">MDBlog</a>. 💻
-    <small class="site-version">v1.4.2 · abc1234 · 2026-04-03</small>
+    <em>Built with <a href="#">MDBlog</a>. 💻</em>
+    <small class="site-version">v1.4.2 &middot; abc1234 &middot; 2026-04-03</small>
 </footer>
 </div>
 
@@ -174,12 +182,20 @@
 <span class="preview-section-label">category listing page</span>
 
 <nav class="site-menu">
+    <div class="nav-brand">
+        <a href="#" class="brand-link">Home</a>
+    </div>
     <div class="menu-links">
-        <a href="#">Home</a> |
-        <a href="#">Personal 🏠</a> |
-        <a href="#">Code Forward ⏩</a> |
-        <a href="#">Sr. Byte 👨‍💻</a> |
-        <a href="#" class="search-btn">🔍</a> |
+        <a href="#">Home</a>
+        <div class="nav-dropdown">
+            <button class="nav-dropdown-trigger">Writings <span class="dropdown-arrow">&#x25BE;</span></button>
+            <div class="nav-dropdown-menu">
+                <a href="#">Personal 🏠</a>
+                <a href="#">Code Forward ⏩</a>
+                <a href="#">Sr. Byte 👨‍💻</a>
+            </div>
+        </div>
+        <a href="#" class="search-btn">🔍</a>
         <button onclick="toggleDark()" class="theme-toggle" aria-label="Switch Theme">🌓</button>
     </div>
 </nav>
@@ -252,7 +268,7 @@
 </main>
 
 <footer class="site-footer">
-    Built with <a href="#">MDBlog</a>. 💻
+    <em>Built with <a href="#">MDBlog</a>. 💻</em>
 </footer>
 </div>
 
@@ -263,12 +279,20 @@
 <span class="preview-section-label">single post</span>
 
 <nav class="site-menu">
+    <div class="nav-brand">
+        <a href="#" class="brand-link">Home</a>
+    </div>
     <div class="menu-links">
-        <a href="#">Home</a> |
-        <a href="#">Personal 🏠</a> |
-        <a href="#">Code Forward ⏩</a> |
-        <a href="#">Sr. Byte 👨‍💻</a> |
-        <a href="#" class="search-btn">🔍</a> |
+        <a href="#">Home</a>
+        <div class="nav-dropdown">
+            <button class="nav-dropdown-trigger">Writings <span class="dropdown-arrow">&#x25BE;</span></button>
+            <div class="nav-dropdown-menu">
+                <a href="#">Personal 🏠</a>
+                <a href="#">Code Forward ⏩</a>
+                <a href="#">Sr. Byte 👨‍💻</a>
+            </div>
+        </div>
+        <a href="#" class="search-btn">🔍</a>
         <button onclick="toggleDark()" class="theme-toggle" aria-label="Switch Theme">🌓</button>
     </div>
 </nav>
@@ -358,7 +382,7 @@ ENTRYPOINT ["/lambda"]</code></pre>
 </main>
 
 <footer class="site-footer">
-    Built with <a href="#">MDBlog</a>. 💻
+    <em>Built with <a href="#">MDBlog</a>. 💻</em>
 </footer>
 </div>
 
@@ -369,10 +393,13 @@ ENTRYPOINT ["/lambda"]</code></pre>
 <span class="preview-section-label">search page</span>
 
 <nav class="site-menu">
+    <div class="nav-brand">
+        <a href="#" class="brand-link">Home</a>
+    </div>
     <div class="menu-links">
-        <a href="#">Home</a> |
-        <a href="#">Personal 🏠</a> |
-        <a href="#" class="search-btn">🔍</a> |
+        <a href="#">Home</a>
+        <a href="#">Personal 🏠</a>
+        <a href="#" class="search-btn">🔍</a>
         <button onclick="toggleDark()" aria-label="Switch Theme">🌓</button>
     </div>
 </nav>
@@ -403,7 +430,9 @@ ENTRYPOINT ["/lambda"]</code></pre>
     </div>
 </main>
 
-<footer class="site-footer">Built with <a href="#">MDBlog</a>. 💻</footer>
+<footer class="site-footer">
+    <em>Built with <a href="#">MDBlog</a>. 💻</em>
+</footer>
 </div>
 
 <!-- ═══════════════════════════════════════════════
@@ -413,8 +442,11 @@ ENTRYPOINT ["/lambda"]</code></pre>
 <span class="preview-section-label">404 page</span>
 
 <nav class="site-menu">
+    <div class="nav-brand">
+        <a href="#" class="brand-link">Home</a>
+    </div>
     <div class="menu-links">
-        <a href="#">Home</a> |
+        <a href="#">Home</a>
         <a href="#">Personal 🏠</a>
     </div>
 </nav>
@@ -427,7 +459,9 @@ ENTRYPOINT ["/lambda"]</code></pre>
     </div>
 </main>
 
-<footer class="site-footer">Built with <a href="#">MDBlog</a>. 💻</footer>
+<footer class="site-footer">
+    <em>Built with <a href="#">MDBlog</a>. 💻</em>
+</footer>
 </div>
 
 <!-- ═══════════════════════════════════════════════
@@ -437,8 +471,11 @@ ENTRYPOINT ["/lambda"]</code></pre>
 <span class="preview-section-label">typography &amp; elements</span>
 
 <nav class="site-menu">
+    <div class="nav-brand">
+        <a href="#" class="brand-link">Home</a>
+    </div>
     <div class="menu-links">
-        <a href="#">Home</a> |
+        <a href="#">Home</a>
         <a href="#">Personal 🏠</a>
     </div>
 </nav>
@@ -509,8 +546,8 @@ func main() {
 </main>
 
 <footer class="site-footer">
-    Built with <a href="#">MDBlog</a>. 💻
-    <small class="site-version">v1.4.2 · abc1234 · 2026-04-03</small>
+    <em>Built with <a href="#">MDBlog</a>. 💻</em>
+    <small class="site-version">v1.4.2 &middot; abc1234 &middot; 2026-04-03</small>
 </footer>
 </div>
 

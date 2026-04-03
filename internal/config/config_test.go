@@ -28,7 +28,6 @@ url   = "/"
 blog_name = "Foo"
 folder    = "foo"
 index     = true
-menu      = true
 
 [labels]
 read_more = "Read more"
@@ -162,5 +161,69 @@ func TestDefaults_ExcerptLength(t *testing.T) {
 	cfg, _ := Load(tmp)
 	if cfg.ExcerptLength != 200 {
 		t.Errorf("default excerpt_length = %d, want 200", cfg.ExcerptLength)
+	}
+}
+
+func TestCacheDefaults_WhenNotSet(t *testing.T) {
+	tmp := filepath.Join(t.TempDir(), "config.toml")
+	_ = os.WriteFile(tmp, []byte(`blog_name = "X"`), 0644)
+	cfg, err := Load(tmp)
+	if err != nil {
+		t.Fatalf("Load: %v", err)
+	}
+	if !cfg.Cache.Enabled {
+		t.Error("Cache.Enabled should default to true")
+	}
+	if cfg.Cache.MaxAgePages != 3600 {
+		t.Errorf("Cache.MaxAgePages = %d, want 3600", cfg.Cache.MaxAgePages)
+	}
+	if cfg.Cache.MaxAgeAssets != 86400 {
+		t.Errorf("Cache.MaxAgeAssets = %d, want 86400", cfg.Cache.MaxAgeAssets)
+	}
+}
+
+func TestCacheExplicitValues_ArePreserved(t *testing.T) {
+	tmp := filepath.Join(t.TempDir(), "config.toml")
+	content := `blog_name = "X"
+[cache]
+enabled        = true
+max_age_pages  = 600
+max_age_assets = 7200
+`
+	_ = os.WriteFile(tmp, []byte(content), 0644)
+	cfg, err := Load(tmp)
+	if err != nil {
+		t.Fatalf("Load: %v", err)
+	}
+	if !cfg.Cache.Enabled {
+		t.Error("Cache.Enabled should be true")
+	}
+	if cfg.Cache.MaxAgePages != 600 {
+		t.Errorf("Cache.MaxAgePages = %d, want 600", cfg.Cache.MaxAgePages)
+	}
+	if cfg.Cache.MaxAgeAssets != 7200 {
+		t.Errorf("Cache.MaxAgeAssets = %d, want 7200", cfg.Cache.MaxAgeAssets)
+	}
+}
+
+func TestCacheDisabled_WhenExplicitlySet(t *testing.T) {
+	tmp := filepath.Join(t.TempDir(), "config.toml")
+	// Set a non-zero max_age_pages so the "not configured" heuristic doesn't fire.
+	content := `blog_name = "X"
+[cache]
+enabled        = false
+max_age_pages  = 300
+max_age_assets = 1800
+`
+	_ = os.WriteFile(tmp, []byte(content), 0644)
+	cfg, err := Load(tmp)
+	if err != nil {
+		t.Fatalf("Load: %v", err)
+	}
+	if cfg.Cache.Enabled {
+		t.Error("Cache.Enabled should be false when explicitly set")
+	}
+	if cfg.Cache.MaxAgePages != 300 {
+		t.Errorf("Cache.MaxAgePages = %d, want 300", cfg.Cache.MaxAgePages)
 	}
 }

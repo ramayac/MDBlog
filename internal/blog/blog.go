@@ -214,42 +214,83 @@ func (b *Blog) GetPostBySlug(slug, categorySlug string) *Post {
 	return post
 }
 
-// categoryMenuEntry is used internally to sort category nav links.
-type categoryMenuEntry struct {
-	slug string
-	cat  config.Category
-}
-
-// GetMenu returns the ordered list of navigation links.
-// Static [[menu_links]] come first (in config order), followed by categories
-// with menu=true sorted by menu_order (ascending), then slug for ties.
-// The theme toggle and search links are rendered directly in the layout template.
+// GetMenu returns the static navigation links defined in [[menu_links]].
+// Category links are provided separately by GetMenuCategories.
 func (b *Blog) GetMenu() []MenuLink {
 	var links []MenuLink
 	for _, ml := range b.cfg.MenuLinks {
 		links = append(links, MenuLink{Label: ml.Label, URL: ml.URL})
 	}
+	return links
+}
 
-	// Collect and sort category entries for deterministic order.
-	var catEntries []categoryMenuEntry
-	for slug, cat := range b.cfg.Categories {
-		if cat.Menu {
-			catEntries = append(catEntries, categoryMenuEntry{slug: slug, cat: cat})
+// GetMenuCategories returns category navigation links for the dropdown
+// (categories listed under [menu.categories.item]), sorted by order ascending.
+func (b *Blog) GetMenuCategories() []MenuLink {
+	items := b.cfg.Menu.Categories.Item
+	sorted := make([]config.MenuCategoryRef, len(items))
+	copy(sorted, items)
+	sort.Slice(sorted, func(i, j int) bool {
+		if sorted[i].Order != sorted[j].Order {
+			return sorted[i].Order < sorted[j].Order
 		}
-	}
-	sort.Slice(catEntries, func(i, j int) bool {
-		if catEntries[i].cat.MenuOrder != catEntries[j].cat.MenuOrder {
-			return catEntries[i].cat.MenuOrder < catEntries[j].cat.MenuOrder
-		}
-		return catEntries[i].slug < catEntries[j].slug
+		return sorted[i].Category < sorted[j].Category
 	})
-	for _, e := range catEntries {
+	var links []MenuLink
+	for _, ref := range sorted {
+		cat, ok := b.cfg.Categories[ref.Category]
+		if !ok {
+			continue
+		}
 		links = append(links, MenuLink{
-			Label: e.cat.BlogName,
-			URL:   "/?category=" + e.slug,
+			Label: cat.BlogName,
+			URL:   "/?category=" + ref.Category,
 		})
 	}
 	return links
+}
+
+// GetNavPinned returns category links for categories listed under [menu.pinned].
+// These are rendered as direct inline nav links rather than inside the dropdown.
+func (b *Blog) GetNavPinned() []MenuLink {
+	items := b.cfg.Menu.Pinned
+	sorted := make([]config.MenuCategoryRef, len(items))
+	copy(sorted, items)
+	sort.Slice(sorted, func(i, j int) bool {
+		if sorted[i].Order != sorted[j].Order {
+			return sorted[i].Order < sorted[j].Order
+		}
+		return sorted[i].Category < sorted[j].Category
+	})
+	var links []MenuLink
+	for _, ref := range sorted {
+		cat, ok := b.cfg.Categories[ref.Category]
+		if !ok {
+			continue
+		}
+		links = append(links, MenuLink{
+			Label: cat.BlogName,
+			URL:   "/?category=" + ref.Category,
+		})
+	}
+	return links
+}
+
+// menuOrderForSlug returns the nav order for a category slug as defined in [menu].
+// Pinned items and dropdown items share a single order space.
+// Categories not referenced in [menu] get order 9999.
+func (b *Blog) menuOrderForSlug(slug string) int {
+	for _, ref := range b.cfg.Menu.Pinned {
+		if ref.Category == slug {
+			return ref.Order
+		}
+	}
+	for _, ref := range b.cfg.Menu.Categories.Item {
+		if ref.Category == slug {
+			return ref.Order
+		}
+	}
+	return 9999
 }
 
 // GetCategories returns all categories that have at least one post,
@@ -278,7 +319,7 @@ func (b *Blog) GetCategories() map[string]*CategoryInfo {
 				Folder:        cat.Folder,
 				Slug:          slug,
 				Count:         count,
-				MenuOrder:     cat.MenuOrder,
+				MenuOrder:     b.menuOrderForSlug(slug),
 			}
 		}
 	}

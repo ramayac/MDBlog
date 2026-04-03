@@ -17,7 +17,7 @@ func makeTestConfig(t *testing.T) *config.Config {
 		PostIndexFile: filepath.Join(dir, "posts.index.json"),
 		DateFormat:    "2006-01-02",
 		Categories: map[string]config.Category{
-			"tech": {BlogName: "Tech", Folder: "tech", Index: true, Menu: true},
+			"tech": {BlogName: "Tech", Folder: "tech", Index: true},
 		},
 	}
 }

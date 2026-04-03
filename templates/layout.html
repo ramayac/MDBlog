@@ -6,6 +6,7 @@
     <title>{{ .PageTitle }}</title>
     <link rel="stylesheet" href="{{ .Config.CSSTheme }}?v={{ .CSSVersion }}">
     <script>
+        /* Theme persistence — restore saved preference before first paint */
         const savedTheme = localStorage.getItem('theme-mode');
         if (savedTheme) {
             document.documentElement.setAttribute('data-theme', savedTheme);
@@ -31,13 +32,30 @@
 </head>
 <body>
 <div class="container">
+    <!-- Navigation: brand left, links + dropdown right -->
     <nav class="site-menu">
+        <div class="nav-brand">
+            <a href="/" class="brand-link">Home</a>
+        </div>
         <div class="menu-links">
-            {{- range $i, $item := .Menu -}}
-            {{- if $i }} | {{ end -}}
-            <a href="{{ $item.URL }}">{{ $item.Label }}</a>
+            {{- range .Menu -}}
+            <a href="{{ .URL }}">{{ .Label }}</a>
             {{- end -}}
-            {{- if .Menu }} | {{ end -}}<a href="/?search=1" title="{{ .Config.Labels.SearchTitle }}" class="search-btn">🔍</a> | <button onclick="toggleTheme()" class="theme-toggle" title="Switch Theme" aria-label="Switch Theme">🌓</button>
+            {{- range .NavPinned -}}
+            <a href="{{ .URL }}">{{ .Label }}</a>
+            {{- end -}}
+            {{ if .MenuCategories }}
+            <div class="nav-dropdown">
+                <button class="nav-dropdown-trigger" aria-haspopup="true" aria-expanded="false">{{ .Config.Menu.Categories.Label }} <span class="dropdown-arrow">&#x25BE;</span></button>
+                <div class="nav-dropdown-menu">
+                    {{- range .MenuCategories -}}
+                    <a href="{{ .URL }}">{{ .Label }}</a>
+                    {{- end -}}
+                </div>
+            </div>
+            {{ end }}
+            <a href="/?search=1" title="{{ .Config.Labels.SearchTitle }}" class="search-btn">🔍</a>
+            <button onclick="toggleTheme()" class="theme-toggle" title="Switch Theme" aria-label="Switch Theme">🌓</button>
         </div>
     </nav>
 
@@ -48,12 +66,12 @@
         {{ with .Version }}
         {{ if .Commit }}
         <small class="site-version">
-            {{ if .Version }}{{ .Version }} &middot; {{ end }}{{ .Commit }}{{ if .Date }} &middot; {{ .Date }}{{ end }}
+            {{ if .Version }}{{ .Version }} &middot; {{ end }}{{ .Commit }}{{ if .Date }} &middot; {{ .Date }}{{ end }}{{ if $.RenderTime }} &middot; {{ $.RenderTime }}ms{{ end }}
         </small>
         {{ end }}
         {{ end }}
-        {{ if .RenderTime }}
-        <small>Page rendered in {{ .RenderTime }}ms</small>
+        {{ if and .RenderTime (eq .Version.Commit "") }}
+        <small class="site-version">{{ .RenderTime }}ms</small>
         {{ end }}
     </footer>
 </div>

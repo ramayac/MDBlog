@@ -58,7 +58,15 @@ func makeTestConfig(postsDir string) *config.Config {
 		DateFormat:        "2006-01-02",
 		ShowUncategorized: true,
 		Categories: map[string]config.Category{
-			"tech": {BlogName: "Tech", Folder: "tech", Index: true, Menu: true},
+			"tech": {BlogName: "Tech", Folder: "tech", Index: true},
+		},
+		Menu: config.MenuConfig{
+			Categories: config.MenuDropdown{
+				Label: "Writings",
+				Item: []config.MenuCategoryRef{
+					{Category: "tech", Order: 1},
+				},
+			},
 		},
 	}
 }
@@ -138,13 +146,22 @@ func TestGetMenu_CategoryLinks(t *testing.T) {
 	cfg.MenuLinks = []config.MenuLink{{Label: "Home", URL: "/"}}
 	b := New(cfg)
 
+	// Static menu should only contain menu_links (no categories).
 	menu := b.GetMenu()
-	labels := make(map[string]string)
 	for _, m := range menu {
+		if m.Label == "Tech" {
+			t.Error("GetMenu should not contain category links")
+		}
+	}
+
+	// Category links live in GetMenuCategories.
+	catMenu := b.GetMenuCategories()
+	labels := make(map[string]string)
+	for _, m := range catMenu {
 		labels[m.Label] = m.URL
 	}
 	if _, ok := labels["Tech"]; !ok {
-		t.Error("expected 'Tech' category link in menu")
+		t.Error("expected 'Tech' category link in GetMenuCategories")
 	}
 	if labels["Tech"] != "/?category=tech" {
 		t.Errorf("Tech URL = %q, want /?category=tech", labels["Tech"])
@@ -506,5 +523,112 @@ func TestMax1(t *testing.T) {
 	}
 	if max1(3) != 3 {
 		t.Error("max1(3) should return 3")
+	}
+}
+
+// makeTestConfigMultiCategory creates a config with "tech" and "guides" categories,
+// makeTestConfigMultiCategory creates a config with two categories (tech + guides)
+func makeTestConfigMultiCategory(postsDir string) *config.Config {
+	return &config.Config{
+		BlogName:          "Test",
+		PostsDir:          postsDir,
+		PostIndexFile:     filepath.Join(postsDir, "posts.index.json"),
+		PostsPerPage:      10,
+		ExcerptLength:     200,
+		DateFormat:        "2006-01-02",
+		ShowUncategorized: true,
+		Categories: map[string]config.Category{
+			"tech":   {BlogName: "Tech", Folder: "tech", Index: true},
+			"guides": {BlogName: "Guides", Folder: "guides", Index: false},
+		},
+		Menu: config.MenuConfig{
+			Categories: config.MenuDropdown{
+				Label: "Writings",
+				Item: []config.MenuCategoryRef{
+					{Category: "tech", Order: 1},
+					{Category: "guides", Order: 2},
+				},
+			},
+		},
+	}
+}
+
+func TestMultipleCategories_InMenuCategories(t *testing.T) {
+	cfg := makeTestConfigMultiCategory(t.TempDir())
+	b := New(cfg)
+
+	catMenu := b.GetMenuCategories()
+	if len(catMenu) != 2 {
+		t.Fatalf("expected 2 category menu links, got %d", len(catMenu))
+	}
+	// Sorted by menu_order: Tech (1) then Guides (2).
+	if catMenu[0].Label != "Tech" {
+		t.Errorf("first category = %q, want 'Tech'", catMenu[0].Label)
+	}
+	if catMenu[1].Label != "Guides" {
+		t.Errorf("second category = %q, want 'Guides'", catMenu[1].Label)
+	}
+}
+
+func TestGetMenu_EmptyWhenNoMenuLinks(t *testing.T) {
+	cfg := makeTestConfigMultiCategory(t.TempDir())
+	b := New(cfg)
+
+	menu := b.GetMenu()
+	if len(menu) != 0 {
+		t.Errorf("expected 0 menu links (no menu_links configured), got %d", len(menu))
+	}
+	// Category links should not leak into GetMenu.
+	for _, m := range menu {
+		if m.Label == "Tech" || m.Label == "Guides" {
+			t.Errorf("GetMenu should not contain category links, found %q", m.Label)
+		}
+	}
+}
+
+func TestGetPostBySlug_InSecondCategory(t *testing.T) {
+	dir := t.TempDir()
+	guidesDir := filepath.Join(dir, "guides")
+	writePost(t, guidesDir, "my-guide.md", "---\ntitle: My Guide\ndate: 2026-04-03\nauthor: Test\n---\n\nGuide content.")
+
+	cfg := makeTestConfigMultiCategory(dir)
+	b := New(cfg)
+
+	post := b.GetPostBySlug("my-guide", "guides")
+	if post == nil {
+		t.Fatal("expected post from guides category, got nil")
+	}
+	if post.Title != "My Guide" {
+		t.Errorf("Title = %q, want 'My Guide'", post.Title)
+	}
+	if post.CategorySlug != "guides" {
+		t.Errorf("CategorySlug = %q, want 'guides'", post.CategorySlug)
+	}
+}
+
+func TestGetPosts_CategoriesAreIsolated(t *testing.T) {
+	dir := t.TempDir()
+	writePost(t, filepath.Join(dir, "guides"), "guide.md", "---\ntitle: Guide Post\ndate: 2026-01-01\n---\nContent.")
+	writePost(t, filepath.Join(dir, "tech"), "tech-post.md", "---\ntitle: Tech Post\ndate: 2026-01-01\n---\nContent.")
+
+	cfg := makeTestConfigMultiCategory(dir)
+	cfg.PostIndexFile = filepath.Join(dir, "nonexistent.json") // force scan
+	b := New(cfg)
+
+	// Guides listing should only show guide posts.
+	guidesList := b.GetPosts(1, "guides")
+	if len(guidesList.Posts) != 1 {
+		t.Errorf("guides listing: expected 1 post, got %d", len(guidesList.Posts))
+	}
+	if guidesList.Posts[0].Title != "Guide Post" {
+		t.Errorf("guides listing post = %q, want 'Guide Post'", guidesList.Posts[0].Title)
+	}
+
+	// Tech listing should not include guide posts.
+	techList := b.GetPosts(1, "tech")
+	for _, p := range techList.Posts {
+		if p.Title == "Guide Post" {
+			t.Error("guide post should not appear in tech listing")
+		}
 	}
 }

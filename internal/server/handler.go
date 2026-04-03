@@ -6,6 +6,7 @@ import (
 	"html/template"
 	"io"
 	"io/fs"
+	"log"
 	"math"
 	"net/http"
 	"os"
@@ -36,6 +37,8 @@ type templateData struct {
 	Canonical       string
 	CSSVersion      string
 	Menu            []blog.MenuLink
+	MenuCategories  []blog.MenuLink
+	NavPinned       []blog.MenuLink
 	FooterHTML      template.HTML
 	Version         blog.VersionInfo
 	RenderTime      string
@@ -131,19 +134,23 @@ func (h *Handler) serveIndex(w http.ResponseWriter, r *http.Request) {
 	page := max1(intParam(q.Get("page"), 1))
 
 	menu := h.b.GetMenu()
+	menuCats := h.b.GetMenuCategories()
+	navPinned := h.b.GetNavPinned()
 	canonical := buildCanonical(r)
 	cssV := cssVersion(h.cfg.CSSTheme)
 	versionInfo := h.b.GetVersionInfo()
 	footerHTML := template.HTML(h.b.ParseMarkdown(h.cfg.FooterContent))
 
 	base := templateData{
-		Config:     h.cfg,
-		OGType:     "website",
-		Canonical:  canonical,
-		CSSVersion: cssV,
-		Menu:       menu,
-		FooterHTML: footerHTML,
-		Version:    versionInfo,
+		Config:         h.cfg,
+		OGType:         "website",
+		Canonical:      canonical,
+		CSSVersion:     cssV,
+		Menu:           menu,
+		MenuCategories: menuCats,
+		NavPinned:      navPinned,
+		FooterHTML:     footerHTML,
+		Version:        versionInfo,
 	}
 
 	if isSearch {
@@ -204,19 +211,23 @@ func (h *Handler) servPost(w http.ResponseWriter, r *http.Request) {
 	categorySlug := q.Get("category")
 
 	menu := h.b.GetMenu()
+	menuCats := h.b.GetMenuCategories()
+	navPinned := h.b.GetNavPinned()
 	canonical := buildCanonical(r)
 	cssV := cssVersion(h.cfg.CSSTheme)
 	footerHTML := template.HTML(h.b.ParseMarkdown(h.cfg.FooterContent))
 	versionInfo := h.b.GetVersionInfo()
 
 	base := templateData{
-		Config:     h.cfg,
-		OGType:     "article",
-		Canonical:  canonical,
-		CSSVersion: cssV,
-		Menu:       menu,
-		FooterHTML: footerHTML,
-		Version:    versionInfo,
+		Config:         h.cfg,
+		OGType:         "article",
+		Canonical:      canonical,
+		CSSVersion:     cssV,
+		Menu:           menu,
+		MenuCategories: menuCats,
+		NavPinned:      navPinned,
+		FooterHTML:     footerHTML,
+		Version:        versionInfo,
 	}
 
 	if slug == "" || !validSlug(slug) {
@@ -242,7 +253,7 @@ func (h *Handler) servPost(w http.ResponseWriter, r *http.Request) {
 	lastMod := time.Unix(postMtime, 0).UTC().Format(http.TimeFormat)
 	w.Header().Set("Last-Modified", lastMod)
 	w.Header().Set("ETag", etag)
-	w.Header().Set("Cache-Control", "public, max-age=3600")
+	w.Header().Set("Cache-Control", h.cacheControlPages())
 
 	ifNoneMatch := strings.TrimSpace(r.Header.Get("If-None-Match"))
 	ifModSince := r.Header.Get("If-Modified-Since")
@@ -332,8 +343,28 @@ func (h *Handler) serveAsset(w http.ResponseWriter, r *http.Request, urlPath str
 		contentType = "application/octet-stream"
 	}
 	w.Header().Set("Content-Type", contentType)
-	w.Header().Set("Cache-Control", "public, max-age=86400")
+	w.Header().Set("Cache-Control", h.cacheControlAssets())
 	http.ServeContent(w, r, rel, st.ModTime(), rs)
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Cache-Control helpers
+// ─────────────────────────────────────────────────────────────────────────────
+
+// cacheControlPages returns the Cache-Control header value for HTML pages.
+func (h *Handler) cacheControlPages() string {
+	if !h.cfg.Cache.Enabled {
+		return "no-store"
+	}
+	return fmt.Sprintf("public, max-age=%d", h.cfg.Cache.MaxAgePages)
+}
+
+// cacheControlAssets returns the Cache-Control header value for static assets.
+func (h *Handler) cacheControlAssets() string {
+	if !h.cfg.Cache.Enabled {
+		return "no-store"
+	}
+	return fmt.Sprintf("public, max-age=%d", h.cfg.Cache.MaxAgeAssets)
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -352,6 +383,7 @@ func (h *Handler) renderPage(w http.ResponseWriter, r *http.Request, start time.
 	if h.cfg.ShowRenderTime {
 		ms := math.Round(float64(time.Since(start).Microseconds()) / 1000.0)
 		data.RenderTime = fmt.Sprintf("%.2f", ms)
+		log.Printf("render %s %s %.2fms", r.Method, r.URL.RequestURI(), ms)
 	}
 
 	// Gzip when supported (skip on Lambda — API Gateway / CloudFront handles it)
