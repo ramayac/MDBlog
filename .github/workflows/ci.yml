@@ -25,6 +25,9 @@ jobs:
     - name: Vet
       run: go vet ./...
 
+    - name: Lint config
+      run: go run ./cmd/mdblog version > /dev/null
+
     - name: Build post index
       run: go run ./cmd/mdblog build-index
 

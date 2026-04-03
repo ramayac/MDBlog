@@ -97,6 +97,7 @@ make build                                                    # Compile producti
 make build-embed                                              # Compile embed-variant binary to bin/lambda-embed
 make build-index                                              # Generate posts/posts.index.json
 make lint                                                     # Run go vet on all packages
+make lint-config                                              # Parse and validate config.toml
 make test                                                     # Build index then run go test ./...
 make render random                                            # Render a random post to HTML
 make render [category] random                                 # Render a random post from a category

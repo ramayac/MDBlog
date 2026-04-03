@@ -12,7 +12,7 @@ LDFLAGS := -s -w -X main.version=$(VERSION) -X main.commit=$(COMMIT) -X main.dat
 
 .DEFAULT_GOAL := help
 
-.PHONY: help serve build build-embed build-index lint test new-post render \
+.PHONY: help serve build build-embed build-index lint lint-config test new-post render \
         docker-build docker-build-embed docker-run docker-run-release \
         docker-stop docker-push docker-pull
 
@@ -41,8 +41,11 @@ build-index: ## Generate post metadata index (writes posts/posts.index.json)
 	@echo "Building post metadata index..."
 	go run ./cmd/mdblog build-index
 
-lint: ## Run go vet on all packages
+lint: lint-config ## Run go vet on all packages + validate config.toml
 	go vet ./...
+
+lint-config: ## Validate config.toml by parsing it (panics on TOML errors)
+	@go run ./cmd/mdblog version > /dev/null && echo "config.toml OK"
 
 test: build-index ## Run the Go test suite
 	go test ./...
