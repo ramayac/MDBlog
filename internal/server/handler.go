@@ -41,6 +41,7 @@ type templateData struct {
 	Version         blog.VersionInfo
 	RenderTime      string
 	JSFiles         []string
+	JSONLD          template.HTML // structured data JSON-LD block (injected into <head>)
 	Content         template.HTML // rendered inner content
 	// page-specific fields
 	Posts           []blog.Post
@@ -119,6 +120,16 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// ── Route: sitemap / robots ───────────────────────────────────────────
+	if path == "/sitemap.xml" {
+		h.serveSitemap(w, r)
+		return
+	}
+	if path == "/robots.txt" {
+		h.serveRobots(w, r)
+		return
+	}
+
 	// ── Route: single post (/post) ─────────────────────────────────────────
 	if path == "/post" || strings.HasSuffix(path, "/post") {
 		h.servPost(w, r)
@@ -183,10 +194,12 @@ func (h *Handler) serveIndex(w http.ResponseWriter, r *http.Request) {
 		list := h.b.GetPosts(page, categorySlug)
 		data := base
 		data.PageTitle = h.cfg.BlogName + " - " + cat.BlogName
+		data.PageDescription = cat.HeaderContent
 		data.CurrentCategory = cat
 		data.CategorySlug = categorySlug
 		data.Posts = list.Posts
 		data.Pagination = list.Pagination
+		data.JSONLD = buildWebPageJSONLD(h.cfg, canonical, data.PageTitle, cat.HeaderContent)
 		h.renderPage(w, r, start, "category.html", &data)
 		return
 	}
@@ -203,8 +216,10 @@ func (h *Handler) serveIndex(w http.ResponseWriter, r *http.Request) {
 	}
 	data := base
 	data.PageTitle = h.cfg.BlogName
+	data.PageDescription = h.cfg.DefaultMetaDescription
 	data.Categories = cats
 	data.IndexBlurb = template.HTML(blurb)
+	data.JSONLD = buildWebSiteJSONLD(h.cfg)
 	h.renderPage(w, r, start, "home.html", &data)
 }
 
@@ -294,6 +309,7 @@ func (h *Handler) servPost(w http.ResponseWriter, r *http.Request) {
 	data.CategorySlug = categorySlug
 	data.JSFiles = jsFiles
 	data.Tags = tags
+	data.JSONLD = buildArticleJSONLD(h.cfg, post, canonical, categorySlug)
 	h.renderPage(w, r, start, "post.html", &data)
 }
 

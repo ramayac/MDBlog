@@ -29,6 +29,17 @@ base_url    = "https://ramayac.com"
 max_items   = 20
 output_file = "feed.xml"
 
+[sitemap]
+enabled              = true
+output_file          = "sitemap.xml"
+robots_file          = "robots.txt"
+changefreq_home      = "weekly"
+changefreq_category  = "weekly"
+changefreq_post      = "monthly"
+priority_home        = "1.0"
+priority_category    = "0.8"
+priority_post        = "0.6"
+
 [[menu.pinned]]
 category = "guides"
 order    = 2

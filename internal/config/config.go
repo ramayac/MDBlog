@@ -27,6 +27,7 @@ type Config struct {
 	CSP                    CSPConfig           `toml:"csp"`
 	Cache                  CacheConfig         `toml:"cache"`
 	Feed                   FeedConfig          `toml:"feed"`
+	Sitemap                SitemapConfig       `toml:"sitemap"`
 	Menu                   MenuConfig          `toml:"menu"`
 	MenuLinks              []MenuLink          `toml:"menu_links"`
 	Categories             map[string]Category `toml:"categories"`
@@ -39,6 +40,19 @@ type FeedConfig struct {
 	BaseURL    string `toml:"base_url"`
 	MaxItems   int    `toml:"max_items"`
 	OutputFile string `toml:"output_file"`
+}
+
+// SitemapConfig holds sitemap and robots.txt generation settings.
+type SitemapConfig struct {
+	Enabled            bool   `toml:"enabled"`
+	OutputFile         string `toml:"output_file"`
+	RobotsFile         string `toml:"robots_file"`
+	ChangeFreqHome     string `toml:"changefreq_home"`
+	ChangeFreqCategory string `toml:"changefreq_category"`
+	ChangeFreqPost     string `toml:"changefreq_post"`
+	PriorityHome       string `toml:"priority_home"`
+	PriorityCategory   string `toml:"priority_category"`
+	PriorityPost       string `toml:"priority_post"`
 }
 
 // CSPConfig holds Content-Security-Policy settings.
@@ -175,6 +189,35 @@ func Load(path string) (*Config, error) {
 	}
 	if cfg.Feed.Enabled && cfg.Feed.BaseURL == "" {
 		return nil, fmt.Errorf("config: feed.enabled is true but feed.base_url is not set")
+	}
+
+	// Sitemap defaults
+	if cfg.Sitemap.OutputFile == "" {
+		cfg.Sitemap.OutputFile = "sitemap.xml"
+	}
+	if cfg.Sitemap.RobotsFile == "" {
+		cfg.Sitemap.RobotsFile = "robots.txt"
+	}
+	if cfg.Sitemap.ChangeFreqHome == "" {
+		cfg.Sitemap.ChangeFreqHome = "weekly"
+	}
+	if cfg.Sitemap.ChangeFreqCategory == "" {
+		cfg.Sitemap.ChangeFreqCategory = "weekly"
+	}
+	if cfg.Sitemap.ChangeFreqPost == "" {
+		cfg.Sitemap.ChangeFreqPost = "monthly"
+	}
+	if cfg.Sitemap.PriorityHome == "" {
+		cfg.Sitemap.PriorityHome = "1.0"
+	}
+	if cfg.Sitemap.PriorityCategory == "" {
+		cfg.Sitemap.PriorityCategory = "0.8"
+	}
+	if cfg.Sitemap.PriorityPost == "" {
+		cfg.Sitemap.PriorityPost = "0.6"
+	}
+	if cfg.Sitemap.Enabled && cfg.Feed.BaseURL == "" {
+		return nil, fmt.Errorf("config: sitemap.enabled is true but feed.base_url is not set")
 	}
 
 	// Backfill folder key from map key when not set explicitly

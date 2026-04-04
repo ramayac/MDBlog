@@ -42,14 +42,15 @@ Requires **Go 1.24+** and `make`. No other runtime dependencies.
 ```bash
 make build-index     # Generate post metadata index (posts/posts.index.json)
 make build-feed      # Generate RSS feed (feed.xml — requires build-index first)
+make build-sitemap   # Generate sitemap.xml and robots.txt (requires build-index first)
 make serve           # Start HTTP dev server at http://localhost:8080
 make lint            # Run go vet on all packages
-make test            # Build index + feed, then run the Go test suite
+make test            # Build index + feed + sitemap, then run the Go test suite
 make render random   # Render a random post to a standalone HTML file
 ```
 
-> **Tip:** Run `make build-index` then `make build-feed` whenever you add or edit posts
-> locally so that paginated listings and the RSS feed reflect your changes immediately.
+> **Tip:** Run `make build-index`, `make build-feed`, and `make build-sitemap` whenever you add or edit posts
+> locally so that paginated listings, the RSS feed, and the sitemap reflect your changes immediately.
 
 ## Deployment (AWS Lambda)
 
@@ -168,6 +169,41 @@ make build-feed    # writes feed.xml
 ```
 
 `make docker-build` runs both steps automatically inside the build stage.
+
+## SEO — Sitemap and robots.txt
+
+MDBlog generates `sitemap.xml` and `robots.txt` at build time. In production, these pre-built files are served directly from disk; during local development (`make serve`), the server generates them on-the-fly so no extra build step is required.
+
+- **`/sitemap.xml`** — Valid XML sitemap listing the homepage, all category pages, and all individual posts
+- **`/robots.txt`** — Allows all crawlers and points to the sitemap
+
+Configure in `config.toml`:
+
+```toml
+[sitemap]
+enabled              = true
+output_file          = "sitemap.xml"    # path to write
+robots_file          = "robots.txt"     # path to write
+changefreq_home      = "weekly"         # valid: always, hourly, daily, weekly, monthly, yearly, never
+changefreq_category  = "weekly"
+changefreq_post      = "monthly"
+priority_home        = "1.0"            # 0.0–1.0
+priority_category    = "0.8"
+priority_post        = "0.6"
+```
+
+`sitemap.enabled = true` requires `feed.base_url` to be set (used for absolute URLs).
+
+### Generating sitemap and robots.txt
+
+```bash
+make build-index    # must run first
+make build-sitemap  # writes sitemap.xml and robots.txt
+```
+
+`make docker-build` runs all three steps (`build-index`, `build-feed`, `build-sitemap`) automatically.
+
+**After deploying**, submit `https://your-domain.com/sitemap.xml` in [Google Search Console](https://search.google.com/search-console) to accelerate indexing.
 
 ## Categories
 

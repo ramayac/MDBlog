@@ -224,3 +224,85 @@ max_age_assets = 86400
 		t.Error("Cache.Enabled should be false when explicitly disabled")
 	}
 }
+
+func TestLoad_SitemapDefaults(t *testing.T) {
+	tmp := filepath.Join(t.TempDir(), "config.toml")
+	_ = os.WriteFile(tmp, []byte(`blog_name = "X"`), 0644)
+	cfg, err := Load(tmp)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if cfg.Sitemap.OutputFile != "sitemap.xml" {
+		t.Errorf("default output_file = %q, want 'sitemap.xml'", cfg.Sitemap.OutputFile)
+	}
+	if cfg.Sitemap.RobotsFile != "robots.txt" {
+		t.Errorf("default robots_file = %q, want 'robots.txt'", cfg.Sitemap.RobotsFile)
+	}
+	if cfg.Sitemap.ChangeFreqHome != "weekly" {
+		t.Errorf("default changefreq_home = %q, want 'weekly'", cfg.Sitemap.ChangeFreqHome)
+	}
+	if cfg.Sitemap.ChangeFreqCategory != "weekly" {
+		t.Errorf("default changefreq_category = %q, want 'weekly'", cfg.Sitemap.ChangeFreqCategory)
+	}
+	if cfg.Sitemap.ChangeFreqPost != "monthly" {
+		t.Errorf("default changefreq_post = %q, want 'monthly'", cfg.Sitemap.ChangeFreqPost)
+	}
+	if cfg.Sitemap.PriorityHome != "1.0" {
+		t.Errorf("default priority_home = %q, want '1.0'", cfg.Sitemap.PriorityHome)
+	}
+	if cfg.Sitemap.PriorityCategory != "0.8" {
+		t.Errorf("default priority_category = %q, want '0.8'", cfg.Sitemap.PriorityCategory)
+	}
+	if cfg.Sitemap.PriorityPost != "0.6" {
+		t.Errorf("default priority_post = %q, want '0.6'", cfg.Sitemap.PriorityPost)
+	}
+}
+
+func TestLoad_SitemapCustomValues(t *testing.T) {
+	toml := `
+[sitemap]
+enabled              = true
+output_file          = "mysitemap.xml"
+robots_file          = "myrobots.txt"
+changefreq_home      = "daily"
+changefreq_category  = "daily"
+changefreq_post      = "yearly"
+priority_home        = "0.9"
+priority_category    = "0.7"
+priority_post        = "0.5"
+
+[feed]
+base_url = "https://example.com"
+`
+	tmp := filepath.Join(t.TempDir(), "config.toml")
+	_ = os.WriteFile(tmp, []byte(toml), 0644)
+	cfg, err := Load(tmp)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !cfg.Sitemap.Enabled {
+		t.Error("Sitemap.Enabled should be true")
+	}
+	if cfg.Sitemap.OutputFile != "mysitemap.xml" {
+		t.Errorf("OutputFile = %q, want 'mysitemap.xml'", cfg.Sitemap.OutputFile)
+	}
+	if cfg.Sitemap.ChangeFreqPost != "yearly" {
+		t.Errorf("ChangeFreqPost = %q, want 'yearly'", cfg.Sitemap.ChangeFreqPost)
+	}
+	if cfg.Sitemap.PriorityPost != "0.5" {
+		t.Errorf("PriorityPost = %q, want '0.5'", cfg.Sitemap.PriorityPost)
+	}
+}
+
+func TestLoad_SitemapEnabled_RequiresBaseURL(t *testing.T) {
+	toml := `
+[sitemap]
+enabled = true
+`
+	tmp := filepath.Join(t.TempDir(), "config.toml")
+	_ = os.WriteFile(tmp, []byte(toml), 0644)
+	_, err := Load(tmp)
+	if err == nil {
+		t.Error("expected error when sitemap.enabled = true without feed.base_url, got nil")
+	}
+}

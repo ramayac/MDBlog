@@ -10,3 +10,7 @@ posts/posts.index.json
 *.tmp
 .idea/
 .vscode/
+feed.xml
+robots.txt
+sitemap.xml
+feed.xml

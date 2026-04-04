@@ -12,7 +12,7 @@ LDFLAGS := -s -w -X main.version=$(VERSION) -X main.commit=$(COMMIT) -X main.dat
 
 .DEFAULT_GOAL := help
 
-.PHONY: help serve build build-embed build-index build-feed lint lint-config test new-post render \
+.PHONY: help serve build build-embed build-index build-feed build-sitemap lint lint-config test new-post render \
         docker-build docker-build-embed docker-run docker-run-release \
         docker-stop docker-push docker-pull
 
@@ -45,13 +45,17 @@ build-feed: ## Generate RSS feed (writes feed.xml — requires build-index first
 	@echo "Building RSS feed..."
 	go run ./cmd/mdblog build-feed
 
+build-sitemap: ## Generate sitemap.xml and robots.txt (requires build-index first)
+	@echo "Building sitemap and robots.txt..."
+	go run ./cmd/mdblog build-sitemap
+
 lint: lint-config ## Run go vet on all packages + validate config.toml
 	go vet ./...
 
 lint-config: ## Validate config.toml by parsing it (panics on TOML errors)
 	@go run ./cmd/mdblog version > /dev/null && echo "config.toml OK"
 
-test: build-index build-feed ## Run the Go test suite
+test: build-index build-feed build-sitemap ## Run the Go test suite
 	go test ./...
 
 # Allow extra arguments to `make render`

@@ -24,11 +24,18 @@
     {{ if .Canonical }}<link rel="canonical" href="{{ .Canonical }}">{{ end }}
     {{ if .Config.Feed.Enabled }}<link rel="alternate" type="application/rss+xml" title="{{ .Config.BlogName }}" href="/feed.xml">{{ end }}
     <!-- Open Graph -->
-    <meta property="og:title"   content="{{ .PageTitle }}">
-    <meta property="og:type"    content="{{ .OGType }}">
+    <meta property="og:title"       content="{{ .PageTitle }}">
+    <meta property="og:type"        content="{{ .OGType }}">
+    <meta property="og:site_name"   content="{{ .Config.BlogName }}">
     {{ if .Canonical }}<meta property="og:url" content="{{ .Canonical }}">{{ end }}
     {{ if .PageDescription }}<meta property="og:description" content="{{ .PageDescription }}">{{ end }}
+    <!-- Twitter Card -->
+    <meta name="twitter:card"        content="summary">
+    <meta name="twitter:title"       content="{{ .PageTitle }}">
+    {{ if .PageDescription }}<meta name="twitter:description" content="{{ .PageDescription }}">{{ end }}
     {{ if .Config.CSP.Enabled }}<!-- CSP set via HTTP header -->{{ end }}
+    <!-- Structured data -->
+    {{ if .JSONLD }}{{ .JSONLD }}{{ end }}
 </head>
 <body>
 <div class="container">

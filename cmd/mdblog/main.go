@@ -8,6 +8,7 @@ import (
 	"github.com/ramayac/mdblog/internal/blog"
 	"github.com/ramayac/mdblog/internal/buildfeed"
 	"github.com/ramayac/mdblog/internal/buildindex"
+	"github.com/ramayac/mdblog/internal/buildsitemap"
 	"github.com/ramayac/mdblog/internal/config"
 	"github.com/ramayac/mdblog/internal/render"
 	"github.com/ramayac/mdblog/internal/server"
@@ -41,6 +42,8 @@ func main() {
 		runBuildIndex(cfg)
 	case "build-feed":
 		runBuildFeed(cfg)
+	case "build-sitemap":
+		runBuildSitemap(cfg)
 	case "render":
 		runRender(cfg, os.Args[2:])
 	case "version":
@@ -56,11 +59,12 @@ func printUsage() {
 	fmt.Println("Usage: mdblog <subcommand> [args]")
 	fmt.Println()
 	fmt.Println("Subcommands:")
-	fmt.Println("  serve         Start HTTP server (default :8080, set PORT env to override)")
-	fmt.Println("  build-index   Generate posts/posts.index.json")
-	fmt.Println("  build-feed    Generate feed.xml (requires build-index to run first)")
-	fmt.Println("  render        Render a post to a standalone HTML file")
-	fmt.Println("  version       Print version information")
+	fmt.Println("  serve          Start HTTP server (default :8080, set PORT env to override)")
+	fmt.Println("  build-index    Generate posts/posts.index.json")
+	fmt.Println("  build-feed     Generate feed.xml (requires build-index to run first)")
+	fmt.Println("  build-sitemap  Generate sitemap.xml and robots.txt (requires build-index)")
+	fmt.Println("  render         Render a post to a standalone HTML file")
+	fmt.Println("  version        Print version information")
 }
 
 func runServe(cfg *config.Config) {
@@ -91,6 +95,13 @@ func runBuildIndex(cfg *config.Config) {
 func runBuildFeed(cfg *config.Config) {
 	if err := buildfeed.Build(cfg); err != nil {
 		fmt.Fprintf(os.Stderr, "build-feed: %v\n", err)
+		os.Exit(1)
+	}
+}
+
+func runBuildSitemap(cfg *config.Config) {
+	if err := buildsitemap.Build(cfg); err != nil {
+		fmt.Fprintf(os.Stderr, "build-sitemap: %v\n", err)
 		os.Exit(1)
 	}
 }
