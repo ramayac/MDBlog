@@ -116,6 +116,7 @@ type Labels struct {
 	AuthorBy             string `toml:"author_by"`
 	PostedOn             string `toml:"posted_on"`
 	SearchTitle          string `toml:"search_title"`
+	SearchDescription    string `toml:"search_description"`
 	SearchPlaceholder    string `toml:"search_placeholder"`
 	SearchButton         string `toml:"search_button"`
 	SearchShowingResults string `toml:"search_showing_results"`
