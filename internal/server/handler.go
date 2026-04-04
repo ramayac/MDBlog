@@ -109,6 +109,16 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set(splitCSPHeader(h.cfg.CSP.Header))
 	}
 
+	// ── Route: RSS feed (/feed.xml, /feed) ────────────────────────────────
+	if path == "/feed.xml" {
+		h.serveFeedXML(w, r)
+		return
+	}
+	if path == "/feed" {
+		h.serveFeedPage(w, r)
+		return
+	}
+
 	// ── Route: single post (/post) ─────────────────────────────────────────
 	if path == "/post" || strings.HasSuffix(path, "/post") {
 		h.servPost(w, r)
@@ -292,6 +302,53 @@ func (h *Handler) cacheControlPages() string {
 		return "no-store"
 	}
 	return fmt.Sprintf("public, max-age=%d", h.cfg.Cache.MaxAgePages)
+}
+
+func (h *Handler) serveFeedXML(w http.ResponseWriter, r *http.Request) {
+	if !h.cfg.Feed.Enabled {
+		http.NotFound(w, r)
+		return
+	}
+	data, err := os.ReadFile(h.cfg.Feed.OutputFile)
+	if err != nil {
+		http.Error(w, "feed not available", http.StatusNotFound)
+		return
+	}
+	w.Header().Set("Content-Type", "application/rss+xml; charset=utf-8")
+	w.Header().Set("Cache-Control", h.cacheControlPages())
+
+	var out io.Writer = w
+	if os.Getenv("AWS_LAMBDA_FUNCTION_NAME") == "" && strings.Contains(r.Header.Get("Accept-Encoding"), "gzip") {
+		w.Header().Set("Content-Encoding", "gzip")
+		gz := gzip.NewWriter(w)
+		defer gz.Close()
+		out = gz
+	}
+	_, _ = out.Write(data)
+}
+
+func (h *Handler) serveFeedPage(w http.ResponseWriter, r *http.Request) {
+	start := time.Now()
+	menu := h.b.GetMenu()
+	canonical := buildCanonical(r)
+	cssV := cssVersion(h.cfg.CSSTheme)
+	footerHTML := template.HTML(h.b.ParseMarkdown(h.cfg.FooterContent))
+	versionInfo := h.b.GetVersionInfo()
+
+	posts := h.b.GetFeedPosts(h.cfg.Feed.MaxItems)
+
+	data := &templateData{
+		Config:     h.cfg,
+		PageTitle:  "Feed — " + h.cfg.BlogName,
+		OGType:     "website",
+		Canonical:  canonical,
+		CSSVersion: cssV,
+		Menu:       menu,
+		FooterHTML: footerHTML,
+		Version:    versionInfo,
+		Posts:      posts,
+	}
+	h.renderPage(w, r, start, "feed.html", data)
 }
 
 func (h *Handler) cacheControlAssets() string {

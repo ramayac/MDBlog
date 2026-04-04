@@ -282,43 +282,44 @@ button,
 .post-preview {
     display: flex;
     flex-direction: column;
+    justify-content: space-between;
     background: var(--color-card-bg);
     border: 1px solid var(--color-card-border);
     border-radius: 10px;
     padding: 1.5rem 1.75rem;
     transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+    text-decoration: none;
+    color: var(--color-text);
 }
 
-/* override base border-bottom — card border provides the separation */
-.post-preview,
+/* base.style.css sets border-bottom on last-child; restore full card border */
 .post-preview:last-child {
     border-bottom: 1px solid var(--color-card-border);
 }
 
 .post-preview:hover {
+    background: var(--color-card-bg-hover);
     border-color: var(--color-primary);
     transform: translateY(-2px);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.07);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+    color: var(--color-text);
+    text-decoration: none;
+    z-index: 1;
 }
 
 .post-title {
-    font-size: 1.15rem;
+    font-size: 1.1rem;
     font-weight: 700;
     letter-spacing: -0.02em;
-    margin: 0 0 0.35rem;
+    margin: 0 0 0.4rem;
     font-family: var(--ui-font);
-}
-
-.post-title a {
     color: var(--color-heading);
-    transition: color 0.15s ease;
+    line-height: 1.3;
 }
-
-.post-title a:hover { color: var(--color-primary); }
 
 .post-meta {
-    margin: 0.3rem 0 0.6rem;
-    font-size: 0.83rem;
+    margin: 0.4rem 0 0.6rem;
+    font-size: 0.85rem;
     color: var(--color-text-muted);
     letter-spacing: 0.01em;
 }
@@ -501,4 +502,37 @@ blockquote {
     .post-header .post-title { font-size: 1.85rem; }
     .category-cards { grid-template-columns: 1fr; gap: 1rem; }
     .category-card { min-height: auto; }
+}
+
+/* ── Feed page ─────────────────────────────────────────────────────────── */
+/* Inherits base layout from base.style.css; overrides for Anthropic theme */
+.feed-subscribe-card {
+    background: var(--color-card-bg);
+    border: 1px solid var(--color-card-border);
+    border-radius: 10px;
+    padding: 1.5rem 1.75rem;
+}
+
+.feed-subscribe-card h3 {
+    font-family: var(--ui-font);
+    letter-spacing: -0.02em;
+}
+
+.feed-subscribe-card p {
+    font-family: var(--ui-font);
+}
+
+.feed-subscribe-link {
+    font-family: var(--ui-font);
+    font-size: 0.8rem;
+    letter-spacing: 0.02em;
+}
+
+.feed-table,
+.feed-cap-note {
+    font-family: var(--ui-font);
+}
+
+.feed-table tbody tr:hover {
+    background: var(--color-card-bg-hover);
 }

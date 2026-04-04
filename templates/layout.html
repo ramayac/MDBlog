@@ -22,6 +22,7 @@
     </script>
     {{ if .PageDescription }}<meta name="description" content="{{ .PageDescription }}">{{ end }}
     {{ if .Canonical }}<link rel="canonical" href="{{ .Canonical }}">{{ end }}
+    {{ if .Config.Feed.Enabled }}<link rel="alternate" type="application/rss+xml" title="{{ .Config.BlogName }}" href="/feed.xml">{{ end }}
     <!-- Open Graph -->
     <meta property="og:title"   content="{{ .PageTitle }}">
     <meta property="og:type"    content="{{ .OGType }}">

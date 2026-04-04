@@ -1,0 +1,41 @@
+<!--<h2 class="category-title">{{ .Config.Labels.FeedTitle }}<br><small>{{ .Config.Labels.FeedSubtitle }}</small></h2>-->
+
+<main class="main-content">
+    <div class="feed-subscribe-card">
+        <div class="feed-subscribe-text">
+            <h3>{{ .Config.Labels.FeedSubscribeHeading }}</h3>
+            <p>{{ .Config.Labels.FeedSubscribeDesc }}</p>
+        </div>
+        <a href="/feed.xml" class="feed-subscribe-link" title="{{ .Config.Labels.FeedSubscribeHeading }}">{{ .Config.Labels.FeedSubscribeLink }}</a>
+    </div>
+
+    {{ if not .Posts }}
+    <div class="no-posts">
+        <p>{{ .Config.Labels.FeedNoPosts }}</p>
+    </div>
+    {{ else }}
+    <table class="feed-table">
+        <thead>
+            <tr>
+                <th>{{ .Config.Labels.FeedColDate }}</th>
+                <th>{{ .Config.Labels.FeedColCategory }}</th>
+                <th>{{ .Config.Labels.FeedColTitle }}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{ range .Posts }}
+            <tr>
+                <td class="feed-date">{{ formatDate .Date }}</td>
+                <td class="feed-category">
+                    {{ if .Category }}<a href="/?category={{ .CategorySlug | urlquery }}">{{ .Category.BlogName }}</a>{{ end }}
+                </td>
+                <td class="feed-title">
+                    <a href="/post?slug={{ .Slug | urlquery }}{{ if .CategorySlug }}&category={{ .CategorySlug | urlquery }}{{ end }}">{{ .Title }}</a>
+                </td>
+            </tr>
+            {{ end }}
+        </tbody>
+    </table>
+    <p class="feed-cap-note">{{ .Config.Labels.FeedCapNote }}</p>
+    {{ end }}
+</main>

@@ -23,7 +23,7 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
     go build -o /out/mdblog ./cmd/mdblog
 
 # Generate the post metadata index (baked into the image)
-RUN cd /src && /out/mdblog build-index
+RUN cd /src && /out/mdblog build-index && /out/mdblog build-feed
 
 # ── Stage 2: Minimal production image ────────────────────────────────────────
 FROM scratch
@@ -37,5 +37,6 @@ COPY --from=build /src/posts/      /posts/
 COPY --from=build /src/assets/     /assets/
 COPY --from=build /src/templates/  /templates/
 COPY --from=build /src/config.toml /config.toml
+COPY --from=build /src/feed.xml    /feed.xml
 
 CMD ["/lambda"]

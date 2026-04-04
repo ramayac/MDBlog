@@ -1,7 +1,7 @@
 blog_name              = "Rodrigo A."
 author_name            = "Rodrigo Amaya"
 lang                   = "en"
-header_content         = "Wholesome Software Development."
+blog_description       = "Wholesome Software Development."
 footer_content         = "*Built with [MDBlog](https://github.com/ramayac/mdblog). 💻*"
 posts_per_page         = 25
 excerpt_length         = 200
@@ -22,6 +22,12 @@ header  = "Content-Security-Policy: default-src 'self'; script-src 'self' 'unsaf
 enabled        = true
 max_age_pages  = 3600   # 1 hour  — HTML pages
 max_age_assets = 86400  # 24 hours — CSS/JS/images
+
+[feed]
+enabled     = true
+base_url    = "https://ramayac.com"
+max_items   = 20
+output_file = "feed.xml"
 
 [[menu.pinned]]
 category = "guides"
@@ -70,6 +76,7 @@ index          = false
 
 [labels]
 read_more              = "Read more →"
+posts_label            = "posts →"
 back_to_all            = "← Back to all posts"
 back_to_category       = "← Back to %s"
 not_found_title        = "404 — Post Not Found"
@@ -87,3 +94,14 @@ search_showing_results = "Showing results for \"%s\""
 search_empty_query     = "Enter a keyword above to search through posts."
 search_no_results      = "No posts found matching your query."
 search_results_title   = "Search Results for \"%s\""
+feed_title             = "RSS Feed"
+feed_subtitle          = "Remember to update your feed reader!"
+feed_subscribe_heading = "Subscribe via RSS"
+feed_subscribe_desc    = "Get new posts delivered to your feed reader."
+feed_subscribe_link    = "RSS Feed 📡"
+feed_no_posts          = "No posts available."
+feed_cap_note          = "These are the most recent posts. Older entries may not be included."
+feed_col_date          = "Date"
+feed_col_category      = "Category"
+feed_col_title         = "Title"
+

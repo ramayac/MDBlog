@@ -12,6 +12,7 @@ Author: [@ramayac](https://x.com/ramayac).
 - Write posts in Markdown with YAML-style front matter
 - Built-in pagination powered by a **build-time metadata index** (handles 300+ posts without Lambda timeouts)
 - Standalone search page using the pre-built metadata index
+- **RSS 2.0 feed** (`/feed.xml`) generated at build time; human-readable feed page at `/feed`
 - Fallback post routing for clean URLs (resolves posts missing a category path)
 - GitHub Flavoured Markdown + footnotes via [Goldmark](https://github.com/yuin/goldmark)
 - Custom JavaScript support per post
@@ -40,15 +41,15 @@ Requires **Go 1.24+** and `make`. No other runtime dependencies.
 
 ```bash
 make build-index     # Generate post metadata index (posts/posts.index.json)
+make build-feed      # Generate RSS feed (feed.xml — requires build-index first)
 make serve           # Start HTTP dev server at http://localhost:8080
 make lint            # Run go vet on all packages
-make test            # Build index then run the Go test suite
+make test            # Build index + feed, then run the Go test suite
 make render random   # Render a random post to a standalone HTML file
 ```
 
-> **Tip:** Run `make build-index` whenever you add or edit posts locally so that paginated
-> listings reflect your changes immediately. Without the index the blog falls back to a
-> full filesystem scan — correct but slower for large categories.
+> **Tip:** Run `make build-index` then `make build-feed` whenever you add or edit posts
+> locally so that paginated listings and the RSS feed reflect your changes immediately.
 
 ## Deployment (AWS Lambda)
 
@@ -129,6 +130,44 @@ To add an optional intro blurb above the cards, create `posts/index.md`.
 
 Browsing posts: `/?category=slug`
 Searching posts: `/?q=keyword` (requires the post metadata index)
+
+## RSS Feed
+
+MDBlog generates a valid RSS 2.0 feed at build time — no XML is generated on every request.
+
+- **`/feed.xml`** — Machine-readable RSS 2.0 feed served on request from the pre-built file
+- **`/feed`** — Human-readable feed page listing all recent posts (date, category, title)
+
+Configure the feed in `config.toml`:
+
+```toml
+[feed]
+enabled     = true
+title       = "Your Blog Name"
+description = "Blog description."
+base_url    = "https://your-domain.com"   # required — used for absolute URLs in the XML
+max_items   = 50
+output_file = "feed.xml"
+```
+
+`base_url` is **required** when `feed.enabled = true`. `make build-index` must run before `make build-feed`.
+
+To add a "Feed" link to the nav bar, add to `config.toml`:
+
+```toml
+[[menu_links]]
+label = "Feed"
+url   = "/feed"
+```
+
+### Generating the feed
+
+```bash
+make build-index   # must run first
+make build-feed    # writes feed.xml
+```
+
+`make docker-build` runs both steps automatically inside the build stage.
 
 ## Categories
 

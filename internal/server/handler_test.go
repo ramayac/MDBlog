@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/ramayac/mdblog/internal/blog"
+	"github.com/ramayac/mdblog/internal/buildfeed"
 	"github.com/ramayac/mdblog/internal/buildindex"
 	"github.com/ramayac/mdblog/internal/config"
 )
@@ -63,7 +64,7 @@ Many useful commands.
 		BlogName:               "Rodrigo A.",
 		AuthorName:             "Rodrigo Amaya",
 		Lang:                   "en",
-		HeaderContent:          "Wholesome Software Development.",
+		BlogDescription:        "Wholesome Software Development.",
 		PostsPerPage:           25,
 		ExcerptLength:          200,
 		ShowUncategorized:      false,
@@ -80,6 +81,12 @@ Many useful commands.
 			Enabled:      true,
 			MaxAgePages:  3600,
 			MaxAgeAssets: 86400,
+		},
+		Feed: config.FeedConfig{
+			Enabled:    true,
+			BaseURL:    "https://example.com",
+			MaxItems:   50,
+			OutputFile: dir + "/feed.xml",
 		},
 		MenuLinks: []config.MenuLink{{Label: "Home", URL: "/"}},
 		Categories: map[string]config.Category{
@@ -117,6 +124,11 @@ Many useful commands.
 	// Build the post index
 	if err := buildindex.Build(cfg); err != nil {
 		t.Fatalf("buildindex: %v", err)
+	}
+
+	// Build the RSS feed
+	if err := buildfeed.Build(cfg); err != nil {
+		t.Fatalf("buildfeed: %v", err)
 	}
 
 	b := blog.New(cfg)
@@ -163,8 +175,8 @@ func TestCategory(t *testing.T) {
 		t.Errorf("status = %d, want 200", w.Code)
 	}
 	body := w.Body.String()
-	if !strings.Contains(body, "Read more") {
-		t.Error("should show post list with read-more links")
+	if !strings.Contains(body, "post-preview") {
+		t.Error("should show post list with post-preview cards")
 	}
 }
 
@@ -190,7 +202,7 @@ func TestSearchWorking(t *testing.T) {
 		t.Errorf("status = %d, want 200", w.Code)
 	}
 	body := w.Body.String()
-	if !strings.Contains(body, "Read more") {
+	if !strings.Contains(body, "post-preview") {
 		t.Error("should find matching post")
 	}
 	if !strings.Contains(body, "12:34:56") {
@@ -246,6 +258,46 @@ func TestCSPHeader(t *testing.T) {
 	w := get(h, "/")
 	if csp := w.Header().Get("Content-Security-Policy"); csp == "" {
 		t.Error("CSP header should be set")
+	}
+}
+
+func TestFeedXML(t *testing.T) {
+	h := testSetup(t)
+	w := get(h, "/feed.xml")
+	if w.Code != http.StatusOK {
+		t.Errorf("status = %d, want 200", w.Code)
+	}
+	ct := w.Header().Get("Content-Type")
+	if !strings.Contains(ct, "application/rss+xml") {
+		t.Errorf("Content-Type = %q, want application/rss+xml", ct)
+	}
+	body := w.Body.String()
+	if !strings.Contains(body, "<?xml") {
+		t.Error("feed.xml should contain XML declaration")
+	}
+	if !strings.Contains(body, "<rss") {
+		t.Error("feed.xml should contain <rss> element")
+	}
+	if !strings.Contains(body, "Rodrigo A.") {
+		t.Error("feed.xml should contain the blog title")
+	}
+}
+
+func TestFeedPage(t *testing.T) {
+	h := testSetup(t)
+	w := get(h, "/feed")
+	if w.Code != http.StatusOK {
+		t.Errorf("status = %d, want 200", w.Code)
+	}
+	body := w.Body.String()
+	if !strings.Contains(body, "feed-table") {
+		t.Error("feed page should contain feed-table")
+	}
+	if !strings.Contains(body, "/feed.xml") {
+		t.Error("feed page should link to /feed.xml")
+	}
+	if !strings.Contains(body, "Linux Commands") {
+		t.Error("feed page should list posts")
 	}
 }
 

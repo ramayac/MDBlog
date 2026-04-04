@@ -1,8 +1,6 @@
 {{ define "post_preview" }}
-<article class="post-preview">
-    <h2 class="post-title">
-        <a href="{{ .PostURL }}">{{ .Post.Title }}</a>
-    </h2>
+<a href="{{ .PostURL }}" class="post-preview">
+    <h2 class="post-title">{{ .Post.Title }}</h2>
     <div class="post-meta">
         <span class="post-date">{{ printf (.Config.Labels.PostedOn | defaultStr "on %s") (.Post.Date | formatDate) }}</span>
     </div>
@@ -11,6 +9,6 @@
         {{ .Post.Excerpt }}
     </div>
     {{ end }}
-    <a href="{{ .PostURL }}" class="read-more">{{ .Config.Labels.ReadMore | safeHTML }}</a>
-</article>
+    <span class="read-more">{{ .Config.Labels.ReadMore | defaultStr "Read more →" }}</span>
+</a>
 {{ end }}

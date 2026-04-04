@@ -9,27 +9,36 @@ import (
 
 // Config holds all runtime configuration for the blog.
 type Config struct {
-	BlogName               string            `toml:"blog_name"`
-	AuthorName             string            `toml:"author_name"`
-	Lang                   string            `toml:"lang"`
-	HeaderContent          string            `toml:"header_content"`
-	FooterContent          string            `toml:"footer_content"`
-	PostsPerPage           int               `toml:"posts_per_page"`
-	ExcerptLength          int               `toml:"excerpt_length"`
-	ShowUncategorized      bool              `toml:"show_uncategorized"`
-	UncategorizedLabel     string            `toml:"uncategorized_label"`
-	ShowRenderTime         bool              `toml:"show_render_time"`
-	PostsDir               string            `toml:"posts_dir"`
-	PostIndexFile          string            `toml:"post_index_file"`
-	DateFormat             string            `toml:"date_format"`
-	DefaultMetaDescription string            `toml:"default_meta_description"`
-	CSSTheme               string            `toml:"css_theme"`
-	CSP                    CSPConfig         `toml:"csp"`
-	Cache                  CacheConfig       `toml:"cache"`
-	Menu                   MenuConfig        `toml:"menu"`
-	MenuLinks              []MenuLink        `toml:"menu_links"`
+	BlogName               string              `toml:"blog_name"`
+	AuthorName             string              `toml:"author_name"`
+	Lang                   string              `toml:"lang"`
+	BlogDescription        string              `toml:"blog_description"`
+	FooterContent          string              `toml:"footer_content"`
+	PostsPerPage           int                 `toml:"posts_per_page"`
+	ExcerptLength          int                 `toml:"excerpt_length"`
+	ShowUncategorized      bool                `toml:"show_uncategorized"`
+	UncategorizedLabel     string              `toml:"uncategorized_label"`
+	ShowRenderTime         bool                `toml:"show_render_time"`
+	PostsDir               string              `toml:"posts_dir"`
+	PostIndexFile          string              `toml:"post_index_file"`
+	DateFormat             string              `toml:"date_format"`
+	DefaultMetaDescription string              `toml:"default_meta_description"`
+	CSSTheme               string              `toml:"css_theme"`
+	CSP                    CSPConfig           `toml:"csp"`
+	Cache                  CacheConfig         `toml:"cache"`
+	Feed                   FeedConfig          `toml:"feed"`
+	Menu                   MenuConfig          `toml:"menu"`
+	MenuLinks              []MenuLink          `toml:"menu_links"`
 	Categories             map[string]Category `toml:"categories"`
-	Labels                 Labels            `toml:"labels"`
+	Labels                 Labels              `toml:"labels"`
+}
+
+// FeedConfig holds RSS feed generation settings.
+type FeedConfig struct {
+	Enabled    bool   `toml:"enabled"`
+	BaseURL    string `toml:"base_url"`
+	MaxItems   int    `toml:"max_items"`
+	OutputFile string `toml:"output_file"`
 }
 
 // CSPConfig holds Content-Security-Policy settings.
@@ -75,11 +84,13 @@ type Category struct {
 	HeaderContent string `toml:"header_content"`
 	Folder        string `toml:"folder"`
 	Index         bool   `toml:"index"`
+	Menu          bool   `toml:"menu"`
 }
 
 // Labels holds all user-visible UI strings.
 type Labels struct {
 	ReadMore             string `toml:"read_more"`
+	PostsLabel           string `toml:"posts_label"`
 	BackToAll            string `toml:"back_to_all"`
 	BackToCategory       string `toml:"back_to_category"`
 	NotFoundTitle        string `toml:"not_found_title"`
@@ -97,6 +108,16 @@ type Labels struct {
 	SearchEmptyQuery     string `toml:"search_empty_query"`
 	SearchNoResults      string `toml:"search_no_results"`
 	SearchResultsTitle   string `toml:"search_results_title"`
+	FeedTitle            string `toml:"feed_title"`
+	FeedSubtitle         string `toml:"feed_subtitle"`
+	FeedSubscribeHeading string `toml:"feed_subscribe_heading"`
+	FeedSubscribeDesc    string `toml:"feed_subscribe_desc"`
+	FeedSubscribeLink    string `toml:"feed_subscribe_link"`
+	FeedNoPosts          string `toml:"feed_no_posts"`
+	FeedCapNote          string `toml:"feed_cap_note"`
+	FeedColDate          string `toml:"feed_col_date"`
+	FeedColCategory      string `toml:"feed_col_category"`
+	FeedColTitle         string `toml:"feed_col_title"`
 }
 
 // Load reads and parses the TOML config file at the given path.
@@ -143,6 +164,17 @@ func Load(path string) (*Config, error) {
 	}
 	if cfg.Cache.MaxAgeAssets == 0 {
 		cfg.Cache.MaxAgeAssets = 86400
+	}
+
+	// Feed defaults
+	if cfg.Feed.MaxItems == 0 {
+		cfg.Feed.MaxItems = 50
+	}
+	if cfg.Feed.OutputFile == "" {
+		cfg.Feed.OutputFile = "feed.xml"
+	}
+	if cfg.Feed.Enabled && cfg.Feed.BaseURL == "" {
+		return nil, fmt.Errorf("config: feed.enabled is true but feed.base_url is not set")
 	}
 
 	// Backfill folder key from map key when not set explicitly
