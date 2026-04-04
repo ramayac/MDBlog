@@ -1,25 +1,25 @@
-<h2 class="category-title">Feed</h2>
+<h2 class="category-title">{{ .Config.Labels.FeedTitle }}</h2>
 
 <main class="main-content">
     <div class="feed-subscribe-card">
         <div class="feed-subscribe-text">
-            <h3>Subscribe via RSS</h3>
-            <p>Get new posts delivered to your feed reader.</p>
+            <h3>{{ .Config.Labels.FeedSubscribeHeading }}</h3>
+            <p>{{ .Config.Labels.FeedSubscribeDesc }}</p>
         </div>
-        <a href="/feed.xml" class="feed-subscribe-link" title="RSS Feed">RSS Feed 📡</a>
+        <a href="/feed.xml" class="feed-subscribe-link" title="{{ .Config.Labels.FeedSubscribeHeading }}">{{ .Config.Labels.FeedSubscribeLink }}</a>
     </div>
 
     {{ if not .Posts }}
     <div class="no-posts">
-        <p>No posts available.</p>
+        <p>{{ .Config.Labels.FeedNoPosts }}</p>
     </div>
     {{ else }}
     <table class="feed-table">
         <thead>
             <tr>
-                <th>Date</th>
-                <th>Category</th>
-                <th>Title</th>
+                <th>{{ .Config.Labels.FeedColDate }}</th>
+                <th>{{ .Config.Labels.FeedColCategory }}</th>
+                <th>{{ .Config.Labels.FeedColTitle }}</th>
             </tr>
         </thead>
         <tbody>

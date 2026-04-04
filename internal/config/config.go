@@ -107,6 +107,14 @@ type Labels struct {
 	SearchEmptyQuery     string `toml:"search_empty_query"`
 	SearchNoResults      string `toml:"search_no_results"`
 	SearchResultsTitle   string `toml:"search_results_title"`
+	FeedTitle            string `toml:"feed_title"`
+	FeedSubscribeHeading string `toml:"feed_subscribe_heading"`
+	FeedSubscribeDesc    string `toml:"feed_subscribe_desc"`
+	FeedSubscribeLink    string `toml:"feed_subscribe_link"`
+	FeedNoPosts          string `toml:"feed_no_posts"`
+	FeedColDate          string `toml:"feed_col_date"`
+	FeedColCategory      string `toml:"feed_col_category"`
+	FeedColTitle         string `toml:"feed_col_title"`
 }
 
 // Load reads and parses the TOML config file at the given path.
