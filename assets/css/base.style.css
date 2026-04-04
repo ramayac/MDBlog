@@ -164,6 +164,9 @@ a:hover {
 .post-preview {
     padding: 1.5rem 0;
     border-bottom: 1px solid var(--color-border);
+    text-decoration: none;
+    color: inherit;
+    display: block;
 }
 
 .post-preview:last-child { border-bottom: none; }

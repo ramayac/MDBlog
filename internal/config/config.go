@@ -9,38 +9,36 @@ import (
 
 // Config holds all runtime configuration for the blog.
 type Config struct {
-	BlogName               string            `toml:"blog_name"`
-	AuthorName             string            `toml:"author_name"`
-	Lang                   string            `toml:"lang"`
-	HeaderContent          string            `toml:"header_content"`
-	FooterContent          string            `toml:"footer_content"`
-	PostsPerPage           int               `toml:"posts_per_page"`
-	ExcerptLength          int               `toml:"excerpt_length"`
-	ShowUncategorized      bool              `toml:"show_uncategorized"`
-	UncategorizedLabel     string            `toml:"uncategorized_label"`
-	ShowRenderTime         bool              `toml:"show_render_time"`
-	PostsDir               string            `toml:"posts_dir"`
-	PostIndexFile          string            `toml:"post_index_file"`
-	DateFormat             string            `toml:"date_format"`
-	DefaultMetaDescription string            `toml:"default_meta_description"`
-	CSSTheme               string            `toml:"css_theme"`
-	CSP                    CSPConfig         `toml:"csp"`
-	Cache                  CacheConfig       `toml:"cache"`
-	Feed                   FeedConfig        `toml:"feed"`
-	Menu                   MenuConfig        `toml:"menu"`
-	MenuLinks              []MenuLink        `toml:"menu_links"`
+	BlogName               string              `toml:"blog_name"`
+	AuthorName             string              `toml:"author_name"`
+	Lang                   string              `toml:"lang"`
+	BlogDescription        string              `toml:"blog_description"`
+	FooterContent          string              `toml:"footer_content"`
+	PostsPerPage           int                 `toml:"posts_per_page"`
+	ExcerptLength          int                 `toml:"excerpt_length"`
+	ShowUncategorized      bool                `toml:"show_uncategorized"`
+	UncategorizedLabel     string              `toml:"uncategorized_label"`
+	ShowRenderTime         bool                `toml:"show_render_time"`
+	PostsDir               string              `toml:"posts_dir"`
+	PostIndexFile          string              `toml:"post_index_file"`
+	DateFormat             string              `toml:"date_format"`
+	DefaultMetaDescription string              `toml:"default_meta_description"`
+	CSSTheme               string              `toml:"css_theme"`
+	CSP                    CSPConfig           `toml:"csp"`
+	Cache                  CacheConfig         `toml:"cache"`
+	Feed                   FeedConfig          `toml:"feed"`
+	Menu                   MenuConfig          `toml:"menu"`
+	MenuLinks              []MenuLink          `toml:"menu_links"`
 	Categories             map[string]Category `toml:"categories"`
-	Labels                 Labels            `toml:"labels"`
+	Labels                 Labels              `toml:"labels"`
 }
 
 // FeedConfig holds RSS feed generation settings.
 type FeedConfig struct {
-	Enabled     bool   `toml:"enabled"`
-	Title       string `toml:"title"`
-	Description string `toml:"description"`
-	BaseURL     string `toml:"base_url"`
-	MaxItems    int    `toml:"max_items"`
-	OutputFile  string `toml:"output_file"`
+	Enabled    bool   `toml:"enabled"`
+	BaseURL    string `toml:"base_url"`
+	MaxItems   int    `toml:"max_items"`
+	OutputFile string `toml:"output_file"`
 }
 
 // CSPConfig holds Content-Security-Policy settings.

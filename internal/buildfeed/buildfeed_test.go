@@ -1,34 +1,34 @@
 package buildfeed
 
 import (
-"encoding/xml"
-"os"
-"path/filepath"
-"strings"
-"testing"
+	"encoding/xml"
+	"os"
+	"path/filepath"
+	"strings"
+	"testing"
 
-"github.com/ramayac/mdblog/internal/buildindex"
-"github.com/ramayac/mdblog/internal/config"
+	"github.com/ramayac/mdblog/internal/buildindex"
+	"github.com/ramayac/mdblog/internal/config"
 )
 
 func makeTestConfig(t *testing.T) *config.Config {
 	t.Helper()
 	dir := t.TempDir()
 	return &config.Config{
-		Lang:          "en",
-		PostsDir:      dir,
-		PostIndexFile: filepath.Join(dir, "posts.index.json"),
-		DateFormat:    "2006-01-02",
+		BlogName:        "Test Blog",
+		BlogDescription: "A test blog.",
+		Lang:            "en",
+		PostsDir:        dir,
+		PostIndexFile:   filepath.Join(dir, "posts.index.json"),
+		DateFormat:      "2006-01-02",
 		Categories: map[string]config.Category{
 			"tech": {BlogName: "Tech Posts", Folder: "tech", Index: true},
 		},
 		Feed: config.FeedConfig{
-			Enabled:     true,
-			Title:       "Test Blog",
-			Description: "A test blog.",
-			BaseURL:     "https://example.com",
-			MaxItems:    50,
-			OutputFile:  filepath.Join(dir, "feed.xml"),
+			Enabled:    true,
+			BaseURL:    "https://example.com",
+			MaxItems:   50,
+			OutputFile: filepath.Join(dir, "feed.xml"),
 		},
 	}
 }
@@ -63,7 +63,7 @@ func TestBuild_XMLDeclaration(t *testing.T) {
 	cfg := makeTestConfig(t)
 	techDir := filepath.Join(cfg.PostsDir, "tech")
 	writePost(t, techDir, "2024-01-15-post.md",
-"---\ntitle: Post\ndate: 2024-01-15\n---\nContent.")
+		"---\ntitle: Post\ndate: 2024-01-15\n---\nContent.")
 
 	xmlStr := testBuildFeed(t, cfg)
 	if !strings.HasPrefix(xmlStr, "<?xml") {
@@ -75,7 +75,7 @@ func TestBuild_ChannelMetadata(t *testing.T) {
 	cfg := makeTestConfig(t)
 	techDir := filepath.Join(cfg.PostsDir, "tech")
 	writePost(t, techDir, "2024-01-15-hello-world.md",
-"---\ntitle: Hello World\ndate: 2024-01-15\nauthor: Alice\ntags: go, test\ndescription: A test post about Go\n---\n\nBody content here.")
+		"---\ntitle: Hello World\ndate: 2024-01-15\nauthor: Alice\ntags: go, test\ndescription: A test post about Go\n---\n\nBody content here.")
 
 	xmlStr := testBuildFeed(t, cfg)
 
@@ -99,9 +99,9 @@ func TestBuild_Items(t *testing.T) {
 	cfg := makeTestConfig(t)
 	techDir := filepath.Join(cfg.PostsDir, "tech")
 	writePost(t, techDir, "2024-01-15-hello-world.md",
-"---\ntitle: Hello World\ndate: 2024-01-15\nauthor: Alice\ntags: go, test\ndescription: A test post about Go\n---\n\nBody content here.")
+		"---\ntitle: Hello World\ndate: 2024-01-15\nauthor: Alice\ntags: go, test\ndescription: A test post about Go\n---\n\nBody content here.")
 	writePost(t, techDir, "2024-03-01-second-post.md",
-"---\ntitle: Second Post\ndate: 2024-03-01\nauthor: Alice\ntags: go\ndescription: The second post\n---\n\nMore content.")
+		"---\ntitle: Second Post\ndate: 2024-03-01\nauthor: Alice\ntags: go\ndescription: The second post\n---\n\nMore content.")
 
 	xmlStr := testBuildFeed(t, cfg)
 
@@ -143,7 +143,7 @@ func TestBuild_GUIDIsPermaLink(t *testing.T) {
 	cfg := makeTestConfig(t)
 	techDir := filepath.Join(cfg.PostsDir, "tech")
 	writePost(t, techDir, "2024-01-15-post.md",
-"---\ntitle: Post\ndate: 2024-01-15\n---\nContent.")
+		"---\ntitle: Post\ndate: 2024-01-15\n---\nContent.")
 
 	xmlStr := testBuildFeed(t, cfg)
 	if !strings.Contains(xmlStr, `isPermaLink="true"`) {
@@ -156,9 +156,9 @@ func TestBuild_MaxItems(t *testing.T) {
 	cfg.Feed.MaxItems = 1
 	techDir := filepath.Join(cfg.PostsDir, "tech")
 	writePost(t, techDir, "2024-01-15-first.md",
-"---\ntitle: First\ndate: 2024-01-15\n---\nContent.")
+		"---\ntitle: First\ndate: 2024-01-15\n---\nContent.")
 	writePost(t, techDir, "2024-02-01-second.md",
-"---\ntitle: Second\ndate: 2024-02-01\n---\nContent.")
+		"---\ntitle: Second\ndate: 2024-02-01\n---\nContent.")
 
 	xmlStr := testBuildFeed(t, cfg)
 	count := strings.Count(xmlStr, "<item>")

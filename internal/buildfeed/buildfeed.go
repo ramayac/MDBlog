@@ -1,15 +1,15 @@
 package buildfeed
 
 import (
-"encoding/json"
-"encoding/xml"
-"fmt"
-"net/url"
-"os"
-"path/filepath"
-"time"
+	"encoding/json"
+	"encoding/xml"
+	"fmt"
+	"net/url"
+	"os"
+	"path/filepath"
+	"time"
 
-"github.com/ramayac/mdblog/internal/config"
+	"github.com/ramayac/mdblog/internal/config"
 )
 
 // indexPost mirrors the JSON fields in posts.index.json.
@@ -123,13 +123,13 @@ func Build(cfg *config.Config) error {
 		}
 
 		items = append(items, rssItem{
-Title:       p.Title,
-Link:        link,
-GUID:        rssGUID{IsPermaLink: "true", Value: link},
-PubDate:     pubDate,
-Description: p.Excerpt,
-Category:    categoryName,
-})
+			Title:       p.Title,
+			Link:        link,
+			GUID:        rssGUID{IsPermaLink: "true", Value: link},
+			PubDate:     pubDate,
+			Description: p.Excerpt,
+			Category:    categoryName,
+		})
 	}
 
 	feedURL := baseURL + "/feed.xml"
@@ -138,9 +138,9 @@ Category:    categoryName,
 		Version: "2.0",
 		Atom:    "http://www.w3.org/2005/Atom",
 		Channel: rssChannel{
-			Title:         cfg.Feed.Title,
+			Title:         cfg.BlogName,
 			Link:          baseURL,
-			Description:   cfg.Feed.Description,
+			Description:   cfg.BlogDescription,
 			Language:      cfg.Lang,
 			LastBuildDate: lastBuildDate,
 			AtomLink: atomLink{

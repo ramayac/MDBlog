@@ -64,7 +64,7 @@ Many useful commands.
 		BlogName:               "Rodrigo A.",
 		AuthorName:             "Rodrigo Amaya",
 		Lang:                   "en",
-		HeaderContent:          "Wholesome Software Development.",
+		BlogDescription:        "Wholesome Software Development.",
 		PostsPerPage:           25,
 		ExcerptLength:          200,
 		ShowUncategorized:      false,
@@ -83,12 +83,10 @@ Many useful commands.
 			MaxAgeAssets: 86400,
 		},
 		Feed: config.FeedConfig{
-			Enabled:     true,
-			Title:       "Rodrigo A.",
-			Description: "Test blog.",
-			BaseURL:     "https://example.com",
-			MaxItems:    50,
-			OutputFile:  dir + "/feed.xml",
+			Enabled:    true,
+			BaseURL:    "https://example.com",
+			MaxItems:   50,
+			OutputFile: dir + "/feed.xml",
 		},
 		MenuLinks: []config.MenuLink{{Label: "Home", URL: "/"}},
 		Categories: map[string]config.Category{
@@ -177,8 +175,8 @@ func TestCategory(t *testing.T) {
 		t.Errorf("status = %d, want 200", w.Code)
 	}
 	body := w.Body.String()
-	if !strings.Contains(body, "Read more") {
-		t.Error("should show post list with read-more links")
+	if !strings.Contains(body, "post-preview") {
+		t.Error("should show post list with post-preview cards")
 	}
 }
 
@@ -204,7 +202,7 @@ func TestSearchWorking(t *testing.T) {
 		t.Errorf("status = %d, want 200", w.Code)
 	}
 	body := w.Body.String()
-	if !strings.Contains(body, "Read more") {
+	if !strings.Contains(body, "post-preview") {
 		t.Error("should find matching post")
 	}
 	if !strings.Contains(body, "12:34:56") {
