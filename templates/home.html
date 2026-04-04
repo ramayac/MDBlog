@@ -18,7 +18,7 @@
         <a href="?category={{ .Slug | urlquery }}" class="category-card">
             <h3>{{ .BlogName }}</h3>
             {{ if .HeaderContent }}<p>{{ .HeaderContent }}</p>{{ end }}
-            <span class="post-count">{{ .Count }} posts</span>
+            <span class="post-count">{{ .Count }} {{ $.Config.Labels.PostsLabel | defaultStr "posts" }}</span>
         </a>
         {{ end }}
     </div>

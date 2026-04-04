@@ -90,6 +90,7 @@ type Category struct {
 // Labels holds all user-visible UI strings.
 type Labels struct {
 	ReadMore             string `toml:"read_more"`
+	PostsLabel           string `toml:"posts_label"`
 	BackToAll            string `toml:"back_to_all"`
 	BackToCategory       string `toml:"back_to_category"`
 	NotFoundTitle        string `toml:"not_found_title"`
@@ -108,6 +109,7 @@ type Labels struct {
 	SearchNoResults      string `toml:"search_no_results"`
 	SearchResultsTitle   string `toml:"search_results_title"`
 	FeedTitle            string `toml:"feed_title"`
+	FeedSubtitle         string `toml:"feed_subtitle"`
 	FeedSubscribeHeading string `toml:"feed_subscribe_heading"`
 	FeedSubscribeDesc    string `toml:"feed_subscribe_desc"`
 	FeedSubscribeLink    string `toml:"feed_subscribe_link"`

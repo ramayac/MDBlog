@@ -9,5 +9,6 @@
         {{ .Post.Excerpt }}
     </div>
     {{ end }}
+    <span class="read-more">{{ .Config.Labels.ReadMore | defaultStr "Read more →" }}</span>
 </a>
 {{ end }}
