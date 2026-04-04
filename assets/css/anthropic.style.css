@@ -528,9 +528,9 @@ blockquote {
     letter-spacing: 0.02em;
 }
 
-.feed-table thead th {
+.feed-table,
+.feed-cap-note {
     font-family: var(--ui-font);
-    letter-spacing: 0.08em;
 }
 
 .feed-table tbody tr:hover {

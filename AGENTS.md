@@ -283,3 +283,47 @@ Full post bodies are **never rendered** during index generation (Goldmark is not
 - Do not put new content in the root `posts/` dir (unless `show_uncategorized = true`) — use a category folder.
 - Do not run the container as root or re-add dropped Linux capabilities without justification.
 - **When modifying the Makefile**, always update `README.md` and `AGENTS.md` to match.
+
+## Lessons Learned & Best Practices
+
+### Adding a New Label
+
+Any user-visible string in a template must go through the `[labels]` block in `config.toml`. The full checklist for adding a label:
+
+1. Add the field to the `Labels` struct in `internal/config/config.go` with the correct `toml:` tag.
+2. Add the key and default value to `config.toml` under `[labels]`.
+3. Reference it in the template as `{{ .Config.Labels.FieldName }}`. Use `| defaultStr "fallback"` as a safety net.
+4. Never hardcode user-visible strings directly in templates or Go handler code.
+
+### Go Templates: `range` scope and `$`
+
+Inside a `{{ range }}` block, `.` is rebound to the current iteration item. Accessing root template data (e.g. `Config`) requires the `$` prefix:
+
+```html
+{{ range .Categories }}
+    {{ .BlogName }}                          {{/* CategoryInfo field — OK */}}
+    {{ $.Config.Labels.PostsLabel }}         {{/* root data — must use $ */}}
+{{ end }}
+```
+
+Forgetting `$` produces: `can't evaluate field Config in type blog.CategoryInfo`.
+
+### CSS: Cards in a Grid — Shadow and Hover Pitfalls
+
+When using `display: grid` with card elements that lift on hover (`transform: translateY`):
+
+- **Shadow clipping:** adjacent cards in the same grid row render on top and clip the raised card's `box-shadow`. Fix: add `z-index: 1` to the `:hover` rule.
+- **Underline on hover:** `<a>` cards inherit `a:hover { text-decoration: underline }` from the base theme. Fix: add `text-decoration: none` explicitly to the card's `:hover` rule.
+- **Bottom border stripped:** if the base theme sets `.post-preview:last-child { border-bottom: none }` (to remove list separators), card-style themes must override that back to `border-bottom: 1px solid var(--color-card-border)` since cards use their full border for visual separation.
+
+### CSS: Font Consistency in the Anthropic Theme
+
+The anthropic theme uses two font stacks:
+- `--body-font` (Georgia/serif) — prose content: post body, excerpts.
+- `--ui-font` (system sans-serif) — all UI chrome: nav, meta, tags, tables, feed, cards.
+
+The feed table is UI chrome, not prose — set `font-family: var(--ui-font)` on `.feed-table` itself rather than per-cell. The base theme anchors `.feed-table` to `--body-font` for consistency; the anthropic theme overrides it to `--ui-font`.
+
+### Config Values Available in Templates
+
+`templateData` exposes the full `*config.Config` as `.Config`. This means any config value — including structs like `.Config.Feed.MaxItems` — is accessible directly in templates without adding new handler fields. Check `internal/server/handler.go` → `templateData` struct before assuming a value isn't available.

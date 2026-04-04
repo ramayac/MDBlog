@@ -485,6 +485,7 @@ blockquote {
     border-collapse: collapse;
     font-size: 1rem;
     margin-top: 1rem;
+    font-family: var(--body-font);
 }
 
 .feed-table thead th {
@@ -542,4 +543,11 @@ blockquote {
     .feed-category { display: none; }
     .feed-table thead th:nth-child(2) { display: none; }
     .feed-subscribe-card { flex-direction: column; align-items: flex-start; }
+}
+
+.feed-cap-note {
+    margin-top: 1.25rem;
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+    text-align: center;
 }

@@ -114,6 +114,7 @@ type Labels struct {
 	FeedSubscribeDesc    string `toml:"feed_subscribe_desc"`
 	FeedSubscribeLink    string `toml:"feed_subscribe_link"`
 	FeedNoPosts          string `toml:"feed_no_posts"`
+	FeedCapNote          string `toml:"feed_cap_note"`
 	FeedColDate          string `toml:"feed_col_date"`
 	FeedColCategory      string `toml:"feed_col_category"`
 	FeedColTitle         string `toml:"feed_col_title"`
