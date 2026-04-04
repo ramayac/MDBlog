@@ -480,7 +480,7 @@ blockquote {
 .feed-table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 0.95rem;
+    font-size: 1rem;
     margin-top: 1rem;
 }
 
@@ -511,7 +511,7 @@ blockquote {
 .feed-date {
     white-space: nowrap;
     color: var(--color-text-muted);
-    font-size: 0.875rem;
+    font-size: 0.9rem;
     min-width: 7em;
 }
 
@@ -523,7 +523,7 @@ blockquote {
 .feed-category a {
     color: var(--color-text-muted);
     text-decoration: none;
-    font-size: 0.875rem;
+    font-size: 0.9rem;
 }
 
 .feed-category a:hover { color: var(--color-primary); }
