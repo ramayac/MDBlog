@@ -37,6 +37,11 @@ description: A concise one-sentence summary for SEO and excerpts.
 ## Steps
 
 1. Ask the user which category to file the post under (show the available categories from config.toml), or let them choose uncategorized (root `posts/` folder). If they already specified one, use it.
-2. Draft the full post content in Markdown.
-3. Create the file at the correct path: `posts/<category-folder>/YYYY-MM-DD-slug.md`
-4. Remind the user to run `make build-index` to update the post metadata index.
+2. Scaffold the post file using the Makefile target:
+   ```
+   make new-post TITLE="Post Title" CATEGORY=slug TAGS="tag1, tag2"
+   ```
+   Omit `CATEGORY` for uncategorized posts. Omit `TAGS` if none yet. This creates the file with correct naming, front matter, date, and author automatically.
+3. Open the created file and fill in the `description:` field in the front matter (under 160 characters, for SEO).
+4. Replace the placeholder `# Title` body with the full drafted post content in Markdown.
+5. Remind the user to run `make build-index` to update the post metadata index.
