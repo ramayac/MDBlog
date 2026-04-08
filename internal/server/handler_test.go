@@ -250,12 +250,18 @@ func Test404(t *testing.T) {
 	if w.Code != http.StatusNotFound {
 		t.Errorf("status = %d, want 404", w.Code)
 	}
+	if ct := w.Header().Get("Content-Type"); !strings.Contains(ct, "text/html") {
+		t.Errorf("Content-Type = %q, want text/html", ct)
+	}
 	body := w.Body.String()
 	if !strings.Contains(body, "404") {
 		t.Error("should contain 404 in page")
 	}
 	if !strings.Contains(body, "Not Found") {
 		t.Error("should contain 'Not Found' in page")
+	}
+	if !strings.Contains(body, "site-footer") {
+		t.Error("should render the standard layout footer")
 	}
 }
 
@@ -369,6 +375,12 @@ func TestStaticPage_NotFound(t *testing.T) {
 	w := get(h, "/page?slug=does-not-exist")
 	if w.Code != http.StatusNotFound {
 		t.Errorf("status = %d, want 404", w.Code)
+	}
+	if ct := w.Header().Get("Content-Type"); !strings.Contains(ct, "text/html") {
+		t.Errorf("Content-Type = %q, want text/html", ct)
+	}
+	if !strings.Contains(w.Body.String(), "site-footer") {
+		t.Error("should render the standard layout footer")
 	}
 }
 

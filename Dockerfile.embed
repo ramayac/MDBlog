@@ -41,6 +41,7 @@ COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 
 COPY --from=build /out/lambda-embed /lambda
 COPY --from=build /src/posts/       /posts/
+COPY --from=build /src/pages/       /pages/
 COPY --from=build /src/config.toml  /config.toml
 COPY --from=build /src/feed.xml     /feed.xml
 COPY --from=build /src/sitemap.xml  /sitemap.xml

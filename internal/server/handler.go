@@ -259,10 +259,7 @@ func (h *Handler) servPost(w http.ResponseWriter, r *http.Request) {
 
 	post := h.b.GetPostBySlug(slug, categorySlug)
 	if post == nil {
-		w.WriteHeader(http.StatusNotFound)
-		data := base
-		data.PageTitle = h.cfg.Labels.NotFoundTitle + " — " + h.cfg.BlogName
-		h.renderPage(w, r, start, "404.html", &data)
+		h.serve404(w, r, start, menu, canonical, cssV)
 		return
 	}
 
@@ -417,13 +414,19 @@ func (h *Handler) cacheControlAssets() string {
 }
 
 func (h *Handler) serve404(w http.ResponseWriter, r *http.Request, start time.Time, menu []blog.MenuLink, canonical, cssV string) {
+	footerHTML := template.HTML(h.b.ParseMarkdown(h.cfg.FooterContent))
+	versionInfo := h.b.GetVersionInfo()
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	w.WriteHeader(http.StatusNotFound)
 	h.renderPage(w, r, start, "404.html", &templateData{
 		Config:     h.cfg,
 		PageTitle:  h.cfg.Labels.NotFoundTitle + " — " + h.cfg.BlogName,
+		OGType:     "website",
 		Canonical:  canonical,
 		CSSVersion: cssV,
 		Menu:       menu,
+		FooterHTML: footerHTML,
+		Version:    versionInfo,
 	})
 }
 
