@@ -771,3 +771,59 @@ func TestGetMenu_DropdownSubItemsOrdered(t *testing.T) {
 		}
 	}
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Filename validation tests
+// ─────────────────────────────────────────────────────────────────────────────
+
+// TestGenerateSlug_SpaceInFilename documents the slug/path mismatch that occurs
+// when a post filename contains a space: the generated slug replaces the space
+// with a hyphen, so slug+".md" no longer matches the actual file on disk.
+func TestGenerateSlug_SpaceInFilename(t *testing.T) {
+	filename := "start-something-part-ii copy.md"
+	slug := generateSlug(filename)
+
+	// The slug collapses the space to a hyphen.
+	if slug != "start-something-part-ii-copy" {
+		t.Fatalf("slug = %q, want %q", slug, "start-something-part-ii-copy")
+	}
+
+	// Critically, slug+".md" does NOT equal the original filename —
+	// this is the root cause of ERR_INVALID_RESPONSE when serving the post.
+	reconstructed := slug + ".md"
+	if reconstructed == filename {
+		t.Errorf("slug round-trip unexpectedly matched filename %q; the test premise is wrong", filename)
+	}
+}
+
+// TestPostFilenames_NoSpaces walks the real posts/ directory and fails if any
+// .md file contains a space in its name. Spaces in filenames cause slug
+// mismatches that prevent posts from being served (see TestGenerateSlug_SpaceInFilename).
+func TestPostFilenames_NoSpaces(t *testing.T) {
+	postsDir := filepath.Join("..", "..", "posts")
+	var violations []string
+
+	err := filepath.WalkDir(postsDir, func(path string, d os.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if d.IsDir() {
+			return nil
+		}
+		if !strings.EqualFold(filepath.Ext(d.Name()), ".md") {
+			return nil
+		}
+		if strings.Contains(d.Name(), " ") {
+			rel, _ := filepath.Rel(postsDir, path)
+			violations = append(violations, rel)
+		}
+		return nil
+	})
+	if err != nil {
+		t.Fatalf("walking posts dir %q: %v", postsDir, err)
+	}
+	if len(violations) > 0 {
+		t.Errorf("post filenames must not contain spaces — found %d violation(s):\n  %s",
+			len(violations), strings.Join(violations, "\n  "))
+	}
+}
