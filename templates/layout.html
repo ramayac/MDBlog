@@ -44,7 +44,18 @@
         <div class="menu-links">
             {{- range $i, $item := .Menu -}}
             {{- if $i }} | {{ end -}}
+            {{- if $item.SubItems -}}
+            <div class="nav-dropdown">
+                <button class="nav-dropdown-btn">{{ $item.Label }} ▾</button>
+                <div class="nav-dropdown-content">
+                    {{- range $item.SubItems -}}
+                    <a href="{{ .URL }}">{{ .Label }}</a>
+                    {{- end -}}
+                </div>
+            </div>
+            {{- else -}}
             <a href="{{ $item.URL }}">{{ $item.Label }}</a>
+            {{- end -}}
             {{- end -}}
             {{- if .Menu }} | {{ end -}}<a href="/?search=1" title="{{ .Config.Labels.SearchTitle }}" class="search-btn">🔍</a> | <button onclick="toggleTheme()" class="theme-toggle" title="Switch Theme" aria-label="Switch Theme">🌓</button>
         </div>

@@ -150,6 +150,27 @@ button,
 .site-menu a:visited { color: var(--color-text-muted); }
 .site-menu a:visited:hover { color: var(--color-heading); }
 
+/* ── Nav Dropdown (anthropic overrides) ────────────────────────────────── */
+.nav-dropdown-content {
+    background-color: var(--color-bg);
+    border-color: var(--color-border);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.nav-dropdown-content a {
+    font-family: var(--ui-font);
+    font-size: 0.875rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+}
+
+.nav-dropdown-content a:hover {
+    background-color: var(--color-nav-active-bg);
+    color: var(--color-heading);
+}
+
 /* ── Blog Title / Home Header ──────────────────────────────────────────── */
 .blog-title {
     padding: 3rem 0 2rem;

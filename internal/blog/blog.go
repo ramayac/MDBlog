@@ -73,9 +73,11 @@ type Page struct {
 }
 
 // MenuLink is a navigation link item.
+// When SubItems is non-empty the item renders as a dropdown; URL is unused.
 type MenuLink struct {
-	Label string
-	URL   string
+	Label    string
+	URL      string
+	SubItems []MenuLink
 }
 
 // VersionInfo holds build version metadata.
@@ -261,15 +263,21 @@ func (b *Blog) GetPage(slug string) *Page {
 
 // GetMenu returns the ordered list of navigation links.
 // Static [[menu_links]] come first (in config order), followed by pinned
-// category links (sorted by Order), then category dropdown links (sorted by
-// Order).
+// category links (sorted by Order). menu.categories items are grouped into
+// a single dropdown MenuLink (SubItems populated, URL empty).
 func (b *Blog) GetMenu() []MenuLink {
 	var links []MenuLink
 	for _, ml := range b.cfg.MenuLinks {
 		links = append(links, MenuLink{Label: ml.Label, URL: ml.URL})
 	}
 	links = append(links, b.GetNavPinned()...)
-	links = append(links, b.GetMenuCategories()...)
+	if catLinks := b.GetMenuCategories(); len(catLinks) > 0 {
+		label := b.cfg.Menu.Categories.Label
+		if label == "" {
+			label = "More"
+		}
+		links = append(links, MenuLink{Label: label, SubItems: catLinks})
+	}
 	return links
 }
 

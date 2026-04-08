@@ -137,6 +137,48 @@ a:hover {
 .site-menu a:visited { color: var(--color-text); }
 .site-menu a:visited:hover { color: white; }
 
+/* ── Nav Dropdown ──────────────────────────────────────────────────────── */
+.nav-dropdown {
+    position: relative;
+    display: inline-block;
+    vertical-align: baseline;
+}
+
+.nav-dropdown-btn {
+    /* inherits .site-menu button styles */
+}
+
+.nav-dropdown-content {
+    display: none;
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.10);
+    min-width: 160px;
+    z-index: 100;
+    padding: 0.25rem 0;
+}
+
+.nav-dropdown-content a {
+    display: block;
+    padding: 0.5rem 1rem;
+    margin: 0;
+    border-radius: 0;
+    white-space: nowrap;
+    text-align: left;
+}
+
+.nav-dropdown-content a:first-child { border-radius: 5px 5px 0 0; }
+.nav-dropdown-content a:last-child  { border-radius: 0 0 5px 5px; }
+
+.nav-dropdown:hover .nav-dropdown-content {
+    display: block;
+}
+
 /* ── Footer ────────────────────────────────────────────────────────────── */
 .site-footer {
     padding: 2rem 0;

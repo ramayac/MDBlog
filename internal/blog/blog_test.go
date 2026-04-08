@@ -143,18 +143,33 @@ func TestSearchPosts_NoIndex(t *testing.T) {
 func TestGetMenu_CategoryLinks(t *testing.T) {
 	cfg := makeTestConfig(t.TempDir())
 	cfg.MenuLinks = []config.MenuLink{{Label: "Home", URL: "/"}}
+	cfg.Menu.Categories.Label = "Writings"
 	b := New(cfg)
 
 	menu := b.GetMenu()
-	labels := make(map[string]string)
-	for _, m := range menu {
-		labels[m.Label] = m.URL
+
+	// categories are now grouped into a single dropdown item
+	var dropdown *MenuLink
+	for i := range menu {
+		if menu[i].Label == "Writings" {
+			dropdown = &menu[i]
+			break
+		}
 	}
-	if _, ok := labels["Tech"]; !ok {
-		t.Error("expected 'Tech' category link in menu")
+	if dropdown == nil {
+		t.Fatal("expected a 'Writings' dropdown item in menu")
 	}
-	if labels["Tech"] != "/?category=tech" {
-		t.Errorf("Tech URL = %q, want /?category=tech", labels["Tech"])
+	if len(dropdown.SubItems) == 0 {
+		t.Fatal("expected SubItems in Writings dropdown")
+	}
+	var techURL string
+	for _, sub := range dropdown.SubItems {
+		if sub.Label == "Tech" {
+			techURL = sub.URL
+		}
+	}
+	if techURL != "/?category=tech" {
+		t.Errorf("Tech URL = %q, want /?category=tech", techURL)
 	}
 }
 
