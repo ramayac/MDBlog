@@ -281,34 +281,7 @@ button,
     margin-bottom: 2.5rem;
 }
 
-.page-header {
-    padding: 3rem 0 2rem;
-    border-bottom: 1px solid var(--color-border);
-    margin-bottom: 2.5rem;
-}
-
-.page-header .page-title {
-    font-family: var(--body-font);
-    font-size: 2.25rem;
-    font-weight: 700;
-    letter-spacing: -0.03em;
-    color: var(--color-heading);
-    line-height: 1.2;
-    margin: 0;
-}
-
 .category-title small {
-    display: block;
-    font-size: 1rem;
-    font-weight: 400;
-    letter-spacing: 0;
-    color: var(--color-text-muted);
-    margin-top: 0.5rem;
-    font-style: italic;
-    font-family: var(--ui-font);
-}
-
-.page-header .page-title small {
     display: block;
     font-size: 1rem;
     font-weight: 400;
@@ -548,7 +521,6 @@ blockquote {
 @media (max-width: 768px) {
     .blog-title h2 { font-size: 1.75rem; }
     .post-header .post-title { font-size: 1.85rem; }
-    .page-header .page-title { font-size: 1.75rem; }
     .category-cards { grid-template-columns: 1fr; gap: 1rem; }
     .category-card { min-height: auto; }
 }
