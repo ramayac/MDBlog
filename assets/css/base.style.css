@@ -34,6 +34,7 @@
     /* Layout tokens */
     --container-width: 800px;
     --body-font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    --ui-font: var(--body-font);
     --mono-font: 'Monaco', 'Consolas', 'Courier New', monospace;
     --base-font-size: 16px;
     --base-line-height: 1.6;
@@ -272,9 +273,14 @@ a:hover {
 
 .page-description {
     margin: 0;
+    font-family: var(--ui-font);
     color: var(--color-text-muted);
     font-size: 1rem;
     line-height: 1.5;
+}
+
+.standalone-page .post-content {
+    font-family: var(--ui-font);
 }
 
 .post-content {
