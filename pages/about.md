@@ -1,16 +1,17 @@
 ---
-title: About
+title: About me 💡
 date: 2026-04-07
 author: Rodrigo Amaya
-description: About Rodrigo Amaya — software engineer, builder, and writer.
+description: I'm a software engineer focused on sustainable health services, team ownership, and practical AI.
 ---
 
-# About Me
+I'm Rodrigo Amaya, a software engineer drawn to useful systems, clear thinking, and work that helps people do meaningful things a little better.
 
-Hi, I'm Rodrigo. I'm a software engineer who likes building things and writing about them.
+Lately, my focus is simple: design solutions that sustain health services, unblock technical barriers, empower team ownership, and use AI where it genuinely improves productivity.
 
-This blog is where I share thoughts on software, technology, and whatever else is on my mind.
+I build software, untangle complexity, and help teams move with more clarity and less friction. This blog is the quieter side of that work: a place for notes, ideas, experiments, and the occasional well-shaped sentence.
 
 ## Contact
 
+- LinkedIn: [rodrigoamaya](https://www.linkedin.com/in/rodrigoamaya/)
 - GitHub: [@ramayac](https://github.com/ramayac)
