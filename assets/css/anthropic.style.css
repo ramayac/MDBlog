@@ -387,6 +387,14 @@ button,
     margin-bottom: 1rem;
 }
 
+.page-description {
+    font-family: var(--ui-font);
+    font-size: 1rem;
+    font-style: italic;
+    color: var(--color-text-muted);
+    margin: -0.25rem 0 0;
+}
+
 .post-content {
     font-size: 1.075rem;
     line-height: var(--content-line-height);

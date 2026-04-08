@@ -1,12 +1,18 @@
-<h2 class="category-title">
-  {{ .Page.Title }}
-  {{ if .PageDescription }}<br><small>{{ .PageDescription }}</small>{{ end }}
-</h2>
-
 <main class="main-content">
-  <div class="post-content">{{ .Page.Content | safeHTML }}</div>
+    <article class="post">
+        <header class="post-header">
+            <h1 class="post-title">{{ .Page.Title }}</h1>
+            {{ if .PageDescription }}
+            <p class="page-description">{{ .PageDescription }}</p>
+            {{ end }}
+        </header>
 
-  <nav class="post-navigation">
-    <a href="/" class="back-to-home">{{ .Config.Labels.BackToAll }}</a>
-  </nav>
+        <div class="post-content">
+            {{ .Page.Content | safeHTML }}
+        </div>
+    </article>
+
+    <nav class="post-navigation">
+        <a href="/" class="back-to-home">{{ .Config.Labels.BackToAll }}</a>
+    </nav>
 </main>
