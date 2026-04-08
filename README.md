@@ -10,6 +10,7 @@ Author: [@ramayac](https://x.com/ramayac).
 ## Features
 
 - Write posts in Markdown with YAML-style front matter
+- **Standalone pages** (`pages/` directory, `/page?slug=`) — About, Projects, or any single page without dates or categories
 - Built-in pagination powered by a **build-time metadata index** (handles 300+ posts without Lambda timeouts)
 - Standalone search page using the pre-built metadata index
 - **RSS 2.0 feed** (`/feed.xml`) generated at build time; human-readable feed page at `/feed`
@@ -18,7 +19,7 @@ Author: [@ramayac](https://x.com/ramayac).
 - Custom JavaScript support per post
 - Responsive design with Dark/Light theme based on OS preference
 - Gzip compression (when supported by the client)
-- Dynamic navigation menu driven by `config.toml`
+- Dynamic navigation menu driven by `config.toml`, with category **dropdown** grouping
 - Landing page with category cards (no full post scan on homepage)
 - Statically linked Go binary — no runtime dependencies
 - Minimal `FROM scratch` Docker image, read-only filesystem, all capabilities dropped
@@ -110,19 +111,61 @@ Your markdown content here (GFM + footnotes).
 
 ## Navigation Menu
 
-The nav bar is generated automatically from `config.toml`.
+The nav bar is driven entirely by `config.toml` and renders in three layers:
+
+1. **`[[menu_links]]`** — static links, always shown first (e.g. Home, About).
+2. **`[[menu.pinned]]`** — category links shown directly in the bar (no dropdown).
+3. **`[menu.categories]`** — category links grouped into a single **dropdown**, labelled by `menu.categories.label`.
 
 ```toml
-# Static custom links (always shown, in order)
+# Static links
 [[menu_links]]
 label = "Home"
 url   = "/"
 
-# Per-category: set menu = true to include it in the nav
-[categories.srbyte]
-blog_name = "Sr. Byte"
-menu      = true
+[[menu_links]]
+label = "About"
+url   = "/page?slug=about"
+
+# Pinned categories — shown inline in the nav bar
+[[menu.pinned]]
+category = "guides"
+order    = 2
+
+# Dropdown section — all items appear under a single "Writings" button
+[menu.categories]
+label = "Writings"
+
+[[menu.categories.item]]
+category = "personal"
+order    = 1
+
+[[menu.categories.item]]
+category = "srbyte"
+order    = 2
 ```
+
+Result: `HOME | ABOUT | GUIDES | WRITINGS ▾ | 🔍 | 🌓`  
+Hovering **WRITINGS ▾** opens the dropdown with all `menu.categories.item` links.
+
+## Standalone Pages
+
+Pages are Markdown files that live in `pages/` (configurable via `pages_dir`). Unlike posts they have no date, category, author, or tags — just a title and rendered content.
+
+```bash
+# Create a page
+echo '---\ntitle: About\n---\n# About Me\n...' > pages/about.md
+```
+
+Add a nav link in `config.toml`:
+
+```toml
+[[menu_links]]
+label = "About"
+url   = "/page?slug=about"
+```
+
+Routes: `/page?slug=<slug>` renders `pages/<slug>.md` using `templates/page.html`.
 
 ## Landing Page and Search
 
@@ -255,6 +298,7 @@ Edit `config.toml` to customize all settings. Key fields:
 | `excerpt_length` | Max characters in post excerpt |
 | `show_uncategorized` | Show root-level posts in listings |
 | `post_index_file` | Path to pre-built metadata index |
+| `pages_dir` | Standalone pages directory (default `"pages"`) |
 | `css_theme` | Active CSS theme path |
 | `[[menu_links]]` | Static nav links |
 | `[categories.<slug>]` | Category definitions |
@@ -269,7 +313,7 @@ cmd/
   lambda/           # AWS Lambda entry point (disk-based templates/assets)
   lambda-embed/     # AWS Lambda entry point (templates+assets in binary)
 internal/
-  blog/             # Core domain: posts, pagination, menu, search
+  blog/             # Core domain: posts, pages, pagination, menu, search
   buildindex/       # Build-time index generator
   config/           # TOML config loader
   markdown/         # Front matter parser + Goldmark renderer
@@ -278,11 +322,12 @@ internal/
 templates/          # Go html/template files (*.html)
 assets/css/         # CSS themes
 assets/js/          # Per-post JavaScript files
-posts/              # All Markdown content
+posts/              # All blog post content (organized in category subfolders)
+pages/              # Standalone pages (about.md, etc.) — no category, no date
 embed.go            # go:embed declarations
 config.toml         # Runtime configuration
 Dockerfile          # Standard Lambda image (FROM scratch)
-Dockerfile.embed    # Embed variant (binary + posts + config only)
+Dockerfile.embed    # Embed variant (binary + posts + pages + config only)
 ```
 
 ## Requirements

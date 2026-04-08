@@ -26,6 +26,24 @@ func testSetup(t *testing.T) *Handler {
 		t.Fatal(err)
 	}
 
+	// Create pages directory with an about page
+	pagesDir := dir + "/pages"
+	if err := os.MkdirAll(pagesDir, 0755); err != nil {
+		t.Fatal(err)
+	}
+	aboutContent := `---
+title: About Me
+description: All about me.
+---
+
+# About Me
+
+I am a test page.
+`
+	if err := os.WriteFile(pagesDir+"/about.md", []byte(aboutContent), 0644); err != nil {
+		t.Fatal(err)
+	}
+
 	// Write a known post
 	postContent := `---
 title: 12:34:56 7 8 9 y el tiempo
@@ -69,6 +87,7 @@ Many useful commands.
 		ExcerptLength:          200,
 		ShowUncategorized:      false,
 		PostsDir:               dir,
+		PagesDir:               dir + "/pages",
 		PostIndexFile:          dir + "/posts.index.json",
 		DateFormat:             "2006-01-02",
 		DefaultMetaDescription: "Test blog.",
@@ -323,5 +342,81 @@ func TestCacheControl_PostPage_Disabled(t *testing.T) {
 	cc := w.Header().Get("Cache-Control")
 	if cc != "no-store" {
 		t.Errorf("Cache-Control = %q, want %q", cc, "no-store")
+	}
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// /page route tests
+// ─────────────────────────────────────────────────────────────────────────────
+
+func TestStaticPage_Found(t *testing.T) {
+	h := testSetup(t)
+	w := get(h, "/page?slug=about")
+	if w.Code != http.StatusOK {
+		t.Errorf("status = %d, want 200", w.Code)
+	}
+	body := w.Body.String()
+	if !strings.Contains(body, "About Me") {
+		t.Error("page should contain the title")
+	}
+	if !strings.Contains(body, "I am a test page") {
+		t.Error("page should contain the rendered body")
+	}
+}
+
+func TestStaticPage_NotFound(t *testing.T) {
+	h := testSetup(t)
+	w := get(h, "/page?slug=does-not-exist")
+	if w.Code != http.StatusNotFound {
+		t.Errorf("status = %d, want 404", w.Code)
+	}
+}
+
+func TestStaticPage_EmptySlugRedirects(t *testing.T) {
+	h := testSetup(t)
+	w := get(h, "/page")
+	if w.Code != http.StatusFound {
+		t.Errorf("status = %d, want 302 redirect", w.Code)
+	}
+	if loc := w.Header().Get("Location"); loc != "/" {
+		t.Errorf("Location = %q, want /", loc)
+	}
+}
+
+func TestStaticPage_PathTraversalSlug(t *testing.T) {
+	h := testSetup(t)
+	for _, slug := range []string{"../etc/passwd", "foo/bar"} {
+		w := get(h, "/page?slug="+slug)
+		if w.Code == http.StatusOK {
+			t.Errorf("slug %q should not return 200", slug)
+		}
+	}
+}
+
+func TestStaticPage_NoMetadata(t *testing.T) {
+	h := testSetup(t)
+	w := get(h, "/page?slug=about")
+	body := w.Body.String()
+	// Pages should not show post metadata like dates or category breadcrumbs
+	if strings.Contains(body, "post-meta") {
+		t.Error("static page should not contain post-meta section")
+	}
+	if strings.Contains(body, "post-tags") {
+		t.Error("static page should not contain post-tags section")
+	}
+}
+
+func TestStaticPage_NavDropdownRendered(t *testing.T) {
+	h := testSetup(t)
+	w := get(h, "/page?slug=about")
+	if w.Code != http.StatusOK {
+		t.Fatalf("status = %d, want 200", w.Code)
+	}
+	body := w.Body.String()
+	if !strings.Contains(body, "nav-dropdown") {
+		t.Error("nav dropdown should be rendered on static page")
+	}
+	if !strings.Contains(body, "Writings") {
+		t.Error("dropdown label 'Writings' should appear in nav")
 	}
 }

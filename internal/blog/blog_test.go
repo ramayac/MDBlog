@@ -143,18 +143,33 @@ func TestSearchPosts_NoIndex(t *testing.T) {
 func TestGetMenu_CategoryLinks(t *testing.T) {
 	cfg := makeTestConfig(t.TempDir())
 	cfg.MenuLinks = []config.MenuLink{{Label: "Home", URL: "/"}}
+	cfg.Menu.Categories.Label = "Writings"
 	b := New(cfg)
 
 	menu := b.GetMenu()
-	labels := make(map[string]string)
-	for _, m := range menu {
-		labels[m.Label] = m.URL
+
+	// categories are now grouped into a single dropdown item
+	var dropdown *MenuLink
+	for i := range menu {
+		if menu[i].Label == "Writings" {
+			dropdown = &menu[i]
+			break
+		}
 	}
-	if _, ok := labels["Tech"]; !ok {
-		t.Error("expected 'Tech' category link in menu")
+	if dropdown == nil {
+		t.Fatal("expected a 'Writings' dropdown item in menu")
 	}
-	if labels["Tech"] != "/?category=tech" {
-		t.Errorf("Tech URL = %q, want /?category=tech", labels["Tech"])
+	if len(dropdown.SubItems) == 0 {
+		t.Fatal("expected SubItems in Writings dropdown")
+	}
+	var techURL string
+	for _, sub := range dropdown.SubItems {
+		if sub.Label == "Tech" {
+			techURL = sub.URL
+		}
+	}
+	if techURL != "/?category=tech" {
+		t.Errorf("Tech URL = %q, want /?category=tech", techURL)
 	}
 }
 
@@ -513,5 +528,302 @@ func TestMax1(t *testing.T) {
 	}
 	if max1(3) != 3 {
 		t.Error("max1(3) should return 3")
+	}
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// GetPage tests
+// ─────────────────────────────────────────────────────────────────────────────
+
+func makeTestConfigWithPages(postsDir, pagesDir string) *config.Config {
+	cfg := makeTestConfig(postsDir)
+	cfg.PagesDir = pagesDir
+	return cfg
+}
+
+func writePage(t *testing.T, dir, filename, content string) {
+	t.Helper()
+	if err := os.MkdirAll(dir, 0755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(dir, filename), []byte(content), 0644); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestGetPage_Found(t *testing.T) {
+	postsDir := t.TempDir()
+	pagesDir := t.TempDir()
+	writePage(t, pagesDir, "about.md", "---\ntitle: About Me\ndescription: Learn about me.\n---\n\nHello, I'm a person.")
+
+	cfg := makeTestConfigWithPages(postsDir, pagesDir)
+	b := New(cfg)
+
+	page := b.GetPage("about")
+	if page == nil {
+		t.Fatal("expected page, got nil")
+	}
+	if page.Title != "About Me" {
+		t.Errorf("Title = %q, want 'About Me'", page.Title)
+	}
+	if page.Slug != "about" {
+		t.Errorf("Slug = %q, want 'about'", page.Slug)
+	}
+	if page.Content == "" {
+		t.Error("Content should not be empty")
+	}
+	if !strings.Contains(page.Content, "Hello") {
+		t.Errorf("Content should contain rendered body, got: %s", page.Content)
+	}
+}
+
+func TestGetPage_FrontMatterDescription(t *testing.T) {
+	pagesDir := t.TempDir()
+	writePage(t, pagesDir, "contact.md", "---\ntitle: Contact\ndescription: Get in touch.\n---\nBody.")
+
+	cfg := makeTestConfigWithPages(t.TempDir(), pagesDir)
+	b := New(cfg)
+
+	page := b.GetPage("contact")
+	if page == nil {
+		t.Fatal("expected page, got nil")
+	}
+	if page.FrontMatter.Description != "Get in touch." {
+		t.Errorf("Description = %q, want 'Get in touch.'", page.FrontMatter.Description)
+	}
+}
+
+func TestGetPage_TitleFallsBackToSlug(t *testing.T) {
+	pagesDir := t.TempDir()
+	// No title in front matter
+	writePage(t, pagesDir, "mypage.md", "---\n---\n\nContent here.")
+
+	cfg := makeTestConfigWithPages(t.TempDir(), pagesDir)
+	b := New(cfg)
+
+	page := b.GetPage("mypage")
+	if page == nil {
+		t.Fatal("expected page, got nil")
+	}
+	if page.Title != "mypage" {
+		t.Errorf("Title = %q, want slug fallback 'mypage'", page.Title)
+	}
+}
+
+func TestGetPage_NotFound(t *testing.T) {
+	cfg := makeTestConfigWithPages(t.TempDir(), t.TempDir())
+	b := New(cfg)
+
+	if b.GetPage("does-not-exist") != nil {
+		t.Error("expected nil for missing page")
+	}
+}
+
+func TestGetPage_PathTraversal(t *testing.T) {
+	cfg := makeTestConfigWithPages(t.TempDir(), t.TempDir())
+	b := New(cfg)
+
+	for _, slug := range []string{"../etc/passwd", "foo/bar", `foo\bar`, "../../secret"} {
+		if b.GetPage(slug) != nil {
+			t.Errorf("slug %q should be rejected for path traversal", slug)
+		}
+	}
+}
+
+func TestGetPage_RendersMarkdown(t *testing.T) {
+	pagesDir := t.TempDir()
+	writePage(t, pagesDir, "projects.md", "---\ntitle: Projects\n---\n\n**Bold text** and a [link](https://example.com).")
+
+	cfg := makeTestConfigWithPages(t.TempDir(), pagesDir)
+	b := New(cfg)
+
+	page := b.GetPage("projects")
+	if page == nil {
+		t.Fatal("expected page, got nil")
+	}
+	if !strings.Contains(page.Content, "<strong>Bold text</strong>") {
+		t.Errorf("expected rendered bold, got: %s", page.Content)
+	}
+	if !strings.Contains(page.Content, "<a ") {
+		t.Errorf("expected rendered link, got: %s", page.Content)
+	}
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// GetMenu dropdown tests
+// ─────────────────────────────────────────────────────────────────────────────
+
+func TestGetMenu_PinnedLinksAreInline(t *testing.T) {
+	cfg := makeTestConfig(t.TempDir())
+	cfg.Menu.Pinned = []config.MenuCategoryRef{
+		{Category: "tech", Order: 1},
+	}
+	b := New(cfg)
+
+	menu := b.GetMenu()
+	// Pinned items must appear as top-level links (no SubItems)
+	for _, item := range menu {
+		if item.Label == "Tech" {
+			if len(item.SubItems) != 0 {
+				t.Error("pinned item should not have SubItems")
+			}
+			if item.URL != "/?category=tech" {
+				t.Errorf("pinned URL = %q, want /?category=tech", item.URL)
+			}
+			return
+		}
+	}
+	t.Error("expected 'Tech' pinned item in top-level menu")
+}
+
+func TestGetMenu_NoCategoriesNoDropdown(t *testing.T) {
+	cfg := makeTestConfig(t.TempDir())
+	cfg.Menu.Categories.Item = nil // no dropdown categories
+	b := New(cfg)
+
+	menu := b.GetMenu()
+	for _, item := range menu {
+		if len(item.SubItems) > 0 {
+			t.Errorf("expected no dropdown when categories are empty, found item %q with SubItems", item.Label)
+		}
+	}
+}
+
+func TestGetMenu_DropdownLabelFallback(t *testing.T) {
+	cfg := makeTestConfig(t.TempDir())
+	cfg.Menu.Categories.Label = "" // empty — should fall back to "More"
+	b := New(cfg)
+
+	menu := b.GetMenu()
+	for _, item := range menu {
+		if len(item.SubItems) > 0 {
+			if item.Label != "More" {
+				t.Errorf("dropdown label = %q, want 'More' fallback", item.Label)
+			}
+			return
+		}
+	}
+	t.Error("expected a dropdown item in menu")
+}
+
+func TestGetMenu_StaticLinksOrderedFirst(t *testing.T) {
+	cfg := makeTestConfig(t.TempDir())
+	cfg.MenuLinks = []config.MenuLink{
+		{Label: "Home", URL: "/"},
+		{Label: "About", URL: "/page?slug=about"},
+	}
+	b := New(cfg)
+
+	menu := b.GetMenu()
+	if len(menu) < 2 {
+		t.Fatal("expected at least 2 menu items")
+	}
+	if menu[0].Label != "Home" {
+		t.Errorf("first item = %q, want 'Home'", menu[0].Label)
+	}
+	if menu[1].Label != "About" {
+		t.Errorf("second item = %q, want 'About'", menu[1].Label)
+	}
+}
+
+func TestGetMenu_DropdownSubItemsOrdered(t *testing.T) {
+	cfg := &config.Config{
+		PostsDir:      t.TempDir(),
+		PostsPerPage:  10,
+		ExcerptLength: 200,
+		DateFormat:    "2006-01-02",
+		Categories: map[string]config.Category{
+			"aaa": {BlogName: "AAA", Folder: "aaa"},
+			"bbb": {BlogName: "BBB", Folder: "bbb"},
+			"ccc": {BlogName: "CCC", Folder: "ccc"},
+		},
+		Menu: config.MenuConfig{
+			Categories: config.MenuDropdown{
+				Label: "Writings",
+				Item: []config.MenuCategoryRef{
+					{Category: "ccc", Order: 3},
+					{Category: "aaa", Order: 1},
+					{Category: "bbb", Order: 2},
+				},
+			},
+		},
+	}
+	b := New(cfg)
+
+	menu := b.GetMenu()
+	var dropdown *MenuLink
+	for i := range menu {
+		if menu[i].Label == "Writings" {
+			dropdown = &menu[i]
+			break
+		}
+	}
+	if dropdown == nil {
+		t.Fatal("expected 'Writings' dropdown")
+	}
+	if len(dropdown.SubItems) != 3 {
+		t.Fatalf("expected 3 sub-items, got %d", len(dropdown.SubItems))
+	}
+	want := []string{"AAA", "BBB", "CCC"}
+	for i, w := range want {
+		if dropdown.SubItems[i].Label != w {
+			t.Errorf("SubItems[%d].Label = %q, want %q", i, dropdown.SubItems[i].Label, w)
+		}
+	}
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Filename validation tests
+// ─────────────────────────────────────────────────────────────────────────────
+
+// TestGenerateSlug_SpaceInFilename documents the slug/path mismatch that occurs
+// when a post filename contains a space: the generated slug replaces the space
+// with a hyphen, so slug+".md" no longer matches the actual file on disk.
+func TestGenerateSlug_SpaceInFilename(t *testing.T) {
+	filename := "start-something-part-ii copy.md"
+	slug := generateSlug(filename)
+
+	// The slug collapses the space to a hyphen.
+	if slug != "start-something-part-ii-copy" {
+		t.Fatalf("slug = %q, want %q", slug, "start-something-part-ii-copy")
+	}
+
+	// Critically, slug+".md" does NOT equal the original filename —
+	// this is the root cause of ERR_INVALID_RESPONSE when serving the post.
+	reconstructed := slug + ".md"
+	if reconstructed == filename {
+		t.Errorf("slug round-trip unexpectedly matched filename %q; the test premise is wrong", filename)
+	}
+}
+
+// TestPostFilenames_NoSpaces walks the real posts/ directory and fails if any
+// .md file contains a space in its name. Spaces in filenames cause slug
+// mismatches that prevent posts from being served (see TestGenerateSlug_SpaceInFilename).
+func TestPostFilenames_NoSpaces(t *testing.T) {
+	postsDir := filepath.Join("..", "..", "posts")
+	var violations []string
+
+	err := filepath.WalkDir(postsDir, func(path string, d os.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if d.IsDir() {
+			return nil
+		}
+		if !strings.EqualFold(filepath.Ext(d.Name()), ".md") {
+			return nil
+		}
+		if strings.Contains(d.Name(), " ") {
+			rel, _ := filepath.Rel(postsDir, path)
+			violations = append(violations, rel)
+		}
+		return nil
+	})
+	if err != nil {
+		t.Fatalf("walking posts dir %q: %v", postsDir, err)
+	}
+	if len(violations) > 0 {
+		t.Errorf("post filenames must not contain spaces — found %d violation(s):\n  %s",
+			len(violations), strings.Join(violations, "\n  "))
 	}
 }

@@ -1,7 +1,7 @@
-blog_name              = "Rodrigo A."
+blog_name              = "Rodrigo Amaya"
 author_name            = "Rodrigo Amaya"
 lang                   = "en"
-blog_description       = "Wholesome Software Development."
+blog_description       = "Make yourself."
 footer_content         = "Made with [mdblog](https://github.com/ramayac/mdblog) 💻"
 posts_per_page         = 25
 excerpt_length         = 200
@@ -9,6 +9,7 @@ show_uncategorized     = true
 uncategorized_label    = "General"
 show_render_time       = true
 posts_dir              = "posts"
+pages_dir              = "pages"
 post_index_file        = "posts/posts.index.json"
 date_format            = "2006-01-02"
 default_meta_description = "Personal blog and thoughts of @ramayac."
@@ -44,10 +45,6 @@ priority_post        = "0.6"
 category = "guides"
 order    = 2
 
-[[menu.pinned]]
-category = "projects"
-order    = 3
-
 [menu.categories]
 label = "Writings"
 
@@ -66,6 +63,10 @@ order    = 5
 [[menu_links]]
 label = "Home"
 url   = "/"
+
+[[menu_links]]
+label = "About 💡"
+url   = "/page?slug=about"
 
 [categories.personal]
 blog_name      = "Personal 🏠"

@@ -1,0 +1,18 @@
+<main class="main-content">
+    <article class="post standalone-page">
+        <header class="post-header">
+            <h1 class="post-title">{{ .Page.Title }}</h1>
+            {{ if .PageDescription }}
+            <p class="page-description">{{ .PageDescription }}</p>
+            {{ end }}
+        </header>
+
+        <div class="post-content">
+            {{ .Page.Content | safeHTML }}
+        </div>
+    </article>
+
+    <nav class="post-navigation">
+        <a href="/" class="back-to-home">{{ .Config.Labels.BackToAll }}</a>
+    </nav>
+</main>

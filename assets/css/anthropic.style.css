@@ -150,6 +150,27 @@ button,
 .site-menu a:visited { color: var(--color-text-muted); }
 .site-menu a:visited:hover { color: var(--color-heading); }
 
+/* ── Nav Dropdown (anthropic overrides) ────────────────────────────────── */
+.nav-dropdown-content {
+    background-color: var(--color-bg);
+    border-color: var(--color-border);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.nav-dropdown-content a {
+    font-family: var(--ui-font);
+    font-size: 0.875rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+}
+
+.nav-dropdown-content a:hover {
+    background-color: var(--color-nav-active-bg);
+    color: var(--color-heading);
+}
+
 /* ── Blog Title / Home Header ──────────────────────────────────────────── */
 .blog-title {
     padding: 3rem 0 2rem;
@@ -158,12 +179,13 @@ button,
 }
 
 .blog-title h2 {
-    font-size: 2.25rem;
-    font-weight: 700;
+    font-family: var(--ui-font);
+    font-size: 2.5rem;
+    font-weight: 800;
     letter-spacing: -0.03em;
     color: var(--color-heading);
     margin: 0;
-    line-height: 1.2;
+    line-height: 1.15;
 }
 
 .blog-title h2 small {
@@ -248,12 +270,12 @@ button,
 
 /* ── Category Heading — matches .blog-title h2 ─────────────────────────── */
 .category-title {
-    font-family: var(--body-font);
-    font-size: 2.25rem;
-    font-weight: 700;
+    font-family: var(--ui-font);
+    font-size: 2.5rem;
+    font-weight: 800;
     letter-spacing: -0.03em;
     color: var(--color-heading);
-    line-height: 1.2;
+    line-height: 1.15;
     margin: 0;
     padding: 3rem 0 2rem;
     border-bottom: 1px solid var(--color-border);
@@ -364,6 +386,14 @@ button,
     line-height: 1.15;
     color: var(--color-heading);
     margin-bottom: 1rem;
+}
+
+.page-description {
+    font-family: var(--ui-font);
+    font-size: 1rem;
+    font-style: italic;
+    color: var(--color-text-muted);
+    margin: -0.25rem 0 0;
 }
 
 .post-content {
@@ -498,7 +528,8 @@ blockquote {
 
 /* ── Responsive overrides ──────────────────────────────────────────────── */
 @media (max-width: 768px) {
-    .blog-title h2 { font-size: 1.75rem; }
+    .blog-title h2 { font-size: 1.85rem; }
+    .category-title { font-size: 1.85rem; }
     .post-header .post-title { font-size: 1.85rem; }
     .category-cards { grid-template-columns: 1fr; gap: 1rem; }
     .category-card { min-height: auto; }

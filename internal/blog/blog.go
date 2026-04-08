@@ -64,10 +64,20 @@ type PostList struct {
 	TotalMatches int // populated by SearchPosts
 }
 
+// Page represents a standalone page (e.g. About) read from PagesDir.
+type Page struct {
+	Slug        string
+	Title       string
+	Content     string // rendered HTML
+	FrontMatter markdown.FrontMatter
+}
+
 // MenuLink is a navigation link item.
+// When SubItems is non-empty the item renders as a dropdown; URL is unused.
 type MenuLink struct {
-	Label string
-	URL   string
+	Label    string
+	URL      string
+	SubItems []MenuLink
 }
 
 // VersionInfo holds build version metadata.
@@ -214,17 +224,60 @@ func (b *Blog) GetPostBySlug(slug, categorySlug string) *Post {
 	return post
 }
 
+// GetPage reads and renders a standalone page by slug from PagesDir.
+// Returns nil if the page does not exist or cannot be parsed.
+func (b *Blog) GetPage(slug string) *Page {
+	// Path traversal guard
+	if strings.Contains(slug, "..") || strings.Contains(slug, "/") || strings.Contains(slug, `\`) {
+		return nil
+	}
+	pagesDir := b.cfg.PagesDir
+	fullPath := filepath.Join(pagesDir, slug+".md")
+
+	// Security: ensure resolved path stays within PagesDir
+	absPages, err := filepath.Abs(pagesDir)
+	if err != nil {
+		return nil
+	}
+	absPath, err := filepath.Abs(fullPath)
+	if err != nil || !strings.HasPrefix(absPath, absPages+string(filepath.Separator)) {
+		return nil
+	}
+
+	raw, err := os.ReadFile(absPath)
+	if err != nil {
+		return nil
+	}
+	doc := markdown.Parse(string(raw))
+	title := doc.FrontMatter.Title
+	if title == "" {
+		title = slug
+	}
+	return &Page{
+		Slug:        slug,
+		Title:       title,
+		Content:     doc.HTML,
+		FrontMatter: doc.FrontMatter,
+	}
+}
+
 // GetMenu returns the ordered list of navigation links.
 // Static [[menu_links]] come first (in config order), followed by pinned
-// category links (sorted by Order), then category dropdown links (sorted by
-// Order).
+// category links (sorted by Order). menu.categories items are grouped into
+// a single dropdown MenuLink (SubItems populated, URL empty).
 func (b *Blog) GetMenu() []MenuLink {
 	var links []MenuLink
 	for _, ml := range b.cfg.MenuLinks {
 		links = append(links, MenuLink{Label: ml.Label, URL: ml.URL})
 	}
 	links = append(links, b.GetNavPinned()...)
-	links = append(links, b.GetMenuCategories()...)
+	if catLinks := b.GetMenuCategories(); len(catLinks) > 0 {
+		label := b.cfg.Menu.Categories.Label
+		if label == "" {
+			label = "More"
+		}
+		links = append(links, MenuLink{Label: label, SubItems: catLinks})
+	}
 	return links
 }
 
