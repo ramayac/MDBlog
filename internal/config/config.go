@@ -20,6 +20,7 @@ type Config struct {
 	UncategorizedLabel     string              `toml:"uncategorized_label"`
 	ShowRenderTime         bool                `toml:"show_render_time"`
 	PostsDir               string              `toml:"posts_dir"`
+	PagesDir               string              `toml:"pages_dir"`
 	PostIndexFile          string              `toml:"post_index_file"`
 	DateFormat             string              `toml:"date_format"`
 	DefaultMetaDescription string              `toml:"default_meta_description"`
@@ -152,6 +153,9 @@ func Load(path string) (*Config, error) {
 	}
 	if cfg.PostsDir == "" {
 		cfg.PostsDir = "posts"
+	}
+	if cfg.PagesDir == "" {
+		cfg.PagesDir = "pages"
 	}
 	if cfg.PostIndexFile == "" {
 		cfg.PostIndexFile = "posts/posts.index.json"

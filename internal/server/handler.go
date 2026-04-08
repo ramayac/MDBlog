@@ -46,6 +46,7 @@ type templateData struct {
 	// page-specific fields
 	Posts           []blog.Post
 	Post            *blog.Post
+	Page            *blog.Page
 	Tags            []string
 	CategorySlug    string
 	CurrentCategory *blog.CategoryInfo
@@ -133,6 +134,12 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// ── Route: single post (/post) ─────────────────────────────────────────
 	if path == "/post" || strings.HasSuffix(path, "/post") {
 		h.servPost(w, r)
+		return
+	}
+
+	// ── Route: static page (/page) ────────────────────────────────────────
+	if path == "/page" || strings.HasSuffix(path, "/page") {
+		h.serveStaticPage(w, r)
 		return
 	}
 
@@ -311,6 +318,41 @@ func (h *Handler) servPost(w http.ResponseWriter, r *http.Request) {
 	data.Tags = tags
 	data.JSONLD = buildArticleJSONLD(h.cfg, post, canonical, categorySlug)
 	h.renderPage(w, r, start, "post.html", &data)
+}
+
+func (h *Handler) serveStaticPage(w http.ResponseWriter, r *http.Request) {
+	start := time.Now()
+	slug := r.URL.Query().Get("slug")
+	if slug == "" || !validSlug(slug) {
+		http.Redirect(w, r, "/", http.StatusFound)
+		return
+	}
+
+	menu := h.b.GetMenu()
+	canonical := buildCanonical(r)
+	cssV := cssVersion(h.cfg.CSSTheme)
+	footerHTML := template.HTML(h.b.ParseMarkdown(h.cfg.FooterContent))
+	versionInfo := h.b.GetVersionInfo()
+
+	page := h.b.GetPage(slug)
+	if page == nil {
+		h.serve404(w, r, start, menu, canonical, cssV)
+		return
+	}
+
+	data := &templateData{
+		Config:          h.cfg,
+		PageTitle:       page.Title + " — " + h.cfg.BlogName,
+		PageDescription: page.FrontMatter.Description,
+		OGType:          "website",
+		Canonical:       canonical,
+		CSSVersion:      cssV,
+		Menu:            menu,
+		FooterHTML:      footerHTML,
+		Version:         versionInfo,
+		Page:            page,
+	}
+	h.renderPage(w, r, start, "page.html", data)
 }
 
 func (h *Handler) cacheControlPages() string {

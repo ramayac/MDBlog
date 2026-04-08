@@ -64,6 +64,14 @@ type PostList struct {
 	TotalMatches int // populated by SearchPosts
 }
 
+// Page represents a standalone page (e.g. About) read from PagesDir.
+type Page struct {
+	Slug        string
+	Title       string
+	Content     string // rendered HTML
+	FrontMatter markdown.FrontMatter
+}
+
 // MenuLink is a navigation link item.
 type MenuLink struct {
 	Label string
@@ -212,6 +220,43 @@ func (b *Blog) GetPostBySlug(slug, categorySlug string) *Post {
 		post.Category = b.GetCategoryBySlug(categorySlug)
 	}
 	return post
+}
+
+// GetPage reads and renders a standalone page by slug from PagesDir.
+// Returns nil if the page does not exist or cannot be parsed.
+func (b *Blog) GetPage(slug string) *Page {
+	// Path traversal guard
+	if strings.Contains(slug, "..") || strings.Contains(slug, "/") || strings.Contains(slug, `\`) {
+		return nil
+	}
+	pagesDir := b.cfg.PagesDir
+	fullPath := filepath.Join(pagesDir, slug+".md")
+
+	// Security: ensure resolved path stays within PagesDir
+	absPages, err := filepath.Abs(pagesDir)
+	if err != nil {
+		return nil
+	}
+	absPath, err := filepath.Abs(fullPath)
+	if err != nil || !strings.HasPrefix(absPath, absPages+string(filepath.Separator)) {
+		return nil
+	}
+
+	raw, err := os.ReadFile(absPath)
+	if err != nil {
+		return nil
+	}
+	doc := markdown.Parse(string(raw))
+	title := doc.FrontMatter.Title
+	if title == "" {
+		title = slug
+	}
+	return &Page{
+		Slug:        slug,
+		Title:       title,
+		Content:     doc.HTML,
+		FrontMatter: doc.FrontMatter,
+	}
 }
 
 // GetMenu returns the ordered list of navigation links.
