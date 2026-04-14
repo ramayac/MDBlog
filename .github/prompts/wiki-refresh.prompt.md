@@ -17,13 +17,14 @@ Run the repository wiki refresh workflow for MDBlog.
 ## Execution steps
 
 1. Run `make wiki-refresh`.
-2. Review the output from `make wiki-changed` and `make wiki-ingest-candidates`.
-3. Ignore `posts/` unless the user explicitly asks about post content or content-driven behavior.
-4. If the repo changes require wiki maintenance, update the relevant pages under `wiki/`.
-5. If a page is added or its role changes, update [wiki/index.md](../../wiki/index.md).
-6. Append a dated entry to [wiki/log.md](../../wiki/log.md) using the repo's log heading convention.
-7. Run `make wiki-lint`.
-8. Summarize:
+2. If `make wiki-refresh` reports that there are no ingest candidates for the current diff range, stop there and explain that no wiki update is needed.
+3. Review the output from `make wiki-changed` and `make wiki-ingest-candidates`.
+4. Ignore `posts/` unless the user explicitly asks about post content or content-driven behavior.
+5. If the repo changes require wiki maintenance, update the relevant pages under `wiki/`.
+6. If a page is added or its role changes, update [wiki/index.md](../../wiki/index.md).
+7. Append a dated entry to [wiki/log.md](../../wiki/log.md) using the repo's log heading convention.
+8. Run `make wiki-lint`.
+9. Summarize:
    - what changed in the wiki
    - which source files drove the change
    - any remaining gaps or follow-up questions

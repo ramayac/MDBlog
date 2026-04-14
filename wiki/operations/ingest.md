@@ -23,7 +23,10 @@ find wiki -maxdepth 2 -type f | sort
 grep -R "^## " wiki
 make wiki-changed WIKI_DIFF=master...HEAD
 make wiki-ingest-candidates WIKI_DIFF=master...HEAD
+make wiki-refresh WIKI_DIFF=master...HEAD
 ```
+
+If `make wiki-ingest-candidates` returns no files for the configured diff range, `make wiki-refresh` exits early and reports that no wiki update is needed.
 
 ## Ignore Rules
 

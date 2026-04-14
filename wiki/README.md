@@ -45,6 +45,7 @@ make wiki-refresh
 ```
 
 These targets are wrappers around plain `sh` scripts in `scripts/` so the workflow stays inspectable and easy to copy into other repos.
+`make wiki-refresh` only proceeds when `make wiki-ingest-candidates` finds something worth ingesting for the current diff range.
 
 ## Slash Prompts
 

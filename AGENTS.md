@@ -140,6 +140,7 @@ make wiki-refresh                                             # Run the wiki mai
 `make new-post` reads `author_name` from `config.toml` automatically.
 
 Wiki helper targets are intentionally shell-first and call small `sh` scripts under `scripts/`.
+`make wiki-refresh` is intentionally gated by `make wiki-ingest-candidates`: if there are no ingest candidates for the diff range, it exits early instead of re-running a no-op maintenance cycle.
 
 Workspace prompts under `.github/prompts/` provide on-demand wiki workflows: `wiki-refresh`, `wiki-ingest`, and `wiki-query`.
 

@@ -86,6 +86,8 @@ make wiki-refresh
 
 All wiki helper targets are shell-first and call plain `sh` scripts under `scripts/`.
 
+`make wiki-refresh` now short-circuits when there are no wiki ingest candidates in the configured diff range, so it only runs the maintenance snapshot when there is something worth filing back into the wiki.
+
 There are also on-demand chat prompts under `.github/prompts/` for wiki maintenance:
 
 ```text

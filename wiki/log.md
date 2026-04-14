@@ -17,3 +17,8 @@
 - Added workspace prompt files for `wiki-refresh`, `wiki-ingest`, and `wiki-query` under `.github/prompts/`.
 - Matched the prompt workflows to the shell-first wiki commands instead of introducing a second maintenance path.
 - Documented the new on-demand prompt entrypoints in the repo docs and wiki overview.
+
+## [2026-04-13] ingest | gated wiki refresh on actual branch changes
+
+- Updated `make wiki-refresh` to exit early when `make wiki-ingest-candidates` finds no ingestable changes for the current diff range.
+- Added the same short-circuit rule to the `wiki-refresh` prompt so chat-driven refreshes do not run a no-op maintenance cycle.
