@@ -11,3 +11,9 @@
 - Added `wiki-*` Make targets for listing, searching, diff-driven ingest, linting, and a combined refresh snapshot.
 - Added plain `sh` helper scripts under `scripts/` so the workflow remains unix-friendly and portable.
 - Documented the new manual entrypoints in the repo docs and wiki operations pages.
+
+## [2026-04-13] ingest | added wiki slash prompts
+
+- Added workspace prompt files for `wiki-refresh`, `wiki-ingest`, and `wiki-query` under `.github/prompts/`.
+- Matched the prompt workflows to the shell-first wiki commands instead of introducing a second maintenance path.
+- Documented the new on-demand prompt entrypoints in the repo docs and wiki overview.

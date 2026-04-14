@@ -141,6 +141,8 @@ make wiki-refresh                                             # Run the wiki mai
 
 Wiki helper targets are intentionally shell-first and call small `sh` scripts under `scripts/`.
 
+Workspace prompts under `.github/prompts/` provide on-demand wiki workflows: `wiki-refresh`, `wiki-ingest`, and `wiki-query`.
+
 **Re-run `make build-index` after adding or editing posts** so that listing and pagination pages reflect changes immediately. Without the index, the blog falls back to a live filesystem scan (correct but slower).
 
 ## Docker Workflow

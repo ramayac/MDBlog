@@ -86,6 +86,14 @@ make wiki-refresh
 
 All wiki helper targets are shell-first and call plain `sh` scripts under `scripts/`.
 
+There are also on-demand chat prompts under `.github/prompts/` for wiki maintenance:
+
+```text
+/wiki-refresh
+/wiki-ingest
+/wiki-query
+```
+
 ## Deployment (AWS Lambda)
 
 The production image uses a **multi-stage Docker build**: a `golang:1.24` stage compiles the Go binary and generates the post index; the final stage copies only the binary, posts, templates, assets and config into a minimal `FROM scratch` image.
