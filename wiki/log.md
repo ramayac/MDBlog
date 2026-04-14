@@ -96,3 +96,9 @@
 
 - Expanded `wiki/repo-map.md` with the GitHub Actions publication path from `posts/**/*.md` changes to GHCR, ECR, and the Lambda function update.
 - Recorded that the automatic push trigger is specific to `posts/**/*.md`, which is narrower than all Markdown files in the repository.
+
+## [2026-04-13] query | documented docker compose local preview flow
+
+- Expanded `wiki/repo-map.md` with how `docker-compose.yml` is used for local preview rather than the production Lambda entry path.
+- Recorded that the compose service builds from the standard `Dockerfile`, runs `/mdblog serve`, exposes port `8080`, and carries local runtime hardening settings.
+- Noted that `make docker-run` rebuilds through Compose while `make docker-run-release` reuses the same compose file without rebuilding.

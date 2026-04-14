@@ -84,8 +84,13 @@ MDBlog is a flat-file blog engine written in Go 1.24. It serves Markdown posts a
 ## Build and Run Path
 
 - Local dev uses `make serve`.
+- Local container preview uses `make docker-run`, which delegates to `docker compose up --build` and reads `docker-compose.yml` from the repo root.
+- `docker-compose.yml` defines a single `blog` service that builds from the standard root `Dockerfile`, tags the resulting image as `mdblog:latest`, and then overrides the container command to `/mdblog serve` so local Docker runs the plain HTTP server instead of the Lambda entry point.
+- The compose service sets `PORT=8080`, publishes host `8080` to container `8080`, and uses `restart: unless-stopped` for local restarts.
+- The compose file also applies the same local hardening intent as production by setting `read_only: true`, `security_opt: [no-new-privileges:true]`, and `cap_drop: [ALL]`, and it declares a `64M` memory limit under `deploy.resources.limits`.
 - Tests use `make test` and depend on building index, feed, and sitemap first.
 - Docker builds compile Go binaries and regenerate the index inside the image build.
+- `make docker-run-release` reuses that same compose file but calls `docker compose up --no-build`, which is intended for a previously pulled `mdblog:latest` image instead of rebuilding from local sources.
 - Production runs as an AWS Lambda container image.
 
 ## Make Targets
