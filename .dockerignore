@@ -16,6 +16,7 @@ bin/
 README.md
 AGENTS.md
 Makefile
+wiki/
 
 # The pre-built post index is allowed so docker can use it if present
 # (the Dockerfile rebuilds it inside the container regardless)

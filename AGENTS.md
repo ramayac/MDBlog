@@ -52,6 +52,17 @@ Makefile            # Developer targets: help, serve, build, test, new-post, doc
 
 `docker-compose.yml` is for local development only and is not used in production.
 
+## Repository Wiki
+
+This repo now maintains a persistent repository wiki under `wiki/`.
+
+- Read `wiki/index.md` first for broad repo-analysis or documentation-maintenance tasks.
+- Read recent entries in `wiki/log.md` before doing a fresh architectural sweep.
+- Use the relevant page under `wiki/operations/` for ingest, query, and lint workflows.
+- Write durable findings back into the wiki instead of leaving them only in chat history.
+- Keep wiki files plain Markdown with stable filenames and grep-friendly headings.
+- Ignore `posts/` during routine wiki maintenance unless the user explicitly asks about post content or content-driven behavior.
+
 ## Configuration
 
 All settings live in `config.toml` (TOML format). They are parsed by `internal/config` into a `Config` struct. Key fields:
@@ -320,6 +331,7 @@ Full post bodies are **never rendered** during index generation (Goldmark is not
 - Do not add SEO-related code to `handler.go` — all JSON-LD helpers, sitemap structs, and robots/sitemap HTTP handlers live in `server/seo.go`.
 - Do not add a new page type without also adding a corresponding `templates/<type>.html` and a route in `server/handler.go`.
 - Do not index standalone pages (`pages/`) in the post metadata index — they are not posts.
+- Do not routinely ingest or rewrite user-authored `posts/` content as part of wiki maintenance.
 
 ## Lessons Learned & Best Practices
 

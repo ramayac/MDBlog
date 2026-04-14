@@ -53,6 +53,23 @@ make render random   # Render a random post to a standalone HTML file
 > **Tip:** Run `make build-index`, `make build-feed`, and `make build-sitemap` whenever you add or edit posts
 > locally so that paginated listings, the RSS feed, and the sitemap reflect your changes immediately.
 
+## Repository Wiki
+
+This repo now includes a persistent `wiki/` directory for architecture notes, operating procedures, and durable answers that should survive beyond a single chat session.
+
+- Start with `wiki/index.md`.
+- Check recent history in `wiki/log.md`.
+- Use `wiki/operations/ingest.md`, `wiki/operations/query.md`, and `wiki/operations/lint.md` for the repeatable workflow.
+- Treat `posts/` as excluded from routine wiki maintenance because it is user-authored content rather than the primary architecture surface.
+
+The wiki is intentionally shell-friendly. Typical inspection commands:
+
+```bash
+find wiki -maxdepth 2 -type f | sort
+grep -R "^#\|^##" wiki
+grep "^## \[" wiki/log.md | tail -10
+```
+
 ## Deployment (AWS Lambda)
 
 The production image uses a **multi-stage Docker build**: a `golang:1.24` stage compiles the Go binary and generates the post index; the final stage copies only the binary, posts, templates, assets and config into a minimal `FROM scratch` image.
