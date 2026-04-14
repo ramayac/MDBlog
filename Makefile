@@ -2,6 +2,11 @@ HOST      ?= localhost
 PORT      ?= 8080
 TAG       ?= latest
 REGISTRY  ?= ghcr.io/ramayac/mdblog
+WIKI_DIR   ?= wiki
+WIKI_LOG   ?= $(WIKI_DIR)/log.md
+WIKI_LOG_N ?= 10
+WIKI_DIFF  ?= master...HEAD
+WIKI_Q     ?=
 
 # Version info injected into binaries via -ldflags
 COMMIT  := $(shell git log -1 --format="%h" 2>/dev/null || echo unknown)
@@ -13,6 +18,7 @@ LDFLAGS := -s -w -X main.version=$(VERSION) -X main.commit=$(COMMIT) -X main.dat
 .DEFAULT_GOAL := help
 
 .PHONY: help serve build build-embed build-index build-feed build-sitemap lint lint-config test new-post render \
+	wiki-list wiki-headings wiki-log-tail wiki-search wiki-changed wiki-ingest-candidates wiki-lint wiki-refresh \
         docker-build docker-build-embed docker-run docker-run-release \
         docker-stop docker-push docker-pull
 
@@ -84,6 +90,32 @@ new-post: ## Scaffold a new post: make new-post TITLE="title" [CATEGORY=slug] [T
 	fi
 	@printf -- '---\ntitle: $(TITLE)\ndate: $(DATE)\nauthor: $(AUTHOR)\ntags: $(TAGS)\ndescription: \n---\n\n# $(TITLE)\n' > "$(FILE)"
 	@echo "Created: $(FILE)"
+
+# ── Wiki ─────────────────────────────────────────────────────────────────────
+
+wiki-list: ## List wiki files (WIKI_DIR=wiki)
+	@sh scripts/wiki-list.sh "$(WIKI_DIR)"
+
+wiki-headings: ## List wiki headings with file paths (WIKI_DIR=wiki)
+	@sh scripts/wiki-headings.sh "$(WIKI_DIR)"
+
+wiki-log-tail: ## Show recent wiki log headings (WIKI_LOG=wiki/log.md WIKI_LOG_N=10)
+	@sh scripts/wiki-log-tail.sh "$(WIKI_LOG)" "$(WIKI_LOG_N)"
+
+wiki-search: ## Search wiki content for a fixed string (WIKI_Q=term WIKI_DIR=wiki)
+	@sh scripts/wiki-search.sh "$(WIKI_DIR)" "$(WIKI_Q)"
+
+wiki-changed: ## List changed files outside wiki/ for a git diff range (WIKI_DIFF=master...HEAD)
+	@sh scripts/wiki-changed.sh "$(WIKI_DIFF)"
+
+wiki-ingest-candidates: ## Filter changed files to high-signal wiki ingest inputs (WIKI_DIFF=master...HEAD)
+	@sh scripts/wiki-ingest-candidates.sh "$(WIKI_DIFF)"
+
+wiki-lint: ## Check wiki links, log headings, and marker hygiene (WIKI_DIR=wiki)
+	@sh scripts/wiki-lint.sh "$(WIKI_DIR)"
+
+wiki-refresh: ## Run the wiki maintenance snapshot (WIKI_DIR=wiki WIKI_DIFF=master...HEAD)
+	@sh scripts/wiki-refresh.sh "$(WIKI_DIR)" "$(WIKI_DIFF)" "$(WIKI_LOG_N)"
 
 # ── Docker ────────────────────────────────────────────────────────────────────
 

@@ -127,9 +127,19 @@ make render random                                            # Render a random 
 make render [category] random                                 # Render a random post from a category
 make render filename.md                                       # Render a specific post to HTML
 make new-post TITLE="Title" [CATEGORY=slug] [TAGS="t1, t2"]  # Scaffold a new post
+make wiki-list                                                # List wiki files
+make wiki-headings                                            # List wiki headings with file paths
+make wiki-log-tail                                            # Show recent parseable log headings
+make wiki-search WIKI_Q=term                                  # Search the wiki for a fixed string
+make wiki-changed                                             # Show changed files outside wiki/
+make wiki-ingest-candidates                                   # Filter changed files to wiki ingest inputs
+make wiki-lint                                                # Check wiki links, headings, and marker hygiene
+make wiki-refresh                                             # Run the wiki maintenance snapshot
 ```
 
 `make new-post` reads `author_name` from `config.toml` automatically.
+
+Wiki helper targets are intentionally shell-first and call small `sh` scripts under `scripts/`.
 
 **Re-run `make build-index` after adding or editing posts** so that listing and pagination pages reflect changes immediately. Without the index, the blog falls back to a live filesystem scan (correct but slower).
 

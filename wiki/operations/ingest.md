@@ -21,7 +21,23 @@ git diff --name-only
 git diff --stat
 find wiki -maxdepth 2 -type f | sort
 grep -R "^## " wiki
+make wiki-changed WIKI_DIFF=master...HEAD
+make wiki-ingest-candidates WIKI_DIFF=master...HEAD
 ```
+
+## Ignore Rules
+
+Routine wiki ingest ignores these paths unless the user explicitly asks otherwise:
+
+- `posts/`
+- `wiki/`
+- `bin/`
+- `render/`
+- `feed.xml`
+- `robots.txt`
+- `sitemap.xml`
+- `*.log`
+- `*.tmp`
 
 ## Page Decision Rule
 

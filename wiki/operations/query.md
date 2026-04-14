@@ -19,6 +19,9 @@ Answer repo questions from the wiki first so the agent does not start from zero 
 grep -R "keyword" wiki
 grep -R "^#\|^##" wiki
 find wiki -type f | sort
+make wiki-list
+make wiki-headings
+make wiki-search WIKI_Q=keyword
 ```
 
 ## Durable Answer Rule

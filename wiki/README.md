@@ -31,6 +31,21 @@ grep "^## \[" wiki/log.md | tail -10
 grep -R "build-index\|build-feed\|build-sitemap" wiki
 ```
 
+## Make Entry Points
+
+```bash
+make wiki-list
+make wiki-headings
+make wiki-log-tail WIKI_LOG_N=5
+make wiki-search WIKI_Q=search-term
+make wiki-changed WIKI_DIFF=master...HEAD
+make wiki-ingest-candidates WIKI_DIFF=master...HEAD
+make wiki-lint
+make wiki-refresh
+```
+
+These targets are wrappers around plain `sh` scripts in `scripts/` so the workflow stays inspectable and easy to copy into other repos.
+
 ## Update Loop
 
 1. Read `index.md`.

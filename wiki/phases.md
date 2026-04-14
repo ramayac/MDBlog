@@ -4,16 +4,16 @@
 
 | Phase | Name | Status | Exit Signal |
 |---|---|---|---|
-| 0 | Bootstrap the wiki | in progress | Required files exist and Docker ignores `wiki/` |
-| 1 | Teach the agent the workflow | in progress | Repo instructions say to read and update the wiki |
-| 2 | Establish repo map baseline | in progress | Repo architecture and exclusions are recorded |
+| 0 | Bootstrap the wiki | completed | Required files exist and Docker ignores `wiki/` |
+| 1 | Teach the agent the workflow | completed | Repo instructions say to read and update the wiki |
+| 2 | Establish repo map baseline | completed | Repo architecture and exclusions are recorded |
 | 3 | Standardize ingest | planned | New repo changes can be filed with a repeatable checklist |
 | 4 | Standardize query | planned | Answers start from the wiki before raw source scans |
 | 5 | Standardize lint | planned | Drift checks and repair steps are documented |
-| 6 | Add unix-native helpers | planned | Common wiki inspection commands are stable across repos |
-| 7 | Add change-detection workflow | planned | File-change driven wiki updates are documented |
+| 6 | Add unix-native helpers | completed | Common wiki inspection commands are stable across repos |
+| 7 | Add change-detection workflow | completed | File-change driven wiki updates are documented |
 | 8 | Define reusable repo template | planned | New repos can copy the same wiki skeleton |
-| 9 | Add optional on-demand automation | planned | Manual triggers can refresh the wiki without CI lock-in |
+| 9 | Add optional on-demand automation | completed | Manual triggers can refresh the wiki without CI lock-in |
 | 10 | Prove multi-repo adoption | planned | At least one more repo uses the same structure |
 | 11 | Extract wiki-engine repo | future | Shared engine lives outside any single product repo |
 
@@ -90,6 +90,13 @@ Deliverables:
 - Parseable log headings.
 - A small set of documented shell commands that work across repos.
 
+Implemented in MDBlog:
+
+- `make wiki-list`
+- `make wiki-headings`
+- `make wiki-log-tail`
+- `make wiki-search`
+
 ## Phase 7 | Add change-detection workflow
 
 Goal: make wiki maintenance faster for ongoing projects.
@@ -99,6 +106,12 @@ Deliverables:
 - Diff-driven ingest instructions.
 - Rules for ignoring generated or user-authored noise.
 - Optional lightweight scripts if manual grep is no longer enough.
+
+Implemented in MDBlog:
+
+- `make wiki-changed`
+- `make wiki-ingest-candidates`
+- Ingest filtering excludes `posts/`, generated artifacts, and temporary noise.
 
 ## Phase 8 | Define reusable repo template
 
@@ -120,6 +133,12 @@ Deliverables:
 - Clear manual entrypoints.
 - Optional local script or container strategy.
 - No mandatory hosted service dependency.
+
+Implemented in MDBlog:
+
+- `make wiki-lint`
+- `make wiki-refresh`
+- All helper entrypoints run locally through plain `sh` scripts.
 
 ## Phase 10 | Prove multi-repo adoption
 

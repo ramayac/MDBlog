@@ -48,6 +48,7 @@ make serve           # Start HTTP dev server at http://localhost:8080
 make lint            # Run go vet on all packages
 make test            # Build index + feed + sitemap, then run the Go test suite
 make render random   # Render a random post to a standalone HTML file
+make wiki-refresh    # Show wiki files, recent log, diff-driven inputs, and lint results
 ```
 
 > **Tip:** Run `make build-index`, `make build-feed`, and `make build-sitemap` whenever you add or edit posts
@@ -69,6 +70,21 @@ find wiki -maxdepth 2 -type f | sort
 grep -R "^#\|^##" wiki
 grep "^## \[" wiki/log.md | tail -10
 ```
+
+Equivalent `make` entrypoints are available for repeatable use:
+
+```bash
+make wiki-list
+make wiki-headings
+make wiki-log-tail WIKI_LOG_N=5
+make wiki-search WIKI_Q=category
+make wiki-changed WIKI_DIFF=master...HEAD
+make wiki-ingest-candidates WIKI_DIFF=master...HEAD
+make wiki-lint
+make wiki-refresh
+```
+
+All wiki helper targets are shell-first and call plain `sh` scripts under `scripts/`.
 
 ## Deployment (AWS Lambda)
 
