@@ -2,7 +2,7 @@ HOST      ?= localhost
 PORT      ?= 8080
 TAG       ?= latest
 REGISTRY  ?= ghcr.io/ramayac/mdblog
-
+WIKI_Q    ?=
 # Version info injected into binaries via -ldflags
 COMMIT  := $(shell git log -1 --format="%h" 2>/dev/null || echo unknown)
 DATE    := $(shell git log -1 --format="%ad" --date=short 2>/dev/null || echo unknown)
@@ -13,6 +13,7 @@ LDFLAGS := -s -w -X main.version=$(VERSION) -X main.commit=$(COMMIT) -X main.dat
 .DEFAULT_GOAL := help
 
 .PHONY: help serve build build-embed build-index build-feed build-sitemap lint lint-config test new-post render \
+	wiki-list wiki-headings wiki-log-tail wiki-search wiki-changed wiki-candidates wiki-lint wiki-refresh \
         docker-build docker-build-embed docker-run docker-run-release \
         docker-stop docker-push docker-pull
 
@@ -84,6 +85,32 @@ new-post: ## Scaffold a new post: make new-post TITLE="title" [CATEGORY=slug] [T
 	fi
 	@printf -- '---\ntitle: $(TITLE)\ndate: $(DATE)\nauthor: $(AUTHOR)\ntags: $(TAGS)\ndescription: \n---\n\n# $(TITLE)\n' > "$(FILE)"
 	@echo "Created: $(FILE)"
+
+# ── Wiki (powered by wiki-engine) ───────────────────────────────────────────
+
+wiki-list: ## List wiki files
+	@wiki-engine list
+
+wiki-headings: ## List wiki headings with file paths
+	@wiki-engine headings
+
+wiki-log-tail: ## Show recent wiki log headings
+	@wiki-engine log-tail
+
+wiki-search: ## Search wiki content for a fixed string (WIKI_Q=term)
+	@wiki-engine search "$(WIKI_Q)"
+
+wiki-changed: ## List changed files outside wiki/ for the default diff range
+	@wiki-engine changed
+
+wiki-candidates: ## Filter changed files to high-signal wiki ingest inputs
+	@wiki-engine candidates
+
+wiki-lint: ## Check wiki links, log headings, and marker hygiene
+	@wiki-engine lint
+
+wiki-refresh: ## Run the wiki maintenance snapshot
+	@wiki-engine refresh
 
 # ── Docker ────────────────────────────────────────────────────────────────────
 

@@ -1,0 +1,15 @@
+wiki_dir = "wiki"
+default_diff = "master...HEAD"
+log_lines = 10
+
+ignore = [
+  "wiki/",
+  "posts/",
+  "bin/",
+  "render/",
+  "feed.xml",
+  "robots.txt",
+  "sitemap.xml",
+  "*.log",
+  "*.tmp",
+]

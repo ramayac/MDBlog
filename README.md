@@ -48,10 +48,15 @@ make serve           # Start HTTP dev server at http://localhost:8080
 make lint            # Run go vet on all packages
 make test            # Build index + feed + sitemap, then run the Go test suite
 make render random   # Render a random post to a standalone HTML file
+make wiki-refresh    # Show wiki files, recent log, diff-driven inputs, and lint results
 ```
 
 > **Tip:** Run `make build-index`, `make build-feed`, and `make build-sitemap` whenever you add or edit posts
 > locally so that paginated listings, the RSS feed, and the sitemap reflect your changes immediately.
+
+## Repository Wiki
+
+This repo maintains a persistent `wiki/` directory powered by [go-wiki-engine](https://github.com/ramayac/go-wiki-engine).
 
 ## Deployment (AWS Lambda)
 

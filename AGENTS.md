@@ -52,6 +52,17 @@ Makefile            # Developer targets: help, serve, build, test, new-post, doc
 
 `docker-compose.yml` is for local development only and is not used in production.
 
+## Repository Wiki
+
+This repo now maintains a persistent repository wiki under `wiki/`.
+
+- Read `wiki/index.md` first for broad repo-analysis or documentation-maintenance tasks.
+- Read recent entries in `wiki/log.md` before doing a fresh architectural sweep.
+- Use the relevant page under `wiki/operations/` for ingest, query, and lint workflows.
+- Write durable findings back into the wiki instead of leaving them only in chat history.
+- Keep wiki files plain Markdown with stable filenames and grep-friendly headings.
+- Ignore `posts/` during routine wiki maintenance unless the user explicitly asks about post content or content-driven behavior.
+
 ## Configuration
 
 All settings live in `config.toml` (TOML format). They are parsed by `internal/config` into a `Config` struct. Key fields:
@@ -116,9 +127,22 @@ make render random                                            # Render a random 
 make render [category] random                                 # Render a random post from a category
 make render filename.md                                       # Render a specific post to HTML
 make new-post TITLE="Title" [CATEGORY=slug] [TAGS="t1, t2"]  # Scaffold a new post
+wiki-engine list                                              # List wiki files
+wiki-engine headings                                          # List wiki headings with file paths
+wiki-engine log-tail                                          # Show recent parseable log headings
+wiki-engine search <term>                                     # Search the wiki for a fixed string
+wiki-engine changed                                           # Show changed files outside wiki/
+wiki-engine candidates                                        # Filter changed files to wiki ingest inputs
+wiki-engine lint                                              # Check wiki links, headings, and marker hygiene
+wiki-engine refresh                                           # Run the wiki maintenance snapshot
 ```
 
 `make new-post` reads `author_name` from `config.toml` automatically.
+
+Wiki inspection is powered by the global [`wiki-engine`](https://github.com/ramayac/go-wiki-engine) CLI tool. Install it with `go install github.com/ramayac/go-wiki-engine/cmd/wiki-engine@latest`. Configuration lives in `.wikirc` at the repo root.
+`wiki-engine refresh` exits early when there are no ingest candidates for the configured diff range.
+
+Workspace prompts under `.github/prompts/` provide on-demand wiki workflows: `wiki-refresh`, `wiki-ingest`, and `wiki-query`.
 
 **Re-run `make build-index` after adding or editing posts** so that listing and pagination pages reflect changes immediately. Without the index, the blog falls back to a live filesystem scan (correct but slower).
 
@@ -320,6 +344,7 @@ Full post bodies are **never rendered** during index generation (Goldmark is not
 - Do not add SEO-related code to `handler.go` — all JSON-LD helpers, sitemap structs, and robots/sitemap HTTP handlers live in `server/seo.go`.
 - Do not add a new page type without also adding a corresponding `templates/<type>.html` and a route in `server/handler.go`.
 - Do not index standalone pages (`pages/`) in the post metadata index — they are not posts.
+- Do not routinely ingest or rewrite user-authored `posts/` content as part of wiki maintenance.
 
 ## Lessons Learned & Best Practices
 
