@@ -127,20 +127,20 @@ make render random                                            # Render a random 
 make render [category] random                                 # Render a random post from a category
 make render filename.md                                       # Render a specific post to HTML
 make new-post TITLE="Title" [CATEGORY=slug] [TAGS="t1, t2"]  # Scaffold a new post
-make wiki-list                                                # List wiki files
-make wiki-headings                                            # List wiki headings with file paths
-make wiki-log-tail                                            # Show recent parseable log headings
-make wiki-search WIKI_Q=term                                  # Search the wiki for a fixed string
-make wiki-changed                                             # Show changed files outside wiki/
-make wiki-ingest-candidates                                   # Filter changed files to wiki ingest inputs
-make wiki-lint                                                # Check wiki links, headings, and marker hygiene
-make wiki-refresh                                             # Run the wiki maintenance snapshot
+wiki-engine list                                              # List wiki files
+wiki-engine headings                                          # List wiki headings with file paths
+wiki-engine log-tail                                          # Show recent parseable log headings
+wiki-engine search <term>                                     # Search the wiki for a fixed string
+wiki-engine changed                                           # Show changed files outside wiki/
+wiki-engine candidates                                        # Filter changed files to wiki ingest inputs
+wiki-engine lint                                              # Check wiki links, headings, and marker hygiene
+wiki-engine refresh                                           # Run the wiki maintenance snapshot
 ```
 
 `make new-post` reads `author_name` from `config.toml` automatically.
 
-Wiki helper targets are intentionally shell-first and call small `sh` scripts under `scripts/`.
-`make wiki-refresh` is intentionally gated by `make wiki-ingest-candidates`: if there are no ingest candidates for the diff range, it exits early instead of re-running a no-op maintenance cycle.
+Wiki inspection is powered by the global [`wiki-engine`](https://github.com/ramayac/go-wiki-engine) CLI tool. Install it with `go install github.com/ramayac/go-wiki-engine/cmd/wiki-engine@latest`. Configuration lives in `.wikirc` at the repo root.
+`wiki-engine refresh` exits early when there are no ingest candidates for the configured diff range.
 
 Workspace prompts under `.github/prompts/` provide on-demand wiki workflows: `wiki-refresh`, `wiki-ingest`, and `wiki-query`.
 

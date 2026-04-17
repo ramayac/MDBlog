@@ -7,9 +7,9 @@
 | 0 | Bootstrap the wiki | completed | Required files exist and Docker ignores `wiki/` |
 | 1 | Teach the agent the workflow | completed | Repo instructions say to read and update the wiki |
 | 2 | Establish repo map baseline | completed | Repo architecture and exclusions are recorded |
-| 3 | Standardize ingest | planned | New repo changes can be filed with a repeatable checklist |
-| 4 | Standardize query | planned | Answers start from the wiki before raw source scans |
-| 5 | Standardize lint | planned | Drift checks and repair steps are documented |
+| 3 | Standardize ingest | completed | New repo changes can be filed with a repeatable checklist |
+| 4 | Standardize query | completed | Answers start from the wiki before raw source scans |
+| 5 | Standardize lint | completed | Drift checks and repair steps are documented |
 | 6 | Add unix-native helpers | completed | Common wiki inspection commands are stable across repos |
 | 7 | Add change-detection workflow | completed | File-change driven wiki updates are documented |
 | 8 | Define reusable repo template | planned | New repos can copy the same wiki skeleton |

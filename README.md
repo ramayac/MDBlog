@@ -56,39 +56,37 @@ make wiki-refresh    # Show wiki files, recent log, diff-driven inputs, and lint
 
 ## Repository Wiki
 
-This repo now includes a persistent `wiki/` directory for architecture notes, operating procedures, and durable answers that should survive beyond a single chat session.
+This repo includes a persistent `wiki/` directory for architecture notes, operating procedures, and durable answers that should survive beyond a single chat session.
 
 - Start with `wiki/index.md`.
 - Check recent history in `wiki/log.md`.
 - Use `wiki/operations/ingest.md`, `wiki/operations/query.md`, and `wiki/operations/lint.md` for the repeatable workflow.
-- Treat `posts/` as excluded from routine wiki maintenance because it is user-authored content rather than the primary architecture surface.
+- Treat `posts/` as excluded from routine wiki maintenance.
 
-The wiki is intentionally shell-friendly. Typical inspection commands:
-
-```bash
-find wiki -maxdepth 2 -type f | sort
-grep -R "^#\|^##" wiki
-grep "^## \[" wiki/log.md | tail -10
-```
-
-Equivalent `make` entrypoints are available for repeatable use:
+Wiki inspection is powered by the global [`wiki-engine`](https://github.com/ramayac/go-wiki-engine) CLI. Install it once:
 
 ```bash
-make wiki-list
-make wiki-headings
-make wiki-log-tail WIKI_LOG_N=5
-make wiki-search WIKI_Q=category
-make wiki-changed WIKI_DIFF=master...HEAD
-make wiki-ingest-candidates WIKI_DIFF=master...HEAD
-make wiki-lint
-make wiki-refresh
+go install github.com/ramayac/go-wiki-engine/cmd/wiki-engine@latest
 ```
 
-All wiki helper targets are shell-first and call plain `sh` scripts under `scripts/`.
+Typical inspection commands:
 
-`make wiki-refresh` now short-circuits when there are no wiki ingest candidates in the configured diff range, so it only runs the maintenance snapshot when there is something worth filing back into the wiki.
+```bash
+wiki-engine list
+wiki-engine headings
+wiki-engine log-tail
+wiki-engine search <term>
+wiki-engine changed
+wiki-engine candidates
+wiki-engine lint
+wiki-engine refresh
+```
 
-There are also on-demand chat prompts under `.github/prompts/` for wiki maintenance:
+Configuration (ignore patterns, diff base, etc.) lives in `.wikirc` at the repo root.
+
+`wiki-engine refresh` short-circuits when there are no ingest candidates in the configured diff range.
+
+On-demand chat prompts are available under `.github/prompts/`:
 
 ```text
 /wiki-refresh

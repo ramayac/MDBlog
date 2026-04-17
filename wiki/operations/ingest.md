@@ -17,16 +17,12 @@ Absorb a repo change into the wiki without rediscovering the entire codebase.
 ## Shell-First Inputs
 
 ```bash
-git diff --name-only
-git diff --stat
-find wiki -maxdepth 2 -type f | sort
-grep -R "^## " wiki
-make wiki-changed WIKI_DIFF=master...HEAD
-make wiki-ingest-candidates WIKI_DIFF=master...HEAD
-make wiki-refresh WIKI_DIFF=master...HEAD
+wiki-engine changed
+wiki-engine candidates
+wiki-engine refresh
 ```
 
-If `make wiki-ingest-candidates` returns no files for the configured diff range, `make wiki-refresh` exits early and reports that no wiki update is needed.
+If `wiki-engine candidates` returns no files for the configured diff range, `wiki-engine refresh` exits early and reports that no wiki update is needed.
 
 ## Ignore Rules
 

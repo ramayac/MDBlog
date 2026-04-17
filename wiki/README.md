@@ -36,16 +36,15 @@ grep -R "build-index\|build-feed\|build-sitemap" wiki
 ```bash
 make wiki-list
 make wiki-headings
-make wiki-log-tail WIKI_LOG_N=5
+make wiki-log-tail
 make wiki-search WIKI_Q=search-term
-make wiki-changed WIKI_DIFF=master...HEAD
-make wiki-ingest-candidates WIKI_DIFF=master...HEAD
+make wiki-changed
+make wiki-candidates
 make wiki-lint
 make wiki-refresh
 ```
 
-These targets are wrappers around plain `sh` scripts in `scripts/` so the workflow stays inspectable and easy to copy into other repos.
-`make wiki-refresh` only proceeds when `make wiki-ingest-candidates` finds something worth ingesting for the current diff range.
+These targets delegate to the global `wiki-engine` CLI tool. Configuration (wiki dir, diff base, ignore patterns) lives in `.wikirc`.
 
 ## Slash Prompts
 

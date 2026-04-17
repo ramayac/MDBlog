@@ -16,12 +16,9 @@ Answer repo questions from the wiki first so the agent does not start from zero 
 ## Shell-First Search
 
 ```bash
-grep -R "keyword" wiki
-grep -R "^#\|^##" wiki
-find wiki -type f | sort
-make wiki-list
-make wiki-headings
-make wiki-search WIKI_Q=keyword
+wiki-engine search <keyword>
+wiki-engine list
+wiki-engine headings
 ```
 
 ## Durable Answer Rule

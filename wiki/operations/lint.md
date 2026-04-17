@@ -15,11 +15,9 @@ Keep the wiki coherent, linked, and current.
 ## Shell-First Checks
 
 ```bash
-find wiki -type f | sort
-grep -R "TODO:\|TBD:\|UNKNOWN:" wiki
-grep -R "posts/" wiki
-grep "^## \[" wiki/log.md | tail -10
-make wiki-lint
+wiki-engine lint
+wiki-engine list
+wiki-engine search "TODO:"
 ```
 
 ## Repair Order

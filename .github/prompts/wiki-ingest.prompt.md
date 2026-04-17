@@ -16,14 +16,14 @@ Ingest the current repository changes into the wiki.
 
 ## Execution steps
 
-1. Run `make wiki-changed`.
-2. Run `make wiki-ingest-candidates`.
+1. Run `wiki-engine changed`.
+2. Run `wiki-engine candidates`.
 3. Ignore repo-specific excluded paths, especially `posts/`, unless the user explicitly asks otherwise.
 4. Read only the changed source files that are relevant to the ingest.
 5. Decide whether each durable fact belongs in an existing wiki page or needs a new page.
 6. Update the relevant wiki pages with durable facts only.
 7. Update [wiki/index.md](../../wiki/index.md) if coverage changed.
 8. Append an ingest entry to [wiki/log.md](../../wiki/log.md) using the required heading format.
-9. Run `make wiki-lint`.
+9. Run `wiki-engine lint`.
 
 Finish by summarizing what was added, what changed, and what still needs human review.
