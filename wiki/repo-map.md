@@ -96,7 +96,7 @@ MDBlog is a flat-file blog engine written in Go 1.24. It serves Markdown posts a
 ## Make Targets
 
 - Core development targets: `help`, `serve`, `build`, `build-embed`, `build-index`, `build-feed`, `build-sitemap`, `lint`, `lint-config`, `test`, `render`, and `new-post`.
-- Wiki maintenance targets: `wiki-list`, `wiki-headings`, `wiki-log-tail`, `wiki-search`, `wiki-changed`, `wiki-ingest-candidates`, `wiki-lint`, and `wiki-refresh`.
+- Wiki maintenance targets: `wiki-list`, `wiki-headings`, `wiki-log-tail`, `wiki-search`, `wiki-changed`, `wiki-candidates`, `wiki-lint`, and `wiki-refresh`. All targets delegate to the global `wiki-engine` CLI (`github.com/ramayac/go-wiki-engine`). Per-repo configuration lives in `.wikirc`. `wiki/` and `scripts/` are excluded from the Docker build via `.dockerignore`.
 - Docker targets: `docker-build`, `docker-build-embed`, `docker-run`, `docker-run-release`, `docker-stop`, `docker-push`, and `docker-pull`.
 - `help` is the default goal and prints the annotated target list from the Makefile.
 - `render` is argument-driven and supports forms like `make render random`, `make render [category] random`, and `make render filename.md`.

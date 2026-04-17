@@ -1,5 +1,14 @@
 # Wiki Log
 
+## [2026-04-16] ingest | migrated wiki maintenance from scripts to wiki-engine CLI
+
+- Deleted all 8 `scripts/wiki-*.sh` helpers; wiki maintenance now runs through the global `wiki-engine` binary (`github.com/ramayac/go-wiki-engine`).
+- Added `.wikirc` at the repo root to configure wiki dir, diff base (`master...HEAD`), log line count, and ignore patterns for `wiki-engine`.
+- Makefile wiki targets unchanged externally but now delegate to `wiki-engine` subcommands; `wiki-ingest-candidates` renamed to `wiki-candidates`.
+- Added `wiki/` and `scripts/` to `.dockerignore` so neither the wiki nor the now-deleted scripts directory affects Docker image builds.
+- Updated prompts, operation pages, and all docs to reference `wiki-engine <subcommand>` instead of `make wiki-*` and `scripts/`.
+- Removed `theme-preview.html` (standalone dev preview file, no longer needed).
+
 ## [2026-04-13] bootstrap | established repo-local wiki scaffold
 
 - Added a dedicated `wiki/` directory with a stable index, log, schema, operations, and rollout plan.

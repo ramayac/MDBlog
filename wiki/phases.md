@@ -110,7 +110,7 @@ Deliverables:
 Implemented in MDBlog:
 
 - `make wiki-changed`
-- `make wiki-ingest-candidates`
+- `make wiki-candidates`
 - Ingest filtering excludes `posts/`, generated artifacts, and temporary noise.
 
 ## Phase 8 | Define reusable repo template
