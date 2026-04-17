@@ -56,43 +56,7 @@ make wiki-refresh    # Show wiki files, recent log, diff-driven inputs, and lint
 
 ## Repository Wiki
 
-This repo includes a persistent `wiki/` directory for architecture notes, operating procedures, and durable answers that should survive beyond a single chat session.
-
-- Start with `wiki/index.md`.
-- Check recent history in `wiki/log.md`.
-- Use `wiki/operations/ingest.md`, `wiki/operations/query.md`, and `wiki/operations/lint.md` for the repeatable workflow.
-- Treat `posts/` as excluded from routine wiki maintenance.
-
-Wiki inspection is powered by the global [`wiki-engine`](https://github.com/ramayac/go-wiki-engine) CLI. Install it once:
-
-```bash
-go install github.com/ramayac/go-wiki-engine/cmd/wiki-engine@latest
-```
-
-Typical inspection commands:
-
-```bash
-wiki-engine list
-wiki-engine headings
-wiki-engine log-tail
-wiki-engine search <term>
-wiki-engine changed
-wiki-engine candidates
-wiki-engine lint
-wiki-engine refresh
-```
-
-Configuration (ignore patterns, diff base, etc.) lives in `.wikirc` at the repo root.
-
-`wiki-engine refresh` short-circuits when there are no ingest candidates in the configured diff range.
-
-On-demand chat prompts are available under `.github/prompts/`:
-
-```text
-/wiki-refresh
-/wiki-ingest
-/wiki-query
-```
+This repo maintains a persistent `wiki/` directory powered by [go-wiki-engine](https://github.com/ramayac/go-wiki-engine).
 
 ## Deployment (AWS Lambda)
 
