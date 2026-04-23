@@ -185,6 +185,6 @@ Markdown body here.
 
 ## Wiki-Relevant Facts
 
-- The root `AGENTS.md` is a primary instruction surface for the agent.
+- The `wiki/agents.md` file is a primary instruction surface for the agent.
 - The repo now uses `wiki/` as the persistent knowledge layer for architecture and process notes.
 - The wiki should summarize code and workflows, not duplicate or rewrite user-authored posts.

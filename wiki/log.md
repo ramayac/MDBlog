@@ -1,5 +1,13 @@
 # Wiki Log
 
+## [2026-04-22] ingest | migrated AGENTS.md to wiki and linked prompts
+
+- Moved root `AGENTS.md` to `wiki/agents.md` to consolidate agent instructions into the persistent knowledge layer.
+- Created a shim `AGENTS.md` at the root that redirects agents to the wiki.
+- Updated `wiki/index.md` to include `agents.md` and added a link to the `.github/prompts/` directory.
+- Updated `wiki/repo-map.md` and self-references in `agents.md` to reflect the new location.
+- Verified that `AGENTS.md` remains a primary instruction surface, now versioned and maintained as part of the wiki.
+
 ## [2026-04-16] ingest | migrated wiki maintenance from scripts to wiki-engine CLI
 
 - Deleted all 8 `scripts/wiki-*.sh` helpers; wiki maintenance now runs through the global `wiki-engine` binary (`github.com/ramayac/go-wiki-engine`).
